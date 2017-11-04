@@ -1,0 +1,14 @@
+﻿<form class="form-inline">
+    <div class="form-group ">
+        <input id="ticker" type="text" placeholder="Ticker" required class="form-control" ng-model="ticker" />
+        <input id="fromDate" type="text" placeholder="From date" class="form-control" ng-model="fromDate" />
+        <input id="toDate" type="text" placeholder="To date" class="form-control" ng-model="toDate" />
+        <select id="importer" class="form-control" ng-model="importer" ng-init="importer = importers[0]">
+            <option ng-repeat="imp in importers" value="{{imp}}">{{imp}}</option>
+        </select>
+        <input value="Load chart" type="button" class="btn btn-primary " ng-click="load_chart()" />
+    </div>
+</form>
+
+<div id="chart">
+</div>
