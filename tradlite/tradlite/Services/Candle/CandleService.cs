@@ -9,7 +9,7 @@ namespace Tradlite.Services.CandleService
 {
     public interface ICandleService
     {
-        Task<IReadOnlyList<Candle>> GetCandles(string ticker, DateTime? fromDate, DateTime? toDate, string importer = "Yahoo");
+        Task<IReadOnlyList<Candle>> GetCandles(string ticker, DateTime? fromDate, DateTime? toDate, string importer = "Yahoo", string interval = "DAY");
     }
     public class CandleService : ICandleService
     {
@@ -19,7 +19,7 @@ namespace Tradlite.Services.CandleService
         {
             _serviceAccessor = serviceAccessor;
         }
-        public async Task<IReadOnlyList<Candle>> GetCandles(string ticker, DateTime? fromDate, DateTime? toDate, string importer = "Yahoo")
+        public async Task<IReadOnlyList<Candle>> GetCandles(string ticker, DateTime? fromDate, DateTime? toDate, string importer = "Yahoo", string interval = "DAY")
         {
             if(!fromDate.HasValue)
             {
@@ -31,7 +31,7 @@ namespace Tradlite.Services.CandleService
                 toDate = DateTime.Now;
             }
 
-            return await _serviceAccessor(importer).ImportAsync(ticker, fromDate.Value, toDate.Value);
+            return await _serviceAccessor(importer).ImportAsync(ticker, fromDate.Value, toDate.Value, interval.ToTradyPeriod());
         }
     }
 }

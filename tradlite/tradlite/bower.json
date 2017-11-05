@@ -7,6 +7,8 @@
     "jquery-validation": "1.14.0",
     "jquery-validation-unobtrusive": "3.2.6",
     "techan": "0.8.0",
-    "angular": "angularjs#v1.6.7-build.5496+sha.181ac0b"
+    "angular": "angularjs#v1.6.7-build.5496+sha.181ac0b",
+    "angular-ui-router": "ui-router#SNAPSHOT-20170629",
+    "lodash": "4.17.4"
   }
 }

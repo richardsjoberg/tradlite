@@ -22,8 +22,12 @@
         <script src="~/lib/angular/angular.js"></script>
         <script src="~/lib/jquery/dist/jquery.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="~/lib/lodash/dist/lodash.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
-        <script src="~/components/chart/chart.component.js"></script>
+        <script src="~/js/services.js" asp-append-version="true"></script>
+        <script src="~/js/components.js" asp-append-version="true"></script>
+        <script src="~/lib/angular-ui-router/release/angular-ui-router.js"></script>
+        
     </environment>
     <environment exclude="Development">
         <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
@@ -59,15 +63,19 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li><a asp-area="" asp-controller="Home" asp-action="Index">Chart</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="TechanTest">TechanTest</a></li>
+                    @*<li><a asp-area="" asp-controller="Home" asp-action="SignalConfig">SignalConfig</a></li>*@
+                    <li><a ui-sref="ticker">Ticker config</a></li>
+                    <li><a ui-sref="tickerList">Ticker list config</a></li>
+                    <li><a ui-sref="signalConfig">Signal config</a></li>
                 </ul>
             </div>
         </div>
     </nav>
     
     <div class="container body-content">
+        <ui-view></ui-view>
         @RenderBody()
+        
     </div>
     
 </body>

@@ -1,0 +1,20 @@
+﻿<form class="form-inline">
+    <div class="form-group ">
+        <!--ToDo get data by tickerlist-->
+        <input type="text" placeholder="From date" class="form-control" ng-model="fromDate" />
+        <input type="text" placeholder="To date" class="form-control" ng-model="toDate" />
+        <select class="form-control" ng-model="interval">
+            <option ng-repeat="interv in intervals" ng-value="interv">{{interv}}</option>
+        </select>
+        <select class="form-control" ng-model="buySignalConfig">
+            <option selected value="">Select buy signal</option>
+            <option ng-repeat="signalConfig in buySignalConfigs" ng-value="signalConfig">{{signalConfig.name}}</option>
+        </select>
+        <select class="form-control" ng-model="sellSignalConfig">
+            <option selected value="">Select sell signal</option>
+            <option ng-repeat="signalConfig in sellSignalConfigs" ng-value="signalConfig">{{signalConfig.name}}</option>
+        </select>
+        <input value="Load chart" type="button" class="btn btn-primary " ng-click="load_chart()" />
+    </div>
+</form>
+<techan-chart candles="candles" buy-indicies="buyIndicies" sell-indicies="sellIndicies"></techan-chart>

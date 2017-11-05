@@ -9,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Tradlite.Services.CandleService;
 using Trady.Core.Infrastructure;
 using Trady.Importer;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace Tradlite
 {
@@ -52,7 +54,12 @@ namespace Tradlite
                 };
                 return accesor;
             });
+            var connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\richard\source\repos\tradlite\tradlite\tradlite\tradlite.mdf;Integrated Security=True;Connect Timeout=30";
             services.AddSingleton<ICandleService, CandleService>();
+            services.AddTransient<IDbConnection, SqlConnection>(factory=> 
+            {
+                return new SqlConnection(connectionString);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

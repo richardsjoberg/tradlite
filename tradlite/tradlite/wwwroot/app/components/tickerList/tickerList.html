@@ -1,0 +1,71 @@
+﻿
+<form class="form-inline">
+    <div class="form-group ">
+        <input type="text" ng-disabled="true" class="form-control" placeholder="id" ng-model="model.id" />
+        <input type="text" class="form-control" placeholder="name" ng-model="model.name" />
+        <input value="Save" type="button" class="btn btn-primary" ng-click="save(model)" />
+        <input value="New ticker list" type="button" class="btn btn-primary" ng-click="clear_form()" />
+        <select class="form-control" ng-model="ticker">
+            <option ng-repeat="ticker in tickers" ng-value="ticker">{{ticker.name}}</option>
+        </select>
+        <input value="Add ticker" type="button" class="btn btn-primary" ng-click="add_ticker(ticker)" />
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>
+                            Id
+                        </th>
+                        <th>
+                            Name
+                        </th>
+                        <th>
+
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="tickerList in tickerLists">
+                        <td>
+                            {{tickerList.id}}
+                        </td>
+                        <td>
+                            {{tickerList.name}}
+                        </td>
+                        <td>
+                            <span role="button" class="glyphicon glyphicon-edit pointer" ng-click="edit(tickerList)"></span>
+                            <span role="button" class="glyphicon glyphicon-trash pointer" ng-click="delete(tickerList)"></span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-sm-6">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>
+                            Ticker
+                        </th>
+                        <th>
+
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="ticker in tickerListTickers">
+                        <td>
+                            {{ticker.name}}
+                        </td>
+                        <td>
+                            <span role="button" class="glyphicon glyphicon-trash pointer" ng-click="remove_ticker(ticker, model.id)"></span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+</form>

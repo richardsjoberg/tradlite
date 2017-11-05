@@ -1,0 +1,56 @@
+﻿<form class="form-inline">
+    <div class="form-group ">
+        <input type="text" ng-disabled="true" class="form-control" placeholder="id" ng-model="model.id" />
+        <input type="text" class="form-control" placeholder="name" ng-model="model.name" />
+        <input type="text" required class="form-control" placeholder="symbol" ng-model="model.symbol" />
+        <select class="form-control" ng-model="model.importer">
+            <option ng-repeat="imp in importers" ng-value="imp.name">{{imp.name}}</option>
+        </select>
+        <input value="Save" type="button" class="btn btn-primary" ng-click="save(model)" />
+        <input value="New" type="button" class="btn btn-primary" ng-click="clear_form()" />
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>
+                    Id
+                </th>
+                <th>
+                    Name
+                </th>
+                <th>
+                    Symbol
+                </th>
+                <th>
+                    Importer
+                </th>
+                <th>
+                    Type
+                </th>
+                <th>
+
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="ticker in tickers">
+                <td>
+                    {{ticker.id}}
+                </td>
+                <td>
+                    {{ticker.name}}
+                </td>
+                <td>
+                    {{ticker.symbol}}
+                </td>
+                <td>
+                    {{ticker.importer}}
+                </td>
+                <td>
+                    <span role="button" class="glyphicon glyphicon-edit pointer" ng-click="edit(ticker)"></span>
+                    <span role="button" class="glyphicon glyphicon-trash pointer" ng-click="delete(ticker)"></span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>

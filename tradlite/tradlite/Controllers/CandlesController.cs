@@ -11,6 +11,7 @@ using Trady.Importer;
 using Trady.Analysis.Candlestick;
 using Trady.Analysis;
 using Tradlite.Services.CandleService;
+using Tradlite.Models.Requests;
 
 namespace Tradlite.Controllers
 {
@@ -25,9 +26,9 @@ namespace Tradlite.Controllers
         }
 
         [Route("api/candles")]
-        public async Task<IReadOnlyList<Candle>> Candles([FromQuery]string ticker, [FromQuery]DateTime? fromDate, [FromQuery]DateTime? toDate, [FromQuery]string importer = "Yahoo")
+        public async Task<IReadOnlyList<Candle>> Candles([FromQuery]CandleRequest request)
         {
-            var candles = await _candleService.GetCandles(ticker, fromDate, toDate, importer);
+            var candles = await _candleService.GetCandles(request.Ticker, request.FromDate, request.ToDate, request.Importer, request.Interval);
             return candles;
         }
         
