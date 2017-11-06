@@ -17,17 +17,17 @@
                 promise = httpService.post("/api/ticker", ticker);
             }
             promise.then(function () {
-                fetchData();
+                getData();
             });
         }
 
         $scope.delete = function (ticker) {
             httpService.delete("/api/ticker/" + ticker.id).then(function () {
-                fetchData();
+                getData();
             });
         }
 
-        function fetchData() {
+        function getData() {
             httpService.get("/api/ticker").then(function (response) {
                 $scope.tickers = response.data;
             });
@@ -37,7 +37,7 @@
             $scope.model = {};
             $scope.importers = importerService.get();
             $scope.model.importer = $scope.importers[0].name;
-            fetchData();
+            getData();
         }
         init();
     }

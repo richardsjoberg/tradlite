@@ -1,6 +1,8 @@
 ﻿<form class="form-inline">
     <div class="form-group ">
-        <!--ToDo get data by tickerlist-->
+        <select class="form-control" ng-model="tickerList" ng-change="ticker_list_changed(tickerList)">
+            <option ng-repeat="tickerList in tickerLists" ng-value="tickerList">{{tickerList.name}}</option>
+        </select>
         <input type="text" placeholder="From date" class="form-control" ng-model="fromDate" />
         <input type="text" placeholder="To date" class="form-control" ng-model="toDate" />
         <select class="form-control" ng-model="interval">
@@ -14,7 +16,9 @@
             <option selected value="">Select sell signal</option>
             <option ng-repeat="signalConfig in sellSignalConfigs" ng-value="signalConfig">{{signalConfig.name}}</option>
         </select>
-        <input value="Load chart" type="button" class="btn btn-primary " ng-click="load_chart()" />
+        <input value="Previous ticker" type="button" class="btn btn-primary " ng-click="previous_ticker()" />
+        <input value="Next ticker" type="button" class="btn btn-primary " ng-click="next_ticker()" />
+        <input value="Refresh" type="button" class="btn btn-primary" ng-click="load_chart()" />
     </div>
 </form>
-<techan-chart candles="candles" buy-indicies="buyIndicies" sell-indicies="sellIndicies"></techan-chart>
+<techan-chart candles="candles" buy-indicies="buyIndicies" sell-indicies="sellIndicies" ticker-label="tickers[currentTickerIndex].name + ', ' + tickers[currentTickerIndex].symbol"></techan-chart>

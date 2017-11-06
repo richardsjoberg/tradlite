@@ -2,7 +2,6 @@
     templateUrl: "/app/components/mainChart/mainChart.html",
     controller: function ($scope, $q, httpService, storageService, importerService) {
         $scope.load_chart = function () {
-            console.log($scope.interval);
             var request = { ticker: $scope.ticker, fromDate: $scope.fromDate, toDate: $scope.toDate, importer: $scope.importer.name, interval: $scope.interval };
             setSessionStorage();
             httpService.get("/api/candles", request).then(function (candleResponse) {
@@ -26,7 +25,7 @@
             });
         }
 
-        function fetchSignalConfigs() {
+        function getSignalConfigs() {
             var promise1 = httpService.get("/api/signalconfig/buy");
             var promise2 = httpService.get("/api/signalconfig/sell");
             $q.all([promise1, promise2]).then(function (responses) {
@@ -63,7 +62,7 @@
                 storageService.setSessionStorage(undefined, "sellSignalConfig");
         }
 
-        function fetchDataFromSessionStorage() {
+        function getDataFromSessionStorage() {
             if (storageService.getSessionStorage("ticker"))
                 $scope.ticker = storageService.getSessionStorage("ticker");
 
@@ -86,8 +85,8 @@
             $scope.importer_changed($scope.importers[0]);
             $scope.buyIndicies = [];
             $scope.sellIndicies = [];
-            fetchSignalConfigs();
-            fetchDataFromSessionStorage();
+            getSignalConfigs();
+            getDataFromSessionStorage();
         }
     }
 });

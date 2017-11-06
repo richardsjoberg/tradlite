@@ -18,6 +18,10 @@ tradliteApp.config(function ($stateProvider, $urlRouterProvider) {
         .state("tickerList", {
             url: "/tickerlist",
             component: "tickerList"
+        })
+        .state("browseTickers", {
+            url: "/browsetickers",
+            component: "browseTickers"
         });
     
 

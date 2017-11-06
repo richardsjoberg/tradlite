@@ -17,17 +17,17 @@
                 promise = httpService.post("/api/signalconfig", signalConfig);
             }
             promise.then(function () {
-                fetchData();
+                getData();
             });
         }
 
         $scope.delete = function (signalConfig) {
             httpService.delete("/api/signalconfig/" + signalConfig.id).then(function () {
-                fetchData();
+                getData();
             });
         }
 
-        function fetchData() {
+        function getData() {
             httpService.get("/api/signalconfig").then(function (response) {
                 $scope.signalConfigs = response.data;
             });
@@ -35,7 +35,7 @@
 
         function init() {
             $scope.types = ['buy', 'sell'];
-            fetchData();
+            getData();
         }
         init();
     }

@@ -1,32 +1,7 @@
-tradliteApp.component("mainChart", {
-    templateUrl: "/app/components/mainChart/mainChart.html",
+tradliteApp.component("browseTickers", {
+    templateUrl: "/app/components/browseTickers/browseTickers.html",
     controller: function ($scope, $q, httpService, storageService, importerService) {
-        $scope.load_chart = function () {
-            console.log($scope.interval);
-            var request = { ticker: $scope.ticker, fromDate: $scope.fromDate, toDate: $scope.toDate, importer: $scope.importer.name, interval: $scope.interval };
-            setSessionStorage();
-            httpService.get("/api/candles", request).then(function (candleResponse) {
-                $scope.candles = candleResponse.data;
-                if ($scope.buySignalConfig) {
-                    if ($scope.buySignalConfig.extraParams) {
-                        request.extraParams = $scope.buySignalConfig.extraParams
-                    }
-                    httpService.get($scope.buySignalConfig.endpoint, request).then(function (buyResponse) {
-                        $scope.buyIndicies = buyResponse.data;
-                    });
-                }
-                if ($scope.sellSignalConfig) {
-                    if ($scope.sellSignalConfig.extraParams) {
-                        request.extraParams = $scope.sellSignalConfig.extraParams
-                    }
-                    httpService.get($scope.sellSignalConfig.endpoint, request).then(function (sellResponse) {
-                        $scope.sellIndicies = sellResponse.data;
-                    });
-                }
-            });
-        }
-
-        function fetchSignalConfigs() {
+        function getSignalConfigs() {
             var promise1 = httpService.get("/api/signalconfig/buy");
             var promise2 = httpService.get("/api/signalconfig/sell");
             $q.all([promise1, promise2]).then(function (responses) {
@@ -49,9 +24,10 @@ tradliteApp.component("mainChart", {
         }
 
         function setSessionStorage() {
-            storageService.setSessionStorage($scope.ticker, "ticker");
+            storageService.setSessionStorage($scope.currentTickerIndex, "currentTickerIndex");
             storageService.setSessionStorage($scope.fromDate, "fromDate");
             storageService.setSessionStorage($scope.toDate, "toDate");
+            storageService.setSessionStorage($scope.interval, "interval");
             if ($scope.buySignalConfig)
                 storageService.setSessionStorage($scope.buySignalConfig.id, "buySignalConfig");
             else
@@ -63,10 +39,7 @@ tradliteApp.component("mainChart", {
                 storageService.setSessionStorage(undefined, "sellSignalConfig");
         }
 
-        function fetchDataFromSessionStorage() {
-            if (storageService.getSessionStorage("ticker"))
-                $scope.ticker = storageService.getSessionStorage("ticker");
-
+        function getDataFromSessionStorage() {
             if (storageService.getSessionStorage("fromDate"))
                 $scope.fromDate = storageService.getSessionStorage("fromDate");
 
@@ -75,8 +48,73 @@ tradliteApp.component("mainChart", {
         }
 
         $scope.importer_changed = function (importer) {
-            $scope.tickerPlaceholder = importer.tickerPlaceholder;
             $scope.intervals = importer.intervals;
+        }
+
+        function getTickerLists() {
+            httpService.get("/api/tickerList").then(function (response) {
+                $scope.tickerLists = response.data;
+                $scope.tickerList = $scope.tickerLists[0];
+                $scope.ticker_list_changed($scope.tickerLists[0]);
+            });
+        }
+
+        $scope.ticker_list_changed = function (tickerList) {
+            getTickers(tickerList.id);
+        }
+
+        function getTickers(tickerListId) {
+            httpService.get("/api/ticker/" + tickerListId).then(function (response) {
+                $scope.tickers = response.data;
+                $scope.currentTickerIndex = 0;
+                $scope.load_chart();
+            });
+        }
+
+        $scope.next_ticker = function () {
+            if ($scope.tickers.length - 1 > $scope.currentTickerIndex)
+            {
+                $scope.currentTickerIndex++;
+            } else {
+                $scope.currentTickerIndex = 0;
+            }
+
+            $scope.load_chart();
+        }
+
+        $scope.previous_ticker = function () {
+            if ($scope.currentTickerIndex > 0) {
+                $scope.currentTickerIndex--;
+            } else {
+                $scope.currentTickerIndex++;
+            }
+
+            $scope.load_chart();
+        }
+
+        $scope.load_chart = function () {
+            var ticker = $scope.tickers[$scope.currentTickerIndex];
+            var request = { ticker: ticker.symbol, fromDate: $scope.fromDate, toDate: $scope.toDate, importer: ticker.importer, interval: $scope.interval };
+            setSessionStorage();
+            httpService.get("/api/candles", request).then(function (candleResponse) {
+                $scope.candles = candleResponse.data;
+                if ($scope.buySignalConfig) {
+                    if ($scope.buySignalConfig.extraParams) {
+                        request.extraParams = $scope.buySignalConfig.extraParams
+                    }
+                    httpService.get($scope.buySignalConfig.endpoint, request).then(function (buyResponse) {
+                        $scope.buyIndicies = buyResponse.data;
+                    });
+                }
+                if ($scope.sellSignalConfig) {
+                    if ($scope.sellSignalConfig.extraParams) {
+                        request.extraParams = $scope.sellSignalConfig.extraParams
+                    }
+                    httpService.get($scope.sellSignalConfig.endpoint, request).then(function (sellResponse) {
+                        $scope.sellIndicies = sellResponse.data;
+                    });
+                }
+            });
         }
 
         this.$onInit = function () {
@@ -86,8 +124,9 @@ tradliteApp.component("mainChart", {
             $scope.importer_changed($scope.importers[0]);
             $scope.buyIndicies = [];
             $scope.sellIndicies = [];
-            fetchSignalConfigs();
-            fetchDataFromSessionStorage();
+            getSignalConfigs();
+            getDataFromSessionStorage();
+            getTickerLists();
         }
     }
 });
@@ -95,7 +134,6 @@ tradliteApp.component("mainChart", {
     templateUrl: "/app/components/mainChart/mainChart.html",
     controller: function ($scope, $q, httpService, storageService, importerService) {
         $scope.load_chart = function () {
-            console.log($scope.interval);
             var request = { ticker: $scope.ticker, fromDate: $scope.fromDate, toDate: $scope.toDate, importer: $scope.importer.name, interval: $scope.interval };
             setSessionStorage();
             httpService.get("/api/candles", request).then(function (candleResponse) {
@@ -119,7 +157,7 @@ tradliteApp.component("mainChart", {
             });
         }
 
-        function fetchSignalConfigs() {
+        function getSignalConfigs() {
             var promise1 = httpService.get("/api/signalconfig/buy");
             var promise2 = httpService.get("/api/signalconfig/sell");
             $q.all([promise1, promise2]).then(function (responses) {
@@ -156,7 +194,7 @@ tradliteApp.component("mainChart", {
                 storageService.setSessionStorage(undefined, "sellSignalConfig");
         }
 
-        function fetchDataFromSessionStorage() {
+        function getDataFromSessionStorage() {
             if (storageService.getSessionStorage("ticker"))
                 $scope.ticker = storageService.getSessionStorage("ticker");
 
@@ -179,8 +217,8 @@ tradliteApp.component("mainChart", {
             $scope.importer_changed($scope.importers[0]);
             $scope.buyIndicies = [];
             $scope.sellIndicies = [];
-            fetchSignalConfigs();
-            fetchDataFromSessionStorage();
+            getSignalConfigs();
+            getDataFromSessionStorage();
         }
     }
 });
@@ -203,17 +241,17 @@ tradliteApp.component("signalConfig", {
                 promise = httpService.post("/api/signalconfig", signalConfig);
             }
             promise.then(function () {
-                fetchData();
+                getData();
             });
         }
 
         $scope.delete = function (signalConfig) {
             httpService.delete("/api/signalconfig/" + signalConfig.id).then(function () {
-                fetchData();
+                getData();
             });
         }
 
-        function fetchData() {
+        function getData() {
             httpService.get("/api/signalconfig").then(function (response) {
                 $scope.signalConfigs = response.data;
             });
@@ -221,7 +259,7 @@ tradliteApp.component("signalConfig", {
 
         function init() {
             $scope.types = ['buy', 'sell'];
-            fetchData();
+            getData();
         }
         init();
     }
@@ -231,7 +269,8 @@ tradliteApp.component("techanChart", {
     bindings: {
         candles: '<',
         buyIndicies: '<',
-        sellIndicies: '<'
+        sellIndicies: '<',
+        tickerLabel: '<'
     },
     controller: function ($scope, $window) {
         var width;
@@ -268,6 +307,9 @@ tradliteApp.component("techanChart", {
         var self = this;
         this.$onChanges = function () {
             if (self.candles) {
+                candles = undefined;
+                buyRules = undefined;
+                sellRules = undefined;
                 d3.select("#chart").selectAll("*").remove();
                 initChart();
                 candles = self.candles;
@@ -359,7 +401,7 @@ tradliteApp.component("techanChart", {
             svg.append('text')
                 .attr("class", "symbol")
                 .attr("x", 20)
-                .text($scope.ticker);
+                .text(self.tickerLabel);
             // Stash for zooming
             zoomableInit = x.zoomable().domain([indicatorPreRoll, data.length]).copy(); // Zoom in a little to hide indicator preroll
             yInit = y.copy();
@@ -607,17 +649,17 @@ tradliteApp.component("ticker", {
                 promise = httpService.post("/api/ticker", ticker);
             }
             promise.then(function () {
-                fetchData();
+                getData();
             });
         }
 
         $scope.delete = function (ticker) {
             httpService.delete("/api/ticker/" + ticker.id).then(function () {
-                fetchData();
+                getData();
             });
         }
 
-        function fetchData() {
+        function getData() {
             httpService.get("/api/ticker").then(function (response) {
                 $scope.tickers = response.data;
             });
@@ -627,7 +669,7 @@ tradliteApp.component("ticker", {
             $scope.model = {};
             $scope.importers = importerService.get();
             $scope.model.importer = $scope.importers[0].name;
-            fetchData();
+            getData();
         }
         init();
     }
@@ -654,13 +696,13 @@ tradliteApp.component("tickerList", {
                 promise = httpService.post("/api/tickerList", tickerList);
             }
             promise.then(function () {
-                fetchData();
+                getData();
             });
         }
 
         $scope.delete = function (tickerList) {
             httpService.delete("/api/tickerList/" + tickerList.id).then(function () {
-                fetchData();
+                getData();
             });
         }
 
@@ -676,7 +718,7 @@ tradliteApp.component("tickerList", {
             });
         }
 
-        function fetchData() {
+        function getData() {
             httpService.get("/api/tickerList").then(function (response) {
                 $scope.tickerLists = response.data;
             });
@@ -690,7 +732,7 @@ tradliteApp.component("tickerList", {
             $scope.model = {};
             $scope.importers = importerService.get();
             $scope.model.importer = $scope.importers[0].name;
-            fetchData();
+            getData();
         }
         init();
     }

@@ -59,14 +59,17 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">tradlite</a>
+                <a ui-sref="mainChart" class="navbar-brand">tradlite</a>
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     @*<li><a asp-area="" asp-controller="Home" asp-action="SignalConfig">SignalConfig</a></li>*@
+                    <li><a ui-sref="mainChart">Chart</a></li>
+                    <li><a ui-sref="browseTickers">Browse tickers</a></li>
                     <li><a ui-sref="ticker">Ticker config</a></li>
                     <li><a ui-sref="tickerList">Ticker list config</a></li>
                     <li><a ui-sref="signalConfig">Signal config</a></li>
+                    
                 </ul>
             </div>
         </div>

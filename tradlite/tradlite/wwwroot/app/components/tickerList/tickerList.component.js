@@ -20,13 +20,13 @@
                 promise = httpService.post("/api/tickerList", tickerList);
             }
             promise.then(function () {
-                fetchData();
+                getData();
             });
         }
 
         $scope.delete = function (tickerList) {
             httpService.delete("/api/tickerList/" + tickerList.id).then(function () {
-                fetchData();
+                getData();
             });
         }
 
@@ -42,7 +42,7 @@
             });
         }
 
-        function fetchData() {
+        function getData() {
             httpService.get("/api/tickerList").then(function (response) {
                 $scope.tickerLists = response.data;
             });
@@ -56,7 +56,7 @@
             $scope.model = {};
             $scope.importers = importerService.get();
             $scope.model.importer = $scope.importers[0].name;
-            fetchData();
+            getData();
         }
         init();
     }

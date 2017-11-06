@@ -3,7 +3,8 @@
     bindings: {
         candles: '<',
         buyIndicies: '<',
-        sellIndicies: '<'
+        sellIndicies: '<',
+        tickerLabel: '<'
     },
     controller: function ($scope, $window) {
         var width;
@@ -40,6 +41,9 @@
         var self = this;
         this.$onChanges = function () {
             if (self.candles) {
+                candles = undefined;
+                buyRules = undefined;
+                sellRules = undefined;
                 d3.select("#chart").selectAll("*").remove();
                 initChart();
                 candles = self.candles;
@@ -131,7 +135,7 @@
             svg.append('text')
                 .attr("class", "symbol")
                 .attr("x", 20)
-                .text($scope.ticker);
+                .text(self.tickerLabel);
             // Stash for zooming
             zoomableInit = x.zoomable().domain([indicatorPreRoll, data.length]).copy(); // Zoom in a little to hide indicator preroll
             yInit = y.copy();
