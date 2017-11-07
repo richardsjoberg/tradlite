@@ -264,6 +264,8 @@ tradliteApp.component("signalConfig", {
         init();
     }
 });
+//http://bl.ocks.org/andredumas/edf630690c10b89be390
+
 tradliteApp.component("techanChart", {
     templateUrl: "/app/components/techanChart/techanChart.html",
     bindings: {
@@ -342,6 +344,7 @@ tradliteApp.component("techanChart", {
             svg.select("g.close.annotation").call(closeAnnotation.refresh);
             svg.select("g.volume").call(volume.refresh);
             svg.select("g.tradearrow").call(tradearrow.refresh);
+            svg.select("g.supstances").call(supstance.refresh);
         }
 
         function drawChart() {
@@ -368,9 +371,12 @@ tradliteApp.component("techanChart", {
             //    { start: { date: new Date(2013, 10, 21), value: 43 }, end: { date: new Date(2014, 2, 17), value: 70.50 } }
             //];
 
+            var startDate = data[0].date;
+            var endDate = data[data.length-1].date
+
             //var supstanceData = [
-            //    { start: new Date(2014, 2, 11), end: new Date(2014, 5, 9), value: 63.64 },
-            //    { start: new Date(2013, 10, 21), end: new Date(2014, 2, 17), value: 55.50 }
+            //    { start: startDate, end: endDate, value: 63.64 },
+            //    { start: startDate, end: endDate, value: 55.50 }
             //];
 
             var buySignals = buyRules.map(function (index) {
@@ -402,6 +408,8 @@ tradliteApp.component("techanChart", {
                 .attr("class", "symbol")
                 .attr("x", 20)
                 .text(self.tickerLabel);
+
+            //svg.select("g.supstances").datum(supstanceData).call(supstance).call(supstance.drag);
             // Stash for zooming
             zoomableInit = x.zoomable().domain([indicatorPreRoll, data.length]).copy(); // Zoom in a little to hide indicator preroll
             yInit = y.copy();
@@ -713,7 +721,7 @@ tradliteApp.component("tickerList", {
         }
 
         $scope.remove_ticker = function (ticker) {
-            httpService.post("api/tickerlist/removeticker/" + $scope.model.id + "/" + ticker.id).then(function () {
+            httpService.delete("api/tickerlist/removeticker/" + $scope.model.id + "/" + ticker.id).then(function () {
                 $scope.edit($scope.model);
             });
         }

@@ -2,10 +2,11 @@
     <div class="form-group ">
         <input type="text" ng-disabled="true" class="form-control" placeholder="id" ng-model="model.id" />
         <input type="text" class="form-control" placeholder="name" ng-model="model.name" />
-        <input type="text" required class="form-control" placeholder="symbol" ng-model="model.symbol" />
+        <input type="text" class="form-control" placeholder="symbol" ng-model="model.symbol" />
         <select class="form-control" ng-model="model.importer">
             <option ng-repeat="imp in importers" ng-value="imp.name">{{imp.name}}</option>
         </select>
+        <input type="text" class="form-control" placeholder="Tags" ng-model="model.tags" />
         <input value="Save" type="button" class="btn btn-primary" ng-click="save(model)" />
         <input value="New" type="button" class="btn btn-primary" ng-click="clear_form()" />
     </div>
@@ -25,7 +26,7 @@
                     Importer
                 </th>
                 <th>
-                    Type
+                    Tags
                 </th>
                 <th>
 
@@ -45,6 +46,9 @@
                 </td>
                 <td>
                     {{ticker.importer}}
+                </td>
+                <td>
+                    {{ticker.tags}}
                 </td>
                 <td>
                     <span role="button" class="glyphicon glyphicon-edit pointer" ng-click="edit(ticker)"></span>

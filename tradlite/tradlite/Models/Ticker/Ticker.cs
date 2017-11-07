@@ -10,5 +10,6 @@ namespace Tradlite.Models
         public string Name { get; set; }
         public string Symbol { get; set; }
         public string Importer { get; set; }
+        public string Tags { get; set; }
     }
 }

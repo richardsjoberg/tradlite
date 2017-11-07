@@ -11,6 +11,7 @@ using Trady.Core.Infrastructure;
 using Trady.Importer;
 using System.Data;
 using System.Data.SqlClient;
+using Tradlite.Services;
 
 namespace Tradlite
 {
@@ -56,6 +57,7 @@ namespace Tradlite
             });
             var connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\richard\source\repos\tradlite\tradlite\tradlite\tradlite.mdf;Integrated Security=True;Connect Timeout=30";
             services.AddSingleton<ICandleService, CandleService>();
+            services.AddSingleton<IHttpService, HttpService>();
             services.AddTransient<IDbConnection, SqlConnection>(factory=> 
             {
                 return new SqlConnection(connectionString);

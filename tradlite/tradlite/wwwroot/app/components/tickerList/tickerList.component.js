@@ -37,7 +37,7 @@
         }
 
         $scope.remove_ticker = function (ticker) {
-            httpService.post("api/tickerlist/removeticker/" + $scope.model.id + "/" + ticker.id).then(function () {
+            httpService.delete("api/tickerlist/removeticker/" + $scope.model.id + "/" + ticker.id).then(function () {
                 $scope.edit($scope.model);
             });
         }

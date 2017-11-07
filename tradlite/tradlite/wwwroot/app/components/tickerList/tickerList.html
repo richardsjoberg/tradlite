@@ -6,7 +6,7 @@
         <input value="Save" type="button" class="btn btn-primary" ng-click="save(model)" />
         <input value="New ticker list" type="button" class="btn btn-primary" ng-click="clear_form()" />
         <select class="form-control" ng-model="ticker">
-            <option ng-repeat="ticker in tickers" ng-value="ticker">{{ticker.name}}</option>
+            <option ng-repeat="ticker in tickers" ng-value="ticker">{{ticker.name}} ({{ticker.importer}})</option>
         </select>
         <input value="Add ticker" type="button" class="btn btn-primary" ng-click="add_ticker(ticker)" />
     </div>
