@@ -100,18 +100,22 @@ tradliteApp.component("browseTickers", {
                 $scope.candles = candleResponse.data;
                 if ($scope.buySignalConfig) {
                     if ($scope.buySignalConfig.extraParams) {
-                        request.extraParams = $scope.buySignalConfig.extraParams
+                        var buySignalRequest = angular.copy(request);
+                        buySignalRequest.extraParams = $scope.buySignalConfig.extraParams
                     }
-                    httpService.get($scope.buySignalConfig.endpoint, request).then(function (buyResponse) {
+                    httpService.get($scope.buySignalConfig.endpoint, buySignalRequest).then(function (buyResponse) {
                         $scope.buyIndicies = buyResponse.data;
+                        console.log(buyResponse.data);
                     });
                 }
                 if ($scope.sellSignalConfig) {
                     if ($scope.sellSignalConfig.extraParams) {
-                        request.extraParams = $scope.sellSignalConfig.extraParams
+                        var sellSignalRequest = angular.copy(request);
+                        sellSignalRequest.extraParams = $scope.sellSignalConfig.extraParams
                     }
-                    httpService.get($scope.sellSignalConfig.endpoint, request).then(function (sellResponse) {
+                    httpService.get($scope.sellSignalConfig.endpoint, sellSignalRequest).then(function (sellResponse) {
                         $scope.sellIndicies = sellResponse.data;
+                        console.log(sellResponse.data);
                     });
                 }
             });
