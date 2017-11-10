@@ -21,13 +21,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Trady\Trady.Analysis\Trady.Analysis.csproj" />
-    <ProjectReference Include="..\..\..\Trady\Trady.Core\Trady.Core.csproj" />
-    <ProjectReference Include="..\..\..\Trady\Trady.Importer.Csv\Trady.Importer.Csv.csproj" />
-    <ProjectReference Include="..\..\..\Trady\Trady.Importer.Google\Trady.Importer.Google.csproj" />
-    <ProjectReference Include="..\..\..\Trady\Trady.Importer.Quandl\Trady.Importer.Quandl.csproj" />
-    <ProjectReference Include="..\..\..\Trady\Trady.Importer.Stooq\Trady.Importer.Stooq.csproj" />
-    <ProjectReference Include="..\..\..\Trady\Trady.Importer.Yahoo\Trady.Importer.Yahoo.csproj" />
-    <ProjectReference Include="..\..\..\Trady\Trady.Importer\Trady.Importer.csproj" />
+    <ProjectReference Include="..\..\Trady\Trady.Analysis\Trady.Analysis.csproj" />
+    <ProjectReference Include="..\..\Trady\Trady.Core\Trady.Core.csproj" />
+    <ProjectReference Include="..\..\Trady\Trady.Importer.Google\Trady.Importer.Google.csproj" />
+    <ProjectReference Include="..\..\Trady\Trady.Importer.Yahoo\Trady.Importer.Yahoo.csproj" />
+    <ProjectReference Include="..\..\Trady\Trady.Importer\Trady.Importer.csproj" />
   </ItemGroup>
 </Project>

@@ -47,7 +47,7 @@ namespace Tradlite.Controllers
         {
             var sql =
                 "select * from tickers t " +
-                "inner join tickerListTicker tlt on tlt.tickerId = t.id " +
+                "inner join tickerLists_Tickers tlt on tlt.tickerId = t.id " +
                 "where tlt.tickerListId = @tickerListId";
             var tickers = await _dbConnection.QueryAsync<Ticker>(sql, new { tickerListId });
             return tickers.ToList();
@@ -100,7 +100,7 @@ namespace Tradlite.Controllers
         public async Task AddTickerToTickerList(int tickerListId, int tickerId)
         {
             var sql =
-                "insert into tickerListTicker(tickerListId, tickerId) " +
+                "insert into tickerLists_tickers(tickerListId, tickerId) " +
                 "values (@tickerListId, @tickerId)";
             await _dbConnection.ExecuteAsync(sql, new { tickerListId, tickerId });
         }
@@ -110,7 +110,7 @@ namespace Tradlite.Controllers
         public async Task RemoveTickerFromTickerList(int tickerListId, int tickerId)
         {
             var sql =
-                "delete from tickerListTicker " +
+                "delete from tickerLists_Tickers " +
                 "where tickerListId = @tickerListId and tickerId = @tickerId";
             await _dbConnection.ExecuteAsync(sql, new { tickerListId, tickerId });
         }
@@ -122,7 +122,7 @@ namespace Tradlite.Controllers
             var sql = "select * from tickers where tags = @tickerTag";
             var tickers = await _dbConnection.QueryAsync<Ticker>(sql, new { tickerTag });
             var insertSql = 
-                "insert into tickerListTicker(tickerListId, tickerId) " +
+                "insert into tickerLists_Tickers(tickerListId, tickerId) " +
                 "values (@tickerListId, @tickerId)";
 
             await _dbConnection.ExecuteAsync(insertSql, tickers.Select(t => new { tickerListId, tickerId = t.Id }).ToList());

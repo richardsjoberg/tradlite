@@ -7,10 +7,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Tradlite.Models.Requests;
-using Tradlite.Services.CandleService;
+using Tradlite.Services.Candle.CandleService;
 using Trady.Analysis;
 using Trady.Analysis.Candlestick;
 using Trady.Analysis.Indicator;
+using Trady.Core.Infrastructure;
+using Trady.Analysis.Extension;
 
 namespace Tradlite.Controllers
 {
@@ -64,6 +66,7 @@ namespace Tradlite.Controllers
             }
 
             var candles = await _candleService.GetCandles(request.Ticker, request.FromDate, request.ToDate, request.Importer, request.Interval);
+            
             var uptrend = new UpTrend(candles, uptrendPeriod);
 
             var signal = Rule.Create(c => c.IsRsiOverbought(rsiPeriod) && uptrend[c.Index].Tick.HasValue && uptrend[c.Index].Tick.Value);

@@ -6,12 +6,17 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Tradlite.Services.CandleService;
+using Tradlite.Services.Candle.CandleService;
 using Trady.Core.Infrastructure;
 using Trady.Importer;
 using System.Data;
 using System.Data.SqlClient;
 using Tradlite.Services;
+using Trady.Importer.Stooq;
+using Trady.Importer.Quandl;
+using Trady.Importer.Google;
+using Trady.Importer.Yahoo;
+using Trady.Importer.Csv;
 
 namespace Tradlite
 {
@@ -55,7 +60,7 @@ namespace Tradlite
                 };
                 return accesor;
             });
-            var connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\richard\source\repos\tradlite\tradlite\tradlite\tradlite.mdf;Integrated Security=True;Connect Timeout=30";
+            var connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\richard\source\repos\tradlite\tradlite\tradlite.mdf;Integrated Security=True;Connect Timeout=30";
             services.AddSingleton<ICandleService, CandleService>();
             services.AddSingleton<IHttpService, HttpService>();
             services.AddTransient<IDbConnection, SqlConnection>(factory=> 

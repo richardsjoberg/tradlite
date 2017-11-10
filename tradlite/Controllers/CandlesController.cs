@@ -10,8 +10,9 @@ using Trady.Core;
 using Trady.Importer;
 using Trady.Analysis.Candlestick;
 using Trady.Analysis;
-using Tradlite.Services.CandleService;
+using Tradlite.Services.Candle.CandleService;
 using Tradlite.Models.Requests;
+using Trady.Core.Infrastructure;
 
 namespace Tradlite.Controllers
 {
@@ -26,7 +27,7 @@ namespace Tradlite.Controllers
         }
 
         [Route("api/candles")]
-        public async Task<IReadOnlyList<Candle>> Candles([FromQuery]CandleRequest request)
+        public async Task<IReadOnlyList<IOhlcvData>> Candles([FromQuery]CandleRequest request)
         {
             var candles = await _candleService.GetCandles(request.Ticker, request.FromDate, request.ToDate, request.Importer, request.Interval);
             return candles;
