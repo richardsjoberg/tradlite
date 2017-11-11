@@ -16,7 +16,7 @@ tradliteApp.component("techanChart", {
         var x;
         var y;
         var yPercent;
-        var yInit, yPercentInit, zoomableInit;
+        var yInit, zoomableInit; //yPercentInit,
         var yVolume;
         var candlestick;
         var tradearrow;
@@ -62,7 +62,7 @@ tradliteApp.component("techanChart", {
         function zoomed() {
             x.zoomable().domain(d3.event.transform.rescaleX(zoomableInit).domain());
             y.domain(d3.event.transform.rescaleY(yInit).domain());
-            yPercent.domain(d3.event.transform.rescaleY(yPercentInit).domain());
+            //yPercent.domain(d3.event.transform.rescaleY(yPercentInit).domain());
 
             draw();
         }
@@ -96,8 +96,8 @@ tradliteApp.component("techanChart", {
             }).sort(function (a, b) { return d3.ascending(accessor.d(a), accessor.d(b)); });
 
             x.domain(techan.scale.plot.time(data).domain());
-            y.domain(techan.scale.plot.ohlc(data.slice(indicatorPreRoll)).domain());
-            yPercent.domain(techan.scale.plot.percent(y, accessor(data[indicatorPreRoll])).domain());
+            y.domain(techan.scale.plot.ohlc(data).domain()); //.slice(indicatorPreRoll)
+            //yPercent.domain(techan.scale.plot.percent(y, accessor(data[indicatorPreRoll])).domain());
             yVolume.domain(techan.scale.plot.volume(data).domain());
 
             //var trendlineData = [
@@ -145,9 +145,9 @@ tradliteApp.component("techanChart", {
 
             //svg.select("g.supstances").datum(supstanceData).call(supstance).call(supstance.drag);
             // Stash for zooming
-            zoomableInit = x.zoomable().domain([indicatorPreRoll, data.length]).copy(); // Zoom in a little to hide indicator preroll
+            zoomableInit = x.zoomable().domain([0, data.length]).copy(); // Zoom in a little to hide indicator preroll
             yInit = y.copy();
-            yPercentInit = yPercent.copy();
+            //yPercentInit = yPercent.copy();
 
             draw();
         }

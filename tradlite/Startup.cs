@@ -61,7 +61,7 @@ namespace Tradlite
                 return accesor;
             });
             var connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\richard\source\repos\tradlite\tradlite\tradlite.mdf;Integrated Security=True;Connect Timeout=30";
-            services.AddSingleton<ICandleService, CandleService>();
+            services.AddTransient<ICandleService, CandleService>();
             services.AddSingleton<IHttpService, HttpService>();
             services.AddTransient<IDbConnection, SqlConnection>(factory=> 
             {

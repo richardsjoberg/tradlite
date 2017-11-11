@@ -5,9 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Trady.Core.Infrastructure;
 
-namespace Tradlite.Services.Candle
+namespace Tradlite.Models.Candle
 {
-    [Table("Candles")]
     public class CachedCandle : IOhlcvData
     {
         public CachedCandle()
@@ -15,7 +14,7 @@ namespace Tradlite.Services.Candle
 
         }
 
-        public CachedCandle(IOhlcvData candle, string interval)
+        public CachedCandle(IOhlcvData candle, string interval, int cachedCandleKeyId)
         {
             Interval = interval;
             Open = candle.Open;
@@ -24,6 +23,7 @@ namespace Tradlite.Services.Candle
             Close = candle.Close;
             Volume = candle.Volume;
             DateTime = candle.DateTime;
+            CachedCandleKeyId = cachedCandleKeyId;
         }
 
         public int Id { get; set; }
@@ -39,5 +39,7 @@ namespace Tradlite.Services.Candle
         public decimal Volume { get; set; }
 
         public DateTime DateTime { get; set; }
+        public int CachedCandleKeyId { get; set; }
+
     }
 }
