@@ -1,6 +1,6 @@
 ﻿tradliteApp.component("scan", {
     templateUrl: "/app/components/scan/scan.html",
-    controller: function ($scope, $q, httpService, storageService, importerService) {
+    controller: function ($scope, $q, $state, httpService, storageService, importerService) {
         function getSignalConfigs() {
             var promise1 = httpService.get("/api/signalconfig/buy");
             var promise2 = httpService.get("/api/signalconfig/sell");
@@ -68,37 +68,13 @@
                 $scope.tickers = response.data;
             });
         }
-        
-        //$scope.load_chart = function () {
-        //    var ticker = $scope.tickers[$scope.currentTickerIndex];
-        //    var request = { ticker: ticker.symbol, fromDate: $scope.fromDate, toDate: $scope.toDate, importer: ticker.importer, interval: $scope.interval };
-        //    setSessionStorage();
-        //    httpService.get("/api/candles", request).then(function (candleResponse) {
-        //        $scope.candles = candleResponse.data;
-        //        if ($scope.buySignalConfig) {
-        //            if ($scope.buySignalConfig.extraParams) {
-        //                var buySignalRequest = angular.copy(request);
-        //                buySignalRequest.extraParams = $scope.buySignalConfig.extraParams
-        //            }
-        //            httpService.get($scope.buySignalConfig.endpoint, buySignalRequest).then(function (buyResponse) {
-        //                $scope.buyIndicies = buyResponse.data;
-        //                console.log(buyResponse.data);
-        //            });
-        //        }
-        //        if ($scope.sellSignalConfig) {
-        //            if ($scope.sellSignalConfig.extraParams) {
-        //                var sellSignalRequest = angular.copy(request);
-        //                sellSignalRequest.extraParams = $scope.sellSignalConfig.extraParams
-        //            }
-        //            httpService.get($scope.sellSignalConfig.endpoint, sellSignalRequest).then(function (sellResponse) {
-        //                $scope.sellIndicies = sellResponse.data;
-        //                console.log(sellResponse.data);
-        //            });
-        //        }
-        //    });
-        //}
+       
         $scope.scan = function () {
             $scope.signals = [];
+            $scope.candles = undefined;
+            $scope.ticker = undefined;
+            $scope.buyIndicies = undefined;
+            $scope.sellIndicies = undefined;
             angular.forEach($scope.tickers, function (ticker) {
                 var request = { ticker: ticker.symbol, importer: ticker.importer, interval: $scope.interval, fromDate: $scope.fromDate, toDate: $scope.toDate }; 
                 setSessionStorage();
@@ -114,7 +90,10 @@
                             if (candles.length - 5 < buyIndicies[buyIndicies.length - 1]) {
                                 $scope.signals.push({
                                     ticker: ticker,
-                                    type: "buy"
+                                    type: "buy",
+                                    candles: candles,
+                                    buyIndicies: buyIndicies,
+                                    sellIndicies: []
                                 });
                             }
                             console.log(buyResponse.data);
@@ -130,7 +109,10 @@
                             if (candles.length - 5 < sellIndicies[sellIndicies.length - 1]) {
                                 $scope.signals.push({
                                     ticker: ticker,
-                                    type: "sell"
+                                    type: "sell",
+                                    candles: candles,
+                                    sellIndicies: sellIndicies,
+                                    buyIndicies: []
                                 });
                             }
                             console.log(sellResponse.data);
@@ -139,17 +121,59 @@
                 });
             });
         }
-        
-        function serial(tasks) {
-            var prevPromise;
-            angular.forEach(tasks, function (task) {
-                if (!prevPromise) {
-                    prevPromise = task();
-                } else {
-                    prevPromise = prevPromise.then(task);
+
+        $scope.navigate_to_chart = function (signal) {
+            $state.go('mainChart', { ticker: signal.ticker.symbol });
+        }
+
+        $scope.view_chart = function (signal) {
+            $scope.candles = signal.candles;
+            $scope.ticker = signal.ticker;
+            $scope.buyIndicies = signal.buyIndicies;
+            $scope.sellIndicies = signal.sellIndicies;
+            $scope.tickerLabel = signal.ticker.name + ', ' + signal.ticker.symbol;
+        } 
+
+        $scope.next_signal = function () {
+            var currentSignalIndex = 0;
+            var nextSignalIndex = 0;
+            angular.forEach($scope.signals, function (s,index) {
+                if (s.ticker.symbol === $scope.ticker.symbol) {
+                    currentSignalIndex = index 
                 }
             });
-            return prevPromise;
+
+            if ($scope.signals.length - 1 > currentSignalIndex) {
+                nextSignalIndex = currentSignalIndex + 1;
+            } else {
+                nextSignalIndex = 0;
+            }
+
+            if (currentSignalIndex > 0) {
+                signalIndex = nextSignalIndex - 1;
+            } else {
+                signalIndex = nextSignalIndex + 1;
+            }
+
+            $scope.view_chart($scope.signals[nextSignalIndex]);
+        }
+
+        $scope.previous_signal = function () {
+            var currentSignalIndex = 0;
+            var nextSignalIndex = 0;
+            angular.forEach($scope.signals, function (s, index) {
+                if (s.ticker.symbol === $scope.ticker.symbol) {
+                    currentSignalIndex = index
+                }
+            });
+
+            if (currentSignalIndex > 0) {
+                signalIndex = nextSignalIndex - 1;
+            } else {
+                signalIndex = nextSignalIndex + 1;
+            }
+            console.log(nextSignalIndex);
+            $scope.view_chart($scope.signals[nextSignalIndex]);
         }
 
         this.$onInit = function () {

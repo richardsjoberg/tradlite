@@ -3,10 +3,11 @@ var tradliteApp = angular.module("tradliteApp", ["ui.router"]);
 
 tradliteApp.config(function ($stateProvider, $urlRouterProvider) {
     $urlRouterProvider.otherwise("/mainchart");
-    $stateProvider.state("mainChart", {
-        url: "/mainchart",
-        component: "mainChart"
-    })
+    $stateProvider
+        .state("mainChart", {
+            url: "/mainchart?ticker",
+            component: "mainChart"
+        })
         .state("signalConfig", {
             url: "/signalconfig",
             component: "signalConfig"
@@ -31,6 +32,4 @@ tradliteApp.config(function ($stateProvider, $urlRouterProvider) {
             url: "/scan",
             component: "scan"
         });
-    
-
 });

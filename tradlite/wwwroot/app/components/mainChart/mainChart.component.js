@@ -1,6 +1,6 @@
 ﻿tradliteApp.component("mainChart", {
     templateUrl: "/app/components/mainChart/mainChart.html",
-    controller: function ($scope, $q, httpService, storageService, importerService) {
+    controller: function ($scope, $q, $state, httpService, storageService, importerService) {
         $scope.load_chart = function () {
             var request = { ticker: $scope.ticker, fromDate: $scope.fromDate, toDate: $scope.toDate, importer: $scope.importer.name, interval: $scope.interval };
             setSessionStorage();
@@ -77,7 +77,7 @@
             $scope.tickerPlaceholder = importer.tickerPlaceholder;
             $scope.intervals = importer.intervals;
         }
-
+        
         this.$onInit = function () {
             $scope.importers = importerService.get();
             $scope.interval = "DAY";
@@ -87,6 +87,11 @@
             $scope.sellIndicies = [];
             getSignalConfigs();
             getDataFromSessionStorage();
+            if ($state.params.ticker) {
+                $scope.ticker = $state.params.ticker;
+            }
+            console.log($state.params);
+            //$state.go('contacts', { param1: value1 })
         }
     }
 });

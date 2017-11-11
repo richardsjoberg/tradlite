@@ -17,7 +17,12 @@
             <option ng-repeat="signalConfig in sellSignalConfigs" ng-value="signalConfig">{{signalConfig.name}}</option>
         </select>
         <input value="Scan" type="button" class="btn btn-primary " ng-click="scan()" />
+        <input value="Previous signal" type="button" class="btn btn-primary " ng-click="previous_signal()" />
+        <input value="Next signal" type="button" class="btn btn-primary " ng-click="next_signal()" />
     </div>
+
+    
+    <techan-chart ng-if="candles" candles="candles" buy-indicies="buyIndicies" sell-indicies="sellIndicies" ticker-label="tickerLabel"></techan-chart>
 
     <table class="table table-striped">
         <thead>
@@ -48,6 +53,7 @@
                     {{signal.type}}
                 </td>
                 <td>
+                    <span role="button" class="glyphicon glyphicon-open pointer" ng-click="view_chart(signal)"></span>
                     <!--<span role="button" class="glyphicon glyphicon-edit pointer" ng-click="edit(scanConfig)"></span>
                     <span role="button" class="glyphicon glyphicon-trash pointer" ng-click="delete(scanConfig)"></span>-->
                 </td>
@@ -55,7 +61,3 @@
         </tbody>
     </table>
 </form>
-
-
-
-<!--<techan-chart candles="candles" buy-indicies="buyIndicies" sell-indicies="sellIndicies" ticker-label="tickers[currentTickerIndex].name + ', ' + tickers[currentTickerIndex].symbol"></techan-chart>-->
