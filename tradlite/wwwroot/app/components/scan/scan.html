@@ -1,0 +1,61 @@
+﻿<form class="form-inline">
+    <div class="form-group ">
+        <select class="form-control" ng-model="tickerList" ng-change="ticker_list_changed(tickerList)">
+            <option ng-repeat="tickerList in tickerLists" ng-value="tickerList">{{tickerList.name}}</option>
+        </select>
+        <input type="text" placeholder="From date" class="form-control" ng-model="fromDate" />
+        <input type="text" placeholder="To date" class="form-control" ng-model="toDate" />
+        <select class="form-control" ng-model="interval">
+            <option ng-repeat="interv in intervals" ng-value="interv">{{interv}}</option>
+        </select>
+        <select class="form-control" ng-model="buySignalConfig">
+            <option selected value="">Select buy signal</option>
+            <option ng-repeat="signalConfig in buySignalConfigs" ng-value="signalConfig">{{signalConfig.name}}</option>
+        </select>
+        <select class="form-control" ng-model="sellSignalConfig">
+            <option selected value="">Select sell signal</option>
+            <option ng-repeat="signalConfig in sellSignalConfigs" ng-value="signalConfig">{{signalConfig.name}}</option>
+        </select>
+        <input value="Scan" type="button" class="btn btn-primary " ng-click="scan()" />
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>
+                    Name
+                </th>
+                <th>
+                    Symbol
+                </th>
+                <th>
+                    Signal type
+                </th>
+                <th>
+
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="signal in signals">
+                <td>
+                    {{signal.ticker.name}}
+                </td>
+                <td>
+                    {{signal.ticker.symbol}}
+                </td>
+                <td>
+                    {{signal.type}}
+                </td>
+                <td>
+                    <!--<span role="button" class="glyphicon glyphicon-edit pointer" ng-click="edit(scanConfig)"></span>
+                    <span role="button" class="glyphicon glyphicon-trash pointer" ng-click="delete(scanConfig)"></span>-->
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+
+
+
+<!--<techan-chart candles="candles" buy-indicies="buyIndicies" sell-indicies="sellIndicies" ticker-label="tickers[currentTickerIndex].name + ', ' + tickers[currentTickerIndex].symbol"></techan-chart>-->

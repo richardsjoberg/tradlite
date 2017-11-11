@@ -22,6 +22,14 @@ tradliteApp.config(function ($stateProvider, $urlRouterProvider) {
         .state("browseTickers", {
             url: "/browsetickers",
             component: "browseTickers"
+        })
+        .state("scanConfig", {
+            url: "/scanconfig",
+            component: "scanConfig"
+        })
+        .state("scan", {
+            url: "/scan",
+            component: "scan"
         });
     
 

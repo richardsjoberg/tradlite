@@ -1,0 +1,54 @@
+﻿<form class="form-inline">
+    <div class="form-group ">
+        <input type="text" ng-disabled="true" class="form-control" placeholder="id" ng-model="model.id" />
+        <!--<input type="text" class="form-control" placeholder="name" ng-model="model.name" />
+        <input type="text" required class="form-control" placeholder="tickerList" ng-model="model.endpoint" />
+        <input type="text" class="form-control" placeholder="extra params" ng-model="model.extraParams" />
+        <select class="form-control" ng-model="model.type" ng-init="model.type = types[0]">
+            <option ng-repeat="type in types" value="{{type}}">{{type}}</option>
+        </select>-->
+        <input value="Save" type="button" class="btn btn-primary " ng-click="save(model)" />
+        <input value="New" type="button" class="btn btn-primary" ng-click="clear_form()" />
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>
+                    Id
+                </th>
+                <th>
+                    Name
+                </th>
+                <th>
+                    Ticker list
+                </th>
+                <th>
+                    Signal
+                </th>
+                <th>
+
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="scanConfig in scanConfigs">
+                <td>
+                    {{scanConfig.id}}
+                </td>
+                <td>
+                    {{scanConfig.name}}
+                </td>
+                <td>
+                    {{scanConfig.tickerListName}}
+                </td>
+                <td>
+                    {{scanConfig.signalName}}
+                </td>
+                <td>
+                    <span role="button" class="glyphicon glyphicon-edit pointer" ng-click="edit(scanConfig)"></span>
+                    <span role="button" class="glyphicon glyphicon-trash pointer" ng-click="delete(scanConfig)"></span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>

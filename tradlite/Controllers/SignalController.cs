@@ -27,7 +27,7 @@ namespace Tradlite.Controllers
         [Route("api/bullishharami")]
         public async Task<int[]> BullishHarami([FromQuery]SignalRequest request)
         {
-            var candles = await _candleService.GetCandles(request.Ticker, request.FromDate, request.ToDate, request.Importer, request.Interval);
+            var candles = await _candleService.GetCandles(request);
             var bullishHarami = new BullishHarami(candles, false, 3);
             var signal = Rule.Create(c => bullishHarami[c.Index].Tick.HasValue && bullishHarami[c.Index].Tick.Value);
             using (var ctx = new AnalyzeContext(candles))
@@ -40,7 +40,7 @@ namespace Tradlite.Controllers
         [Route("api/bearishharami")]
         public async Task<int[]> BearishHarami([FromQuery]SignalRequest request)
         {
-            var candles = await _candleService.GetCandles(request.Ticker, request.FromDate, request.ToDate, request.Importer, request.Interval);
+            var candles = await _candleService.GetCandles(request);
             var bearishHarami = new BearishHarami(candles, false, 3);
             var signal = Rule.Create(c => bearishHarami[c.Index].Tick.HasValue && bearishHarami[c.Index].Tick.Value);
             using (var ctx = new AnalyzeContext(candles))
@@ -65,7 +65,7 @@ namespace Tradlite.Controllers
                     int.TryParse(extraParam["rsiPeriod"].ToString(), out rsiPeriod);
             }
 
-            var candles = await _candleService.GetCandles(request.Ticker, request.FromDate, request.ToDate, request.Importer, request.Interval);
+            var candles = await _candleService.GetCandles(request);
             
             var uptrend = new UpTrend(candles, uptrendPeriod);
 
@@ -100,7 +100,7 @@ namespace Tradlite.Controllers
                     bullish = false;
             }
 
-            var candles = await _candleService.GetCandles(request.Ticker, request.FromDate, request.ToDate, request.Importer, request.Interval);
+            var candles = await _candleService.GetCandles(request);
             var adx = candles.Adx(adxPeriod);
             var mdi = candles.Mdi(mdiPeriod);
             var pdi = candles.Pdi(pdiPeriod);
@@ -181,7 +181,7 @@ namespace Tradlite.Controllers
                     int.TryParse(extraParam["adxTreshold"]?.ToString(), out adxTreshold);
             }
 
-            var candles = await _candleService.GetCandles(request.Ticker, request.FromDate, request.ToDate, request.Importer, request.Interval);
+            var candles = await _candleService.GetCandles(request);
             var adx = candles.Adx(adxPeriod);
             var mdi = candles.Mdi(mdiPeriod);
             var pdi = candles.Pdi(pdiPeriod);
