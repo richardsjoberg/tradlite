@@ -7,14 +7,14 @@ using Trady.Core.Infrastructure;
 
 namespace Tradlite.Models.Candle
 {
-    public class CachedCandle : IOhlcvData
+    public class CachedCandle : IOhlcv
     {
         public CachedCandle()
         {
 
         }
 
-        public CachedCandle(IOhlcvData candle, string interval, int cachedCandleKeyId)
+        public CachedCandle(IOhlcv candle, string interval, int cachedCandleKeyId)
         {
             Interval = interval;
             Open = candle.Open;
@@ -22,7 +22,7 @@ namespace Tradlite.Models.Candle
             Low = candle.Low;
             Close = candle.Close;
             Volume = candle.Volume;
-            DateTime = candle.DateTime;
+            DateTime = candle.DateTime.LocalDateTime;
             CachedCandleKeyId = cachedCandleKeyId;
         }
 
@@ -37,8 +37,7 @@ namespace Tradlite.Models.Candle
         public decimal Close { get; set; }
 
         public decimal Volume { get; set; }
-
-        public DateTime DateTime { get; set; }
+        public DateTimeOffset DateTime { get; set; }
         public int CachedCandleKeyId { get; set; }
 
     }

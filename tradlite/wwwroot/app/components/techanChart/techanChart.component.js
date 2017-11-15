@@ -86,7 +86,7 @@ tradliteApp.component("techanChart", {
                 indicatorPreRoll = 33;  // Don't show where indicators don't have data
             var data = candles.map(function (candle) {
                 return {
-                    date: parseDate(candle.dateTime),
+                    date: parseDate(candle.dateTime.substring(0, candle.dateTime.indexOf('+'))),
                     open: candle.open,
                     high: candle.high,
                     low: candle.low,

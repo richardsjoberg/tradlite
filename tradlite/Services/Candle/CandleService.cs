@@ -15,7 +15,7 @@ namespace Tradlite.Services.Candle.CandleService
 {
     public interface ICandleService
     {
-        Task<IReadOnlyList<IOhlcvData>> GetCandles(CandleRequest candleRequest);
+        Task<IReadOnlyList<IOhlcv>> GetCandles(CandleRequest candleRequest);
     }
     public class CandleService : ICandleService
     {
@@ -35,7 +35,7 @@ namespace Tradlite.Services.Candle.CandleService
         // p5                       |-----------------|
         // p7                  |--|
         // p8                                           |-----|
-        public async Task<IReadOnlyList<IOhlcvData>> GetCandles(CandleRequest request)
+        public async Task<IReadOnlyList<IOhlcv>> GetCandles(CandleRequest request)
         {
             if(!request.FromDate.HasValue)
             {
@@ -74,7 +74,7 @@ namespace Tradlite.Services.Candle.CandleService
             {
                 var cachedCandleKeyId = cachedCandleKeys.First(cck => cck.FromDate <= request.FromDate && cck.ToDate >= request.ToDate).Id;
                 var cachedCandles = (await _dbConnection.QueryAsync<CachedCandle>(getCachedCandlesSql, new { cachedCandleKeyId }))
-                    .Where(cc => cc.DateTime >= request.FromDate && cc.DateTime <= request.ToDate).ToList();
+                    .Where(cc => cc.DateTime.UtcDateTime >= request.FromDate && cc.DateTime.UtcDateTime <= request.ToDate).ToList();
                 return cachedCandles.ToList();
             }
             else if(cachedCandleKeys.Any(cck => cck.FromDate > request.FromDate && cck.ToDate >= request.ToDate)) // we miss some candles in the beginnig of a cached period (p2, p7)
@@ -90,7 +90,7 @@ namespace Tradlite.Services.Candle.CandleService
                 await CacheCandles(candles, tickerId.Value, request.Interval, cachedCandleKey);
                     
                 candles.AddRange(cachedCandles);
-                return candles.Where(cc => cc.DateTime >= request.FromDate && cc.DateTime <= request.ToDate).ToList();
+                return candles.Where(cc => cc.DateTime.UtcDateTime >= request.FromDate && cc.DateTime.UtcDateTime <= request.ToDate).ToList();
             }
             else if (cachedCandleKeys.Any(cck => cck.FromDate <= request.FromDate && cck.ToDate < request.ToDate)) // we miss some candles at the end of a cached period (p3, p8)
             {
@@ -100,13 +100,13 @@ namespace Tradlite.Services.Candle.CandleService
                 var cachedCandles = (await _dbConnection.QueryAsync<CachedCandle>(getCachedCandlesSql, new { cachedCandleKeyId }));
 
                 var candles = (await _serviceAccessor(request.Importer).ImportAsync(request.Ticker, cachedCandleKey.ToDate, request.ToDate.Value, request.Interval.ToTradyPeriod()))
-                    .Where(nc => !cachedCandles.Select(cc => new { cc.DateTime, cc.Interval }).Contains(new { nc.DateTime, Interval = request.Interval })).ToList();
+                    .Where(nc => !cachedCandles.Select(cc => new { cc.DateTime, cc.Interval }).Contains(new { DateTime = nc.DateTime, Interval = request.Interval })).ToList();
 
                 cachedCandleKey.ToDate = request.ToDate.Value;
                 await CacheCandles(candles, tickerId.Value, request.Interval, cachedCandleKey);
                     
                 candles.AddRange(cachedCandles);
-                return candles.Where(cc => cc.DateTime >= request.FromDate && cc.DateTime <= request.ToDate).ToList();
+                return candles.Where(cc => cc.DateTime.UtcDateTime >= request.FromDate && cc.DateTime.UtcDateTime <= request.ToDate).ToList();
             }
             else //we wither have no cacheKeys or this is a p5, import all candles and delete old cacheKeys if any
             {
@@ -120,21 +120,28 @@ namespace Tradlite.Services.Candle.CandleService
 
                 var candles = await _serviceAccessor(request.Importer).ImportAsync(request.Ticker, request.FromDate.Value, request.ToDate.Value, request.Interval.ToTradyPeriod());
                 await CacheCandles(candles.ToList(), tickerId.Value, request.Interval);
-                return candles.Where(cc => cc.DateTime >= request.FromDate && cc.DateTime <= request.ToDate).ToList();
+                return candles.Where(cc => cc.DateTime.UtcDateTime >= request.FromDate && cc.DateTime.UtcDateTime <= request.ToDate).ToList();
             }
         }
 
-        public async Task CacheCandles(List<IOhlcvData> candles, int tickerId, string interval, CachedCandleKey cachedCandleKey = null)
+        public async Task CacheCandles(List<IOhlcv> candles, int tickerId, string interval, CachedCandleKey cachedCandleKey = null)
         {
             if (!candles.Any())
             {
                 return;
             }
+
             var lastCandle = candles.Last();
             if (lastCandle.DateTime.Date == DateTime.Now.Date)
             {
                 candles.Remove(candles.Last()); //dont cache last candle in case market is open
             }
+
+            if (!candles.Any())
+            {
+                return;
+            }
+
             int cachedCandleKeyId;
             if (cachedCandleKey != null)
             {
@@ -145,8 +152,8 @@ namespace Tradlite.Services.Candle.CandleService
             {
                 cachedCandleKeyId = (await _dbConnection.InsertAsync(new CachedCandleKey
                 {
-                    FromDate = candles.Min(c => c.DateTime),
-                    ToDate = candles.Max(c => c.DateTime),
+                    FromDate = candles.Min(c => c.DateTime.LocalDateTime),
+                    ToDate = candles.Max(c => c.DateTime.LocalDateTime),
                     TickerId = tickerId
                 }));
             }

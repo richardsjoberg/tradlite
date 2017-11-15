@@ -17,6 +17,7 @@ using Trady.Importer.Quandl;
 using Trady.Importer.Google;
 using Trady.Importer.Yahoo;
 using Trady.Importer.Csv;
+using Tradlite.Services.Signals;
 
 namespace Tradlite
 {
@@ -63,10 +64,13 @@ namespace Tradlite
             var connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\richard\source\repos\tradlite\tradlite\tradlite.mdf;Integrated Security=True;Connect Timeout=30";
             services.AddTransient<ICandleService, CandleService>();
             services.AddSingleton<IHttpService, HttpService>();
+            services.AddTransient<IMdiPdiService, MdiPdiService>();
+            services.AddTransient<IRsiService, RsiService>();
             services.AddTransient<IDbConnection, SqlConnection>(factory=> 
             {
                 return new SqlConnection(connectionString);
             });
+            services.AddTransient<IZigZagService, ZigZagService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

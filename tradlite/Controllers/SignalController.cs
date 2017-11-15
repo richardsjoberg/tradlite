@@ -13,18 +13,25 @@ using Trady.Analysis.Candlestick;
 using Trady.Analysis.Indicator;
 using Trady.Core.Infrastructure;
 using Trady.Analysis.Extension;
+using Tradlite.Services.Signals;
 
 namespace Tradlite.Controllers
 {
     public class SignalController : Controller
     {
         private readonly ICandleService _candleService;
+        private readonly IMdiPdiService _mdiPdiService;
+        private readonly IRsiService _rsiService;
+        private readonly IZigZagService _zigZagService;
 
-        public SignalController(ICandleService candleService)
+        public SignalController(ICandleService candleService, IMdiPdiService mdiPdiService, IRsiService rsiService, IZigZagService zigZagService)
         {
             _candleService = candleService;
+            _mdiPdiService = mdiPdiService;
+            _rsiService = rsiService;
+            _zigZagService = zigZagService;
         }
-        [Route("api/bullishharami")]
+        [Route("api/signal/bullishharami")]
         public async Task<int[]> BullishHarami([FromQuery]SignalRequest request)
         {
             var candles = await _candleService.GetCandles(request);
@@ -37,7 +44,7 @@ namespace Tradlite.Controllers
             }
         }
 
-        [Route("api/bearishharami")]
+        [Route("api/signal/bearishharami")]
         public async Task<int[]> BearishHarami([FromQuery]SignalRequest request)
         {
             var candles = await _candleService.GetCandles(request);
@@ -50,171 +57,68 @@ namespace Tradlite.Controllers
             }
         }
 
-        [Route("api/rsioverboughtanduptrend")]
-        public async Task<int[]> Overbought([FromQuery]SignalRequest request)
+        [Route("api/signal/rsioverbought")]
+        public async Task<int[]> RsiOverbought([FromQuery]SignalRequest request)
         {
-            int uptrendPeriod = 5;
-            int rsiPeriod = 14;
-
-            if (!string.IsNullOrEmpty(request.ExtraParams))
-            {
-                var extraParam = JObject.Parse(request.ExtraParams);
-                if (extraParam["uptrendPeriod"] != null)
-                    int.TryParse(extraParam["uptrendPeriod"].ToString(), out uptrendPeriod);
-                if (extraParam["rsiPeriod"] != null)
-                    int.TryParse(extraParam["rsiPeriod"].ToString(), out rsiPeriod);
-            }
-
             var candles = await _candleService.GetCandles(request);
-            
-            var uptrend = new UpTrend(candles, uptrendPeriod);
-
-            var signal = Rule.Create(c => c.IsRsiOverbought(rsiPeriod) && uptrend[c.Index].Tick.HasValue && uptrend[c.Index].Tick.Value);
-            using (var ctx = new AnalyzeContext(candles))
-            {
-                var indexedCandles = new SimpleRuleExecutor(ctx, signal).Execute();
-                return indexedCandles.Select(ic => ic.Index).ToArray();
-            }
+            var indicies = _rsiService.Overbought(candles, request.ExtraParams);
+            return indicies;
         }
 
-        [Route("api/mdipdicrosswithtrendingadx")]
+        [Route("api/signal/rsioversold")]
+        public async Task<int[]> RsiOversold([FromQuery]SignalRequest request)
+        {
+            var candles = await _candleService.GetCandles(request);
+            var indicies = _rsiService.Oversold(candles, request.ExtraParams);
+            return indicies;
+        }
+
+        [Route("api/signal/mdipdicrosswithtrendingadx")]
         public async Task<int[]> MdiDdiCrossAndTrendingAdx([FromQuery]SignalRequest request)
         {
-            var adxPeriod = 8;
-            var mdiPeriod = 8;
-            var pdiPeriod = 8;
-            var adxTreshold = 20;
-            var bullish = true;
-            if (!string.IsNullOrEmpty(request.ExtraParams))
-            {
-                var extraParam = JObject.Parse(request.ExtraParams);
-                if(extraParam["adxPeriod"] != null)
-                    int.TryParse(extraParam["adxPeriod"].ToString(), out adxPeriod);
-                if (extraParam["mdiPeriod"] != null)
-                    int.TryParse(extraParam["mdiPeriod"]?.ToString(), out mdiPeriod);
-                if (extraParam["pdiPeriod"] != null)
-                    int.TryParse(extraParam["pdiPeriod"]?.ToString(), out pdiPeriod);
-                if (extraParam["adxTreshold"] != null)
-                    int.TryParse(extraParam["adxTreshold"]?.ToString(), out adxTreshold);
-                if (extraParam["bearish"] != null)
-                    bullish = false;
-            }
-
             var candles = await _candleService.GetCandles(request);
-            var adx = candles.Adx(adxPeriod);
-            var mdi = candles.Mdi(mdiPeriod);
-            var pdi = candles.Pdi(pdiPeriod);
-            var signal = Rule.Create(c => 
-            {
-                var adxTick = c.Get<AverageDirectionalIndex>(adxPeriod)[c.Index].Tick;
-                var pdiTick = c.Get<PlusDirectionalIndicator>(pdiPeriod)[c.Index].Tick;
-                var mdiTick = c.Get<MinusDirectionalIndicator>(mdiPeriod)[c.Index].Tick;
-                decimal? previousAdxTick = null;
-                decimal? previousPdiTick = null;
-                decimal? previousMdiTick = null;
-                if (c.Index > 0)
-                {
-                    previousAdxTick = c.Get<AverageDirectionalIndex>(adxPeriod)[c.Index - 1].Tick;
-                    previousPdiTick = c.Get<PlusDirectionalIndicator>(pdiPeriod)[c.Index - 1].Tick;
-                    previousMdiTick = c.Get<MinusDirectionalIndicator>(mdiPeriod)[c.Index - 1].Tick;
-                }
-
-                if (pdiTick.HasValue && mdiTick.HasValue && adxTick.HasValue && previousAdxTick.HasValue)
-                {
-                    return bullish ?
-                        MdiPdiBullishCross((pdiTick, mdiTick, adxTick, previousPdiTick, previousMdiTick, previousAdxTick, adxTreshold)) :
-                        MdiPdiBearishCross((pdiTick, mdiTick, adxTick, previousPdiTick, previousMdiTick, previousAdxTick, adxTreshold));
-                }
-
-                return false;
-            });
-            using (var ctx = new AnalyzeContext(candles))
-            {
-                var indexedCandles = new SimpleRuleExecutor(ctx, signal).Execute();
-                return indexedCandles.Select(ic => ic.Index).ToArray();
-            }
+            var indicies = _mdiPdiService.MdiPdiCrossAndTrendingAdx(candles, request.ExtraParams);
+            return indicies;
         }
 
-        //private Func<decimal?, decimal?, decimal?, decimal?, decimal?, decimal?, int, bool> MdiPdiBullishCross =
-        //    (pdiTick, mdiTick, adxTick, previousPdiTick, previousMdiTick, previousAdxTick, adxTreshold) =>
-        //    {
-        //        return pdiTick.Value > mdiTick.Value &&
-        //                    previousPdiTick.Value <= previousMdiTick.Value &&
-        //                    adxTick.Value > adxTreshold &&
-        //                    adxTick.Value > previousAdxTick.Value;
-        //    };
-        private Func<(decimal? pdiTick, decimal? mdiTick, decimal? adxTick, decimal? previousPdiTick, decimal? previousMdiTick, decimal? previousAdxTick, int adxTreshold), bool> 
-            MdiPdiBullishCross = (@params) =>
+        [Route("api/signal/mdipditrend")]
+        public async Task<int[]> MdiDdiTrend([FromQuery]SignalRequest request)
         {
-            return @params.pdiTick.Value > @params.mdiTick.Value &&
-                        //@params.previousPdiTick.Value <= @params.previousMdiTick.Value &&
-                        @params.adxTick.Value > @params.adxTreshold &&
-                        @params.adxTick.Value > @params.previousAdxTick.Value;
-        };
-        private Func<(decimal? pdiTick, decimal? mdiTick, decimal? adxTick, decimal? previousPdiTick, decimal? previousMdiTick, decimal? previousAdxTick, int adxTreshold),bool> 
-            MdiPdiBearishCross = (@params) =>
-            {
-                return @params.pdiTick.Value < @params.mdiTick.Value &&
-                            //@params.previousPdiTick.Value >= @params.previousMdiTick.Value &&
-                            @params.adxTick.Value > @params.adxTreshold &&
-                            @params.adxTick.Value > @params.previousAdxTick.Value;
-            };
-
-        [Route("api/mdipdibearishcrosswithtrendingadx")]
-        public async Task<int[]> MdiDdiBearishCrossAndTrendingAdx([FromQuery]SignalRequest request)
-        {
-            int adxPeriod = 8;
-            int mdiPeriod = 8;
-            int pdiPeriod = 8;
-            int adxTreshold = 20;
-
-            if (!string.IsNullOrEmpty(request.ExtraParams))
-            {
-                var extraParam = JObject.Parse(request.ExtraParams);
-                if (extraParam["adxPeriod"] != null)
-                    int.TryParse(extraParam["adxPeriod"].ToString(), out adxPeriod);
-                if (extraParam["mdiPeriod"] != null)
-                    int.TryParse(extraParam["mdiPeriod"]?.ToString(), out mdiPeriod);
-                if (extraParam["pdiPeriod"] != null)
-                    int.TryParse(extraParam["pdiPeriod"]?.ToString(), out pdiPeriod);
-                if (extraParam["adxTreshold"] != null)
-                    int.TryParse(extraParam["adxTreshold"]?.ToString(), out adxTreshold);
-            }
-
             var candles = await _candleService.GetCandles(request);
-            var adx = candles.Adx(adxPeriod);
-            var mdi = candles.Mdi(mdiPeriod);
-            var pdi = candles.Pdi(pdiPeriod);
-            var signal = Rule.Create(c =>
-            {
-                var adxTick = c.Get<AverageDirectionalIndex>(adxPeriod)[c.Index].Tick;
-                var pdiTick = c.Get<PlusDirectionalIndicator>(pdiPeriod)[c.Index].Tick;
-                var mdiTick = c.Get<MinusDirectionalIndicator>(mdiPeriod)[c.Index].Tick;
-                decimal? previousAdxTick = null;
-                decimal? previousPdiTick = null;
-                decimal? previousMdiTick = null;
-                if (c.Index > 0)
-                {
-                    previousAdxTick = c.Get<AverageDirectionalIndex>(adxPeriod)[c.Index - 1].Tick;
-                    previousPdiTick = c.Get<PlusDirectionalIndicator>(pdiPeriod)[c.Index - 1].Tick;
-                    previousMdiTick = c.Get<MinusDirectionalIndicator>(mdiPeriod)[c.Index - 1].Tick;
-                }
+            var indicies = _mdiPdiService.Trend(candles, request.ExtraParams);
+            return indicies;
+        }
 
-                if (pdiTick.HasValue && mdiTick.HasValue && adxTick.HasValue && previousAdxTick.HasValue)
-                {
-                    return pdiTick.Value < mdiTick.Value &&
-                        previousPdiTick.Value >= previousMdiTick.Value &&
-                        adxTick.Value > adxTreshold &&
-                        adxTick.Value > previousAdxTick.Value;
-                }
+        [Route("api/signal/zigzagmaxima")]
+        public async Task<int[]> ZigZagMaxima([FromQuery]SignalRequest request)
+        {
+            var candles = await _candleService.GetCandles(request);
+            var indicies = _zigZagService.Maximas(candles, request.ExtraParams);
+            return indicies;
+        }
 
-                return false;
-            });
-            using (var ctx = new AnalyzeContext(candles))
-            {
-                var indexedCandles = new SimpleRuleExecutor(ctx, signal).Execute();
-                return indexedCandles.Select(ic => ic.Index).ToArray();
-            }
+        [Route("api/signal/zigzagminima")]
+        public async Task<int[]> ZigZagMinima([FromQuery]SignalRequest request)
+        {
+            var candles = await _candleService.GetCandles(request);
+            var indicies = _zigZagService.Minimas(candles, request.ExtraParams);
+            return indicies;
+        }
+
+        [Route("api/signal/zigzagresistance")]
+        public async Task<int[]> ZigZagResistance([FromQuery]SignalRequest request)
+        {
+            var candles = await _candleService.GetCandles(request);
+            var indicies = _zigZagService.Resistance(candles, request.ExtraParams);
+            return indicies;
+        }
+
+        [Route("api/signal/zigzagsupport")]
+        public async Task<int[]> ZigZagSupport([FromQuery]SignalRequest request)
+        {
+            var candles = await _candleService.GetCandles(request);
+            var indicies = _zigZagService.Support(candles, request.ExtraParams);
+            return indicies;
         }
     }
 }

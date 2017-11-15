@@ -27,7 +27,7 @@ namespace Tradlite.Controllers
         }
 
         [Route("api/candles")]
-        public async Task<IReadOnlyList<IOhlcvData>> Candles([FromQuery]CandleRequest request)
+        public async Task<IReadOnlyList<IOhlcv>> Candles([FromQuery]CandleRequest request)
         {
             var candles = await _candleService.GetCandles(request);
             return candles;
