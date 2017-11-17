@@ -86,7 +86,7 @@ namespace Tradlite.Services.Candle.CandleService
 
                 var candles = (await _serviceAccessor(request.Importer).ImportAsync(request.Ticker, request.FromDate.Value, cachedCandleKey.FromDate, request.Interval.ToTradyPeriod()))
                     .Where(nc => !cachedCandles.Select(cc => new { cc.DateTime, cc.Interval }).Contains(new { nc.DateTime, Interval = request.Interval })).ToList().ToList();
-                cachedCandleKey.FromDate = request.FromDate.Value;
+                cachedCandleKey.FromDate = request.FromDate.Value.Date;
                 await CacheCandles(candles, tickerId.Value, request.Interval, cachedCandleKey);
                     
                 candles.AddRange(cachedCandles);
@@ -102,7 +102,7 @@ namespace Tradlite.Services.Candle.CandleService
                 var candles = (await _serviceAccessor(request.Importer).ImportAsync(request.Ticker, cachedCandleKey.ToDate, request.ToDate.Value, request.Interval.ToTradyPeriod()))
                     .Where(nc => !cachedCandles.Select(cc => new { cc.DateTime, cc.Interval }).Contains(new { DateTime = nc.DateTime, Interval = request.Interval })).ToList();
 
-                cachedCandleKey.ToDate = request.ToDate.Value;
+                cachedCandleKey.ToDate = request.ToDate.Value.Date;
                 await CacheCandles(candles, tickerId.Value, request.Interval, cachedCandleKey);
                     
                 candles.AddRange(cachedCandles);

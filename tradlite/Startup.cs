@@ -66,6 +66,7 @@ namespace Tradlite
             services.AddSingleton<IHttpService, HttpService>();
             services.AddTransient<IMdiPdiService, MdiPdiService>();
             services.AddTransient<IRsiService, RsiService>();
+            services.AddTransient<ICandlePatternService, CandlePatternService>();
             services.AddTransient<IDbConnection, SqlConnection>(factory=> 
             {
                 return new SqlConnection(connectionString);

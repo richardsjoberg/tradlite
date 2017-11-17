@@ -23,38 +23,49 @@ namespace Tradlite.Controllers
         private readonly IMdiPdiService _mdiPdiService;
         private readonly IRsiService _rsiService;
         private readonly IZigZagService _zigZagService;
+        private readonly ICandlePatternService _candlePatternService;
 
-        public SignalController(ICandleService candleService, IMdiPdiService mdiPdiService, IRsiService rsiService, IZigZagService zigZagService)
+        public SignalController(ICandleService candleService, IMdiPdiService mdiPdiService, IRsiService rsiService, IZigZagService zigZagService, ICandlePatternService candlePatternService)
         {
             _candleService = candleService;
             _mdiPdiService = mdiPdiService;
             _rsiService = rsiService;
             _zigZagService = zigZagService;
+            _candlePatternService = candlePatternService;
         }
         [Route("api/signal/bullishharami")]
         public async Task<int[]> BullishHarami([FromQuery]SignalRequest request)
         {
             var candles = await _candleService.GetCandles(request);
-            var bullishHarami = new BullishHarami(candles, false, 3);
-            var signal = Rule.Create(c => bullishHarami[c.Index].Tick.HasValue && bullishHarami[c.Index].Tick.Value);
-            using (var ctx = new AnalyzeContext(candles))
-            {
-                var indexedCandles = new SimpleRuleExecutor(ctx, signal).Execute();
-                return indexedCandles.Select(ic => ic.Index).ToArray();
-            }
+            return _candlePatternService.BullishhHarami(candles, request.ExtraParams);
         }
 
         [Route("api/signal/bearishharami")]
         public async Task<int[]> BearishHarami([FromQuery]SignalRequest request)
         {
             var candles = await _candleService.GetCandles(request);
-            var bearishHarami = new BearishHarami(candles, false, 3);
-            var signal = Rule.Create(c => bearishHarami[c.Index].Tick.HasValue && bearishHarami[c.Index].Tick.Value);
-            using (var ctx = new AnalyzeContext(candles))
-            {
-                var indexedCandles = new SimpleRuleExecutor(ctx, signal).Execute();
-                return indexedCandles.Select(ic => ic.Index).ToArray();
-            }
+            return _candlePatternService.BearishHarami(candles, request.ExtraParams);
+        }
+
+        [Route("api/signal/doji")]
+        public async Task<int[]> Doji([FromQuery]SignalRequest request)
+        {
+            var candles = await _candleService.GetCandles(request);
+            return _candlePatternService.Doji(candles, request.ExtraParams);
+        }
+
+        [Route("api/signal/dragonflydoji")]
+        public async Task<int[]> DragonFlyDoji([FromQuery]SignalRequest request)
+        {
+            var candles = await _candleService.GetCandles(request);
+            return _candlePatternService.DragonflyDoji(candles, request.ExtraParams);
+        }
+
+        [Route("api/signal/gravestonedoji")]
+        public async Task<int[]> GravestoneDoji([FromQuery]SignalRequest request)
+        {
+            var candles = await _candleService.GetCandles(request);
+            return _candlePatternService.GravestoneDoji(candles, request.ExtraParams);
         }
 
         [Route("api/signal/rsioverbought")]
@@ -82,10 +93,18 @@ namespace Tradlite.Controllers
         }
 
         [Route("api/signal/mdipditrend")]
-        public async Task<int[]> MdiDdiTrend([FromQuery]SignalRequest request)
+        public async Task<int[]> MdiPdiTrend([FromQuery]SignalRequest request)
         {
             var candles = await _candleService.GetCandles(request);
             var indicies = _mdiPdiService.Trend(candles, request.ExtraParams);
+            return indicies;
+        }
+
+        [Route("api/signal/mdipdinewtrend")]
+        public async Task<int[]> MdiPdiNewTrend([FromQuery]SignalRequest request)
+        {
+            var candles = await _candleService.GetCandles(request);
+            var indicies = _mdiPdiService.NewTrend(candles, request.ExtraParams);
             return indicies;
         }
 

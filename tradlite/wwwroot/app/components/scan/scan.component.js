@@ -87,7 +87,7 @@
                         }
                         httpService.get($scope.buySignalConfig.endpoint, buySignalRequest).then(function (buyResponse) {
                             var buyIndicies = buyResponse.data;
-                            if (candles.length - 5 < buyIndicies[buyIndicies.length - 1]) {
+                            if (candles.length - 2 < buyIndicies[buyIndicies.length - 1]) {
                                 $scope.signals.push({
                                     ticker: ticker,
                                     type: "buy",
@@ -106,7 +106,7 @@
                         }
                         httpService.get($scope.sellSignalConfig.endpoint, sellSignalRequest).then(function (sellResponse) {
                             var sellIndicies = sellResponse.data;
-                            if (candles.length - 5 < sellIndicies[sellIndicies.length - 1]) {
+                            if (candles.length - 2 < sellIndicies[sellIndicies.length - 1]) {
                                 $scope.signals.push({
                                     ticker: ticker,
                                     type: "sell",
