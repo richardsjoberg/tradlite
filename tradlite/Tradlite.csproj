@@ -21,6 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\TradyImporterIg\IGWebApiClient\IGWebApiClient.csproj" />
+    <ProjectReference Include="..\..\TradyImporterIg\Trady.Importer.Ig\Trady.Importer.Ig.csproj" />
     <ProjectReference Include="..\..\Trady\Trady.Analysis\Trady.Analysis.csproj" />
     <ProjectReference Include="..\..\Trady\Trady.Core\Trady.Core.csproj" />
     <ProjectReference Include="..\..\Trady\Trady.Importer.Google\Trady.Importer.Google.csproj" />

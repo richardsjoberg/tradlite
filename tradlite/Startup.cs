@@ -39,6 +39,7 @@ namespace Tradlite
             services.AddTransient<QuandlImporter>();
             services.AddTransient<StooqImporter>();
             services.AddTransient<CsvImporter>();
+            services.AddSingleton(new IgImporter("","","","",null));
             services.AddTransient(factory =>
             {
                 Func<string, IImporter> accesor = key =>
@@ -55,13 +56,15 @@ namespace Tradlite
                             return factory.GetService<StooqImporter>();
                         case "Csv":
                             return factory.GetService<CsvImporter>();
+                        case "Ig":
+                            return factory.GetService<IgImporter>();
                         default:
                             throw new KeyNotFoundException(); 
                     }
                 };
                 return accesor;
             });
-            var connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\richard\source\repos\tradlite\tradlite\tradlite.mdf;Integrated Security=True;Connect Timeout=30";
+            var connectionString = 
             services.AddTransient<ICandleService, CandleService>();
             services.AddSingleton<IHttpService, HttpService>();
             services.AddTransient<IMdiPdiService, MdiPdiService>();
@@ -69,7 +72,7 @@ namespace Tradlite
             services.AddTransient<ICandlePatternService, CandlePatternService>();
             services.AddTransient<IDbConnection, SqlConnection>(factory=> 
             {
-                return new SqlConnection(connectionString);
+                return new SqlConnection(Configuration.GetConnectionString("tradlite"));
             });
             services.AddTransient<IZigZagService, ZigZagService>();
         }

@@ -21,6 +21,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Trady.Importer.Quandl", "..
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Trady.Importer.Stooq", "..\Trady\Trady.Importer.Stooq\Trady.Importer.Stooq.csproj", "{56175A65-ACD3-496F-A0A7-5D1118DFEB0D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Trady.Importer.Ig", "..\TradyImporterIg\Trady.Importer.Ig\Trady.Importer.Ig.csproj", "{942829AD-66D0-4DA3-9921-2842A21339CF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IGWebApiClient", "..\TradyImporterIg\IGWebApiClient\IGWebApiClient.csproj", "{2B824F23-09E4-427C-B329-449FD5215210}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +67,14 @@ Global
 		{56175A65-ACD3-496F-A0A7-5D1118DFEB0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56175A65-ACD3-496F-A0A7-5D1118DFEB0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{56175A65-ACD3-496F-A0A7-5D1118DFEB0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{942829AD-66D0-4DA3-9921-2842A21339CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{942829AD-66D0-4DA3-9921-2842A21339CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{942829AD-66D0-4DA3-9921-2842A21339CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{942829AD-66D0-4DA3-9921-2842A21339CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B824F23-09E4-427C-B329-449FD5215210}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B824F23-09E4-427C-B329-449FD5215210}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B824F23-09E4-427C-B329-449FD5215210}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B824F23-09E4-427C-B329-449FD5215210}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
