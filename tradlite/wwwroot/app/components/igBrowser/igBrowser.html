@@ -1,0 +1,54 @@
+﻿
+<div class="row">
+    <div class="col-md-6">
+        Nodes
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>
+                        NodeId
+                    </th>
+                    <th>
+                        Name
+                    </th>
+                    <th>
+
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="node in nodes">
+                    <td>
+                        {{node.id}}
+                    </td>
+                    <td>
+                        {{node.name}}
+                    </td>
+                    <td>
+                        <span role="button" class="glyphicon glyphicon-search pointer" ng-click="browse(node.id)"></span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-6">
+        Markets
+        <table class="table table-striped" ng-if="markets">
+            <thead>
+                <tr>
+                    <th ng-repeat="(key, value) in markets[0]">
+                        {{key}}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="market in markets">
+                    <td ng-repeat="(key, value) in market">
+                        {{value}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+

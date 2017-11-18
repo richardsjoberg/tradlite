@@ -159,7 +159,7 @@ namespace Tradlite.Controllers
             return $"{symbols.Count} symbols imported";
         }
 
-        [Route("api/ticker/import/ig/{watchlist}")]
+        [Route("api/ticker/import/ig/{watchlist}")] //whitespace %20
         public async Task<string> ImportIgTickers(string watchlist)
         {
             var client = await _igService.GetIgClient();

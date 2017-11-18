@@ -31,5 +31,12 @@ tradliteApp.config(function ($stateProvider, $urlRouterProvider) {
         .state("scan", {
             url: "/scan",
             component: "scan"
+        })
+        .state("igBrowser", {
+            url: "/igbrowser/{nodeId}",
+            component: "igBrowser",
+            //params: {
+            //    nodeId: null
+            //},
         });
 });
