@@ -103,6 +103,9 @@
 
         $scope.load_chart = function () {
             var ticker = $scope.tickers[$scope.currentTickerIndex];
+            $scope.candles = [];
+            $scope.buyIndicies = [];
+            $scope.sellIndicies = [];
             var request = { ticker: ticker.symbol, fromDate: $scope.fromDate, toDate: $scope.toDate, importer: ticker.importer, interval: $scope.interval };
             setSessionStorage();
             httpService.get("/api/candles", request).then(function (candleResponse) {

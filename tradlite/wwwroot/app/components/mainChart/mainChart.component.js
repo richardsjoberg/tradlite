@@ -2,6 +2,9 @@
     templateUrl: "/app/components/mainChart/mainChart.html",
     controller: function ($scope, $q, $state, httpService, storageService, importerService) {
         $scope.load_chart = function () {
+            $scope.candles = [];
+            $scope.buyIndicies = [];
+            $scope.sellIndicies = [];
             var request = { ticker: $scope.ticker, fromDate: $scope.fromDate, toDate: $scope.toDate, importer: $scope.importer.name, interval: $scope.interval };
             setSessionStorage();
             httpService.get("/api/candles", request).then(function (candleResponse) {

@@ -103,6 +103,9 @@ tradliteApp.component("browseTickers", {
 
         $scope.load_chart = function () {
             var ticker = $scope.tickers[$scope.currentTickerIndex];
+            $scope.candles = [];
+            $scope.buyIndicies = [];
+            $scope.sellIndicies = [];
             var request = { ticker: ticker.symbol, fromDate: $scope.fromDate, toDate: $scope.toDate, importer: ticker.importer, interval: $scope.interval };
             setSessionStorage();
             httpService.get("/api/candles", request).then(function (candleResponse) {
@@ -259,6 +262,9 @@ tradliteApp.component("mainChart", {
     templateUrl: "/app/components/mainChart/mainChart.html",
     controller: function ($scope, $q, $state, httpService, storageService, importerService) {
         $scope.load_chart = function () {
+            $scope.candles = [];
+            $scope.buyIndicies = [];
+            $scope.sellIndicies = [];
             var request = { ticker: $scope.ticker, fromDate: $scope.fromDate, toDate: $scope.toDate, importer: $scope.importer.name, interval: $scope.interval };
             setSessionStorage();
             httpService.get("/api/candles", request).then(function (candleResponse) {
@@ -692,10 +698,10 @@ tradliteApp.component("techanChart", {
         var sellRules;
         var self = this;
         this.$onChanges = function () {
-            if (self.candles) {
-                candles = undefined;
-                buyRules = undefined;
-                sellRules = undefined;
+            if (self.candles && self.candles.length > 0) {
+                candles = [];
+                buyRules = [];
+                sellRules = [];
                 d3.select("#chart").selectAll("*").remove();
                 initChart();
                 candles = self.candles;
@@ -732,6 +738,9 @@ tradliteApp.component("techanChart", {
         }
 
         function drawChart() {
+            console.log(candles);
+            console.log(buyRules);
+            console.log(sellRules);
             var accessor = candlestick.accessor(),
                 indicatorPreRoll = 33;  // Don't show where indicators don't have data
             var data = candles.map(function (candle) {
@@ -755,8 +764,8 @@ tradliteApp.component("techanChart", {
             //    { start: { date: new Date(2013, 10, 21), value: 43 }, end: { date: new Date(2014, 2, 17), value: 70.50 } }
             //];
 
-            var startDate = data[0].date;
-            var endDate = data[data.length-1].date
+            //var startDate = data[0].date;
+            //var endDate = data[data.length-1].date
 
             //var supstanceData = [
             //    { start: startDate, end: endDate, value: 63.64 },
