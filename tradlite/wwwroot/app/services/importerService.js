@@ -10,6 +10,11 @@
                 name: "Google",
                 intervals: ["SECOND", "MINUTE", "HOUR", "DAY"],
                 tickerPlaceholder: "Market/Symbol"
+            },
+            {
+                name: "Ig",
+                intervals: ["MINUTE", "MINUTE_15", "MINUTE_30", "HOUR", "DAY", "WEEK", "MONTH"],
+                tickerPlaceholder: "Epic"
             }
         ];
     }

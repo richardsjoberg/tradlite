@@ -15,6 +15,10 @@ namespace Tradlite
                     return Trady.Core.Period.PeriodOption.PerSecond;
                 case "MINUTE":
                     return Trady.Core.Period.PeriodOption.PerMinute;
+                case "MINUTE_15":
+                    return Trady.Core.Period.PeriodOption.Per15Minute;
+                case "MINUTE_30":
+                    return Trady.Core.Period.PeriodOption.Per30Minute;
                 case "HOUR":
                     return Trady.Core.Period.PeriodOption.Hourly;
                 case "DAY":

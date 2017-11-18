@@ -18,6 +18,8 @@ using Trady.Importer.Google;
 using Trady.Importer.Yahoo;
 using Trady.Importer.Csv;
 using Tradlite.Services.Signals;
+using System.Diagnostics;
+using Tradlite.Services.Ig;
 
 namespace Tradlite
 {
@@ -39,7 +41,9 @@ namespace Tradlite
             services.AddTransient<QuandlImporter>();
             services.AddTransient<StooqImporter>();
             services.AddTransient<CsvImporter>();
-            services.AddSingleton(new IgImporter("","","","",null));
+            var igConfig = Configuration.GetSection("Ig");
+            services.AddSingleton(new IgImporter(igConfig["environment"],igConfig["username"],igConfig["password"],igConfig["apikey"], (message) => Debug.WriteLine(message)));
+            services.AddSingleton<IIgService,IgService>(factory => new IgService(igConfig["environment"], igConfig["username"], igConfig["password"], igConfig["apikey"], (message) => Debug.WriteLine(message)));
             services.AddTransient(factory =>
             {
                 Func<string, IImporter> accesor = key =>

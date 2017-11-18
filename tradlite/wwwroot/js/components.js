@@ -4,7 +4,7 @@ tradliteApp.component("browseTickers", {
         function getSignalConfigs() {
             var promise1 = httpService.get("/api/signalconfig/buy");
             var promise2 = httpService.get("/api/signalconfig/sell");
-            $q.all([promise1, promise2]).then(function (responses) {
+            return $q.all([promise1, promise2]).then(function (responses) {
                 $scope.buySignalConfigs = responses[0].data;
                 $scope.sellSignalConfigs = responses[1].data;
 
@@ -28,6 +28,8 @@ tradliteApp.component("browseTickers", {
             storageService.setSessionStorage($scope.fromDate, "fromDate");
             storageService.setSessionStorage($scope.toDate, "toDate");
             storageService.setSessionStorage($scope.interval, "interval");
+            storageService.setSessionStorage($scope.importer.name, "importer");
+
             if ($scope.buySignalConfig)
                 storageService.setSessionStorage($scope.buySignalConfig.id, "buySignalConfig");
             else
@@ -45,6 +47,13 @@ tradliteApp.component("browseTickers", {
 
             if (storageService.getSessionStorage("toDate"))
                 $scope.toDate = storageService.getSessionStorage("toDate");
+
+            if (storageService.getSessionStorage("importer")) {
+                var importer = _.find($scope.importers, function (imp) { return imp.name === storageService.getSessionStorage("importer") });
+                if (importer) {
+                    $scope.importer = importer;
+                }
+            }
         }
 
         $scope.importer_changed = function (importer) {
@@ -128,9 +137,11 @@ tradliteApp.component("browseTickers", {
             $scope.importer_changed($scope.importers[0]);
             $scope.buyIndicies = [];
             $scope.sellIndicies = [];
-            getSignalConfigs();
-            getDataFromSessionStorage();
-            getTickerLists();
+            getSignalConfigs().then(function () {
+                getDataFromSessionStorage();
+                getTickerLists();
+            });
+            
         }
     }
 });
@@ -166,7 +177,7 @@ tradliteApp.component("mainChart", {
         function getSignalConfigs() {
             var promise1 = httpService.get("/api/signalconfig/buy");
             var promise2 = httpService.get("/api/signalconfig/sell");
-            $q.all([promise1, promise2]).then(function (responses) {
+            return $q.all([promise1, promise2]).then(function (responses) {
                 $scope.buySignalConfigs = responses[0].data;
                 $scope.sellSignalConfigs = responses[1].data;
 
@@ -189,6 +200,8 @@ tradliteApp.component("mainChart", {
             storageService.setSessionStorage($scope.ticker, "ticker");
             storageService.setSessionStorage($scope.fromDate, "fromDate");
             storageService.setSessionStorage($scope.toDate, "toDate");
+            storageService.setSessionStorage($scope.importer.name, "importer");
+
             if ($scope.buySignalConfig)
                 storageService.setSessionStorage($scope.buySignalConfig.id, "buySignalConfig");
             else
@@ -209,6 +222,13 @@ tradliteApp.component("mainChart", {
 
             if (storageService.getSessionStorage("toDate"))
                 $scope.toDate = storageService.getSessionStorage("toDate");
+
+            if (storageService.getSessionStorage("importer")) {
+                var importer = _.find($scope.importers, function (imp) { return imp.name === storageService.getSessionStorage("importer") });
+                if (importer) {
+                    $scope.importer = importer;
+                }
+            }
         }
 
         $scope.importer_changed = function (importer) {
@@ -223,12 +243,16 @@ tradliteApp.component("mainChart", {
             $scope.importer_changed($scope.importers[0]);
             $scope.buyIndicies = [];
             $scope.sellIndicies = [];
-            getSignalConfigs();
+            
             getDataFromSessionStorage();
             if ($state.params.ticker) {
                 $scope.ticker = $state.params.ticker;
             }
-            console.log($state.params);
+            getSignalConfigs().then(function () {
+                if ($scope.ticker) {
+                    $scope.load_chart();
+                }
+            });
             //$state.go('contacts', { param1: value1 })
         }
     }
@@ -263,6 +287,8 @@ tradliteApp.component("scan", {
             storageService.setSessionStorage($scope.fromDate, "fromDate");
             storageService.setSessionStorage($scope.toDate, "toDate");
             storageService.setSessionStorage($scope.interval, "interval");
+            storageService.setSessionStorage($scope.importer.name, "importer");
+
             if ($scope.buySignalConfig)
                 storageService.setSessionStorage($scope.buySignalConfig.id, "buySignalConfig");
             else
@@ -280,6 +306,13 @@ tradliteApp.component("scan", {
 
             if (storageService.getSessionStorage("toDate"))
                 $scope.toDate = storageService.getSessionStorage("toDate");
+
+            if (storageService.getSessionStorage("importer")) {
+                var importer = _.find($scope.importers, function (imp) { return imp.name === storageService.getSessionStorage("importer") });
+                if (importer) {
+                    $scope.importer = importer;
+                }
+            }
         }
 
         $scope.importer_changed = function (importer) {

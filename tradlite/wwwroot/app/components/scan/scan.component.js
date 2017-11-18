@@ -28,6 +28,8 @@
             storageService.setSessionStorage($scope.fromDate, "fromDate");
             storageService.setSessionStorage($scope.toDate, "toDate");
             storageService.setSessionStorage($scope.interval, "interval");
+            storageService.setSessionStorage($scope.importer.name, "importer");
+
             if ($scope.buySignalConfig)
                 storageService.setSessionStorage($scope.buySignalConfig.id, "buySignalConfig");
             else
@@ -45,6 +47,13 @@
 
             if (storageService.getSessionStorage("toDate"))
                 $scope.toDate = storageService.getSessionStorage("toDate");
+
+            if (storageService.getSessionStorage("importer")) {
+                var importer = _.find($scope.importers, function (imp) { return imp.name === storageService.getSessionStorage("importer") });
+                if (importer) {
+                    $scope.importer = importer;
+                }
+            }
         }
 
         $scope.importer_changed = function (importer) {

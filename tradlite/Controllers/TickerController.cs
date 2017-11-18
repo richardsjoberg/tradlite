@@ -11,6 +11,7 @@ using HtmlAgilityPack;
 using System.Net;
 using Tradlite.Services;
 using System.Data.SqlClient;
+using Tradlite.Services.Ig;
 
 namespace Tradlite.Controllers
 {
@@ -18,11 +19,13 @@ namespace Tradlite.Controllers
     {
         private readonly IDbConnection _dbConnection;
         private readonly IHttpService _httpService;
+        private readonly IIgService _igService;
 
-        public TickerController(IDbConnection dbConnection, IHttpService httpService)
+        public TickerController(IDbConnection dbConnection, IHttpService httpService, IIgService igService)
         {
             _dbConnection = dbConnection;
             _httpService = httpService;
+            _igService = igService;
         }
 
         [HttpGet]
@@ -154,6 +157,28 @@ namespace Tradlite.Controllers
             }
 
             return $"{symbols.Count} symbols imported";
+        }
+
+        [Route("api/ticker/import/ig/{watchlist}")]
+        public async Task<string> ImportIgTickers(string watchlist)
+        {
+            var client = await _igService.GetIgClient();
+            var watchlistsResponse = await client.listOfWatchlists();
+            var list = watchlistsResponse.Response.watchlists.First(wl => wl.name.ToLower() == watchlist.ToLower());
+            var instrumentResponse = await client.instrumentsForWatchlist(list.id);
+            foreach (var market in instrumentResponse.Response.markets)
+            {
+                var ticker = new Ticker
+                {
+                    Symbol = market.epic,
+                    Name = market.instrumentName,
+                    Importer = "Ig",
+                    Tags = watchlist.Replace(" ", "")
+                };
+
+                _dbConnection.Insert(ticker);
+            }
+            return $"{instrumentResponse.Response.markets.Count} tickers imported";
         }
     }
 }

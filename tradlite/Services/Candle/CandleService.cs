@@ -47,7 +47,7 @@ namespace Tradlite.Services.Candle.CandleService
                 request.ToDate = DateTime.Now;
             }
             
-            var tickerId = (await _dbConnection.QueryFirstAsync<int?>("select t.id from tickers t where t.symbol = @ticker and t.importer = @importer", new { request.Ticker, request.Importer }));
+            var tickerId = (await _dbConnection.QueryFirstOrDefaultAsync<int?>("select t.id from tickers t where t.symbol = @ticker and t.importer = @importer", new { request.Ticker, request.Importer }));
             
             if(!tickerId.HasValue)
             {
