@@ -18,16 +18,25 @@ using Trady.Importer.Google;
 using Trady.Importer.Yahoo;
 using Trady.Importer.Csv;
 using Tradlite.Services.Signals;
-using System.Diagnostics;
 using Tradlite.Services.Ig;
+using Microsoft.Extensions.Logging;
 
 namespace Tradlite
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            Configuration = configuration;
+            var builder = new ConfigurationBuilder()
+            .SetBasePath(env.ContentRootPath)
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+            .AddEnvironmentVariables();
+            Configuration = builder.Build();
+
+            loggerFactory.AddConsole();
+            loggerFactory.AddDebug();
+
         }
 
         public IConfiguration Configuration { get; }
@@ -41,9 +50,35 @@ namespace Tradlite
             services.AddTransient<QuandlImporter>();
             services.AddTransient<StooqImporter>();
             services.AddTransient<CsvImporter>();
-            var igConfig = Configuration.GetSection("Ig");
-            services.AddSingleton(new IgImporter(igConfig["environment"],igConfig["username"],igConfig["password"],igConfig["apikey"], (message) => Debug.WriteLine(message)));
-            services.AddSingleton<IIgService,IgService>(factory => new IgService(igConfig["environment"], igConfig["username"], igConfig["password"], igConfig["apikey"], (message) => Debug.WriteLine(message)));
+            services.AddLogging();
+            if (Configuration.GetValue<bool>("EnableIg"))
+            {
+                var igConfig = Configuration.GetSection("Ig");
+                string password;
+                string apiKey;
+                if(!string.IsNullOrEmpty(Configuration["TRADLITE_IG_ENCRYPTION_KEY"]))
+                {
+                    password = Cryptography.DecryptString(igConfig["password"], Configuration["TRADLITE_IG_ENCRYPTION_KEY"]);
+                    apiKey = Cryptography.DecryptString(igConfig["apikey"], Configuration["TRADLITE_IG_ENCRYPTION_KEY"]);
+                }
+                else
+                {
+                    password = igConfig["password"];
+                    apiKey = igConfig["apikey"];
+                }
+                
+                services.AddSingleton(factory => 
+                {
+                    var logger = factory.GetService<ILogger<IgImporter>>();
+                    return new IgImporter(igConfig["environment"], igConfig["username"], password, apiKey, (message) => logger.LogInformation(message));
+                });
+                services.AddSingleton<IIgService, IgService>(factory => 
+                {
+                    var logger = factory.GetService<ILogger<IgService>>();
+                    return new IgService(igConfig["environment"], igConfig["username"], password, apiKey, (message) => logger.LogInformation(message));
+                });
+            }
+            
             services.AddTransient(factory =>
             {
                 Func<string, IImporter> accesor = key =>
@@ -95,7 +130,7 @@ namespace Tradlite
             }
 
             app.UseStaticFiles();
-
+            
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
