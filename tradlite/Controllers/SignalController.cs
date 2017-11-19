@@ -20,12 +20,12 @@ namespace Tradlite.Controllers
     public class SignalController : Controller
     {
         private readonly ICandleService _candleService;
-        private readonly IMdiPdiService _mdiPdiService;
+        private readonly IDirectionalMovementService _mdiPdiService;
         private readonly IRsiService _rsiService;
         private readonly IZigZagService _zigZagService;
         private readonly ICandlePatternService _candlePatternService;
 
-        public SignalController(ICandleService candleService, IMdiPdiService mdiPdiService, IRsiService rsiService, IZigZagService zigZagService, ICandlePatternService candlePatternService)
+        public SignalController(ICandleService candleService, IDirectionalMovementService mdiPdiService, IRsiService rsiService, IZigZagService zigZagService, ICandlePatternService candlePatternService)
         {
             _candleService = candleService;
             _mdiPdiService = mdiPdiService;

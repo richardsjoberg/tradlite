@@ -106,7 +106,7 @@ namespace Tradlite
             var connectionString = 
             services.AddTransient<ICandleService, CandleService>();
             services.AddSingleton<IHttpService, HttpService>();
-            services.AddTransient<IMdiPdiService, MdiPdiService>();
+            services.AddTransient<IDirectionalMovementService, DirectionalMovementService>();
             services.AddTransient<IRsiService, RsiService>();
             services.AddTransient<ICandlePatternService, CandlePatternService>();
             services.AddTransient<IDbConnection, SqlConnection>(factory=> 

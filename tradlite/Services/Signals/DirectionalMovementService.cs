@@ -10,14 +10,14 @@ using Trady.Analysis.Indicator;
 
 namespace Tradlite.Services.Signals
 {
-    public interface IMdiPdiService
+    public interface IDirectionalMovementService
     {
         int[] Trend(IReadOnlyList<IOhlcv> candles, string extraParams);
         int[] MdiPdiCrossAndTrendingAdx(IReadOnlyList<IOhlcv> candles, string extraParams);
         int[] NewTrend(IReadOnlyList<IOhlcv> candles, string extraParams);
 
     }
-    public class MdiPdiService : IMdiPdiService
+    public class DirectionalMovementService : IDirectionalMovementService
     {
         public int[] Trend(IReadOnlyList<IOhlcv> candles, string extraParams)
         {
