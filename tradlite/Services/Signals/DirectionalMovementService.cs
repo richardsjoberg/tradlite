@@ -27,12 +27,16 @@ namespace Tradlite.Services.Signals
                 var adxTick = c.Get<AverageDirectionalIndex>(@params.AdxPeriod)[c.Index].Tick;
                 var pdiTick = c.Get<PlusDirectionalIndicator>(@params.PdiPeriod)[c.Index].Tick;
                 var mdiTick = c.Get<MinusDirectionalIndicator>(@params.MdiPeriod)[c.Index].Tick;
-                
-                if (pdiTick.HasValue && mdiTick.HasValue && adxTick.HasValue)
+                decimal? previousAdxTick = null;
+                if (c.Index > 0)
+                {
+                    previousAdxTick = c.Get<AverageDirectionalIndex>(@params.AdxPeriod)[c.Index - 1].Tick;
+                }
+                if (pdiTick.HasValue && mdiTick.HasValue && adxTick.HasValue && previousAdxTick.HasValue)
                 {
                     return @params.Bullish ?
-                        UpTrend((pdiTick, mdiTick, adxTick, @params.AdxTreshold)) :
-                        DownTrend((pdiTick, mdiTick, adxTick, @params.AdxTreshold));
+                        UpTrend((pdiTick, mdiTick, adxTick, @params.AdxTreshold, previousAdxTick)) :
+                        DownTrend((pdiTick, mdiTick, adxTick, @params.AdxTreshold, previousAdxTick));
                 }
 
                 return false;
@@ -55,20 +59,22 @@ namespace Tradlite.Services.Signals
                 decimal? previousAdxTick = null;
                 decimal? previousPdiTick = null;
                 decimal? previousMdiTick = null;
-                if (c.Index > 0)
+                decimal? previousPreviousAdxTick = null;
+                if (c.Index > 1)
                 {
                     previousAdxTick = c.Get<AverageDirectionalIndex>(@params.AdxPeriod)[c.Index - 1].Tick;
                     previousPdiTick = c.Get<PlusDirectionalIndicator>(@params.PdiPeriod)[c.Index - 1].Tick;
                     previousMdiTick = c.Get<MinusDirectionalIndicator>(@params.MdiPeriod)[c.Index - 1].Tick;
+                    previousPreviousAdxTick = c.Get<AverageDirectionalIndex>(@params.AdxPeriod)[c.Index - 2].Tick;
                 }
                 
-                if (pdiTick.HasValue && mdiTick.HasValue && adxTick.HasValue && previousAdxTick.HasValue)
+                if (pdiTick.HasValue && mdiTick.HasValue && adxTick.HasValue && previousAdxTick.HasValue && previousPreviousAdxTick.HasValue)
                 {
                     return @params.Bullish ?
-                        UpTrend((pdiTick, mdiTick, adxTick, @params.AdxTreshold)) &&
-                        !UpTrend((previousPdiTick, previousMdiTick, previousAdxTick, @params.AdxTreshold)) :
-                        DownTrend((pdiTick, mdiTick, adxTick, @params.AdxTreshold)) &&
-                        !DownTrend((previousPdiTick, previousMdiTick, previousAdxTick, @params.AdxTreshold));
+                        UpTrend((pdiTick, mdiTick, adxTick, @params.AdxTreshold, previousAdxTick)) &&
+                        !UpTrend((previousPdiTick, previousMdiTick, previousAdxTick, @params.AdxTreshold, previousPreviousAdxTick)) :
+                        DownTrend((pdiTick, mdiTick, adxTick, @params.AdxTreshold, previousAdxTick)) &&
+                        !DownTrend((previousPdiTick, previousMdiTick, previousAdxTick, @params.AdxTreshold, previousPreviousAdxTick));
                 }
 
                 return false;
@@ -133,17 +139,19 @@ namespace Tradlite.Services.Signals
                             @params.adxTick.Value > @params.previousAdxTick.Value;
             };
 
-        private Func<(decimal? pdiTick, decimal? mdiTick, decimal? adxTick, int adxTreshold), bool>
+        private Func<(decimal? pdiTick, decimal? mdiTick, decimal? adxTick, int adxTreshold, decimal? previousAdxTick), bool>
             UpTrend = (@params) =>
             {
                 return @params.pdiTick.Value > @params.mdiTick.Value &&
-                            @params.adxTick.Value > @params.adxTreshold;
+                            @params.adxTick.Value > @params.adxTreshold &&
+                            @params.adxTick.Value > @params.previousAdxTick.Value;
             };
-        private Func<(decimal? pdiTick, decimal? mdiTick, decimal? adxTick, int adxTreshold), bool>
+        private Func<(decimal? pdiTick, decimal? mdiTick, decimal? adxTick, int adxTreshold, decimal? previousAdxTick), bool>
             DownTrend = (@params) =>
             {
                 return @params.pdiTick.Value < @params.mdiTick.Value &&
-                            @params.adxTick.Value > @params.adxTreshold;
+                            @params.adxTick.Value > @params.adxTreshold &&
+                            @params.adxTick.Value > @params.previousAdxTick.Value;
             };
 
 

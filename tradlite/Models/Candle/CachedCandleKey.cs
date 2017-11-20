@@ -11,5 +11,6 @@ namespace Tradlite.Models.Candle
         public DateTime FromDate { get; set; }
         public DateTime ToDate { get; set; }
         public int TickerId { get; set; }
+        public string Interval { get; set; }
     }
 }

@@ -21,6 +21,8 @@ namespace Tradlite
                     return Trady.Core.Period.PeriodOption.Per30Minute;
                 case "HOUR":
                     return Trady.Core.Period.PeriodOption.Hourly;
+                case "HOUR_4":
+                    return Trady.Core.Period.PeriodOption.BiHourly;
                 case "DAY":
                     return Trady.Core.Period.PeriodOption.Daily;
                 case "WEEK":

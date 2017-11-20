@@ -159,8 +159,8 @@ namespace Tradlite.Controllers
             return $"{symbols.Count} symbols imported";
         }
 
-        [Route("api/ticker/import/ig/{watchlist}")] //whitespace %20
-        public async Task<string> ImportIgTickers(string watchlist)
+        [Route("api/ticker/import/ig/watchlist/{watchlist}")] //whitespace %20
+        public async Task<string> ImportIgTickersFromWatchList(string watchlist)
         {
             var client = await _igService.GetIgClient();
             var watchlistsResponse = await client.listOfWatchlists();
@@ -179,6 +179,27 @@ namespace Tradlite.Controllers
                 _dbConnection.Insert(ticker);
             }
             return $"{instrumentResponse.Response.markets.Count} tickers imported";
+        }
+
+        [Route("api/ticker/import/ig/node/{nodeId}/{tickerListName}")]
+        public async Task<string> ImportIgTickersFromNodeId(string nodeId, string tickerListName)
+        {
+            var client = await _igService.GetIgClient();
+            var response = await client.browse(nodeId);
+            foreach(var market in response.Response.markets)
+            {
+                var ticker = new Ticker
+                {
+                    Symbol = market.epic,
+                    Name = market.instrumentName,
+                    Importer = "Ig",
+                    Tags = tickerListName
+                };
+
+                _dbConnection.Insert(ticker);
+            }
+
+            return $"{response.Response.markets.Count} tickers imported";
         }
     }
 }

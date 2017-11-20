@@ -37,14 +37,20 @@ namespace Tradlite.Services.Candle.CandleService
         // p8                                           |-----|
         public async Task<IReadOnlyList<IOhlcv>> GetCandles(CandleRequest request)
         {
+            
             if(!request.FromDate.HasValue)
             {
-                request.FromDate = DateTime.Now.AddDays(-365).Date;
+                request.FromDate = GetDefaultFromDate(request.Interval);
             }
 
             if(!request.ToDate.HasValue)
             {
                 request.ToDate = DateTime.Now;
+            }
+
+            if(request.FromDate.Value > request.ToDate.Value)
+            {
+                throw new ArgumentException("invalid request dates");
             }
             
             var tickerId = (await _dbConnection.QueryFirstOrDefaultAsync<int?>("select t.id from tickers t where t.symbol = @ticker and t.importer = @importer", new { request.Ticker, request.Importer }));
@@ -53,13 +59,12 @@ namespace Tradlite.Services.Candle.CandleService
             {
                 return await _serviceAccessor(request.Importer).ImportAsync(request.Ticker, request.FromDate.Value, request.ToDate.Value, request.Interval.ToTradyPeriod());
             }
-
-
-
+            
             var candleKeysSql = @"select * from cachedCandleKeys cck 
-                        where cck.TickerId = @tickerId";
+                        where cck.TickerId = @tickerId
+                        and cck.Interval = @interval";
 
-            var cachedCandleKeys = (await _dbConnection.QueryAsync<CachedCandleKey>(candleKeysSql, new { tickerId })).ToList();
+            var cachedCandleKeys = (await _dbConnection.QueryAsync<CachedCandleKey>(candleKeysSql, new { tickerId, interval = request.Interval })).ToList();
 
             if(!cachedCandleKeys.Any())
             {
@@ -124,20 +129,45 @@ namespace Tradlite.Services.Candle.CandleService
             }
         }
 
-        public async Task CacheCandles(List<IOhlcv> candles, int tickerId, string interval, CachedCandleKey cachedCandleKey = null)
+        private DateTime? GetDefaultFromDate(string interval)
         {
-            if (!candles.Any())
+            switch(interval.ToTradyPeriod())
+            {
+                case Trady.Core.Period.PeriodOption.Monthly:
+                    return DateTime.Now.AddMonths(-60).Date;
+                case Trady.Core.Period.PeriodOption.Weekly:
+                    return DateTime.Now.AddDays(-7 * 260).Date;
+                case Trady.Core.Period.PeriodOption.Daily:
+                    return DateTime.Now.AddDays(-365).Date;
+                case Trady.Core.Period.PeriodOption.Hourly:
+                    return DateTime.Now.AddDays(-14);
+                case Trady.Core.Period.PeriodOption.BiHourly:
+                    return DateTime.Now.AddDays(-56);
+                case Trady.Core.Period.PeriodOption.Per30Minute:
+                    return DateTime.Now.AddDays(-7);
+                case Trady.Core.Period.PeriodOption.Per15Minute:
+                    return DateTime.Now.AddDays(-4);
+                case Trady.Core.Period.PeriodOption.PerMinute:
+                    return DateTime.Now.AddHours(-6);
+            }
+            throw new ArgumentException("invalid interval");
+        }
+
+        public async Task CacheCandles(IReadOnlyList<IOhlcv> candles, int tickerId, string interval, CachedCandleKey cachedCandleKey = null)
+        {
+            var _candles = candles.ToList(); //hack in order to be able to remove last candle
+            if (!_candles.Any())
             {
                 return;
             }
 
-            var lastCandle = candles.Last();
+            var lastCandle = _candles.Last();
             if (lastCandle.DateTime.Date == DateTime.Now.Date)
             {
-                candles.Remove(candles.Last()); //dont cache last candle in case market is open
+                _candles.Remove(_candles.Last()); //dont cache last candle in case market is open
             }
 
-            if (!candles.Any())
+            if (!_candles.Any())
             {
                 return;
             }
@@ -152,13 +182,14 @@ namespace Tradlite.Services.Candle.CandleService
             {
                 cachedCandleKeyId = (await _dbConnection.InsertAsync(new CachedCandleKey
                 {
-                    FromDate = candles.Min(c => c.DateTime.LocalDateTime),
-                    ToDate = candles.Max(c => c.DateTime.LocalDateTime),
-                    TickerId = tickerId
+                    FromDate = _candles.Min(c => c.DateTime.LocalDateTime),
+                    ToDate = _candles.Max(c => c.DateTime.LocalDateTime),
+                    TickerId = tickerId,
+                    Interval = interval
                 }));
             }
 
-            var cachedCandles = candles.Select(c => new CachedCandle(c, interval, cachedCandleKeyId));
+            var cachedCandles = _candles.Select(c => new CachedCandle(c, interval, cachedCandleKeyId));
             var candleId = await _dbConnection.InsertAsync(cachedCandles);
         }
     }

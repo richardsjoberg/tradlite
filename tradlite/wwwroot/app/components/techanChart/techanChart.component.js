@@ -43,6 +43,7 @@ tradliteApp.component("techanChart", {
         var self = this;
         this.$onChanges = function () {
             if (self.candles && self.candles.length > 0) {
+                console.log(self.candles);
                 candles = [];
                 buyRules = [];
                 sellRules = [];
@@ -82,11 +83,9 @@ tradliteApp.component("techanChart", {
         }
 
         function drawChart() {
-            console.log(candles);
-            console.log(buyRules);
-            console.log(sellRules);
             var accessor = candlestick.accessor(),
                 indicatorPreRoll = 33;  // Don't show where indicators don't have data
+            
             var data = candles.map(function (candle) {
                 return {
                     date: parseDate(candle.dateTime.substring(0, candle.dateTime.indexOf('+'))),
@@ -219,8 +218,8 @@ tradliteApp.component("techanChart", {
             timeAnnotation = techan.plot.axisannotation()
                 .axis(xAxis)
                 .orient('bottom')
-                .format(d3.timeFormat('%Y-%m-%d'))
-                .width(65)
+                .format(d3.timeFormat('%Y-%m-%d %H:%M'))
+                .width(85)
                 .translate([0, dim.plot.height]);
 
             yAxis = d3.axisRight(y);
@@ -228,7 +227,7 @@ tradliteApp.component("techanChart", {
             ohlcAnnotation = techan.plot.axisannotation()
                 .axis(yAxis)
                 .orient('right')
-                .format(d3.format(',.2f'))
+                .format(d3.format(',.6f'))
                 .translate([x(1), 0]);
 
             closeAnnotation = techan.plot.axisannotation()

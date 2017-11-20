@@ -29,7 +29,7 @@ tradliteApp.component("browseTickers", {
             storageService.setSessionStorage($scope.toDate, "toDate");
             storageService.setSessionStorage($scope.interval, "interval");
             storageService.setSessionStorage($scope.importer.name, "importer");
-
+            storageService.setSessionStorage($scope.tickerList.id, "tickerListId");
             if ($scope.buySignalConfig)
                 storageService.setSessionStorage($scope.buySignalConfig.id, "buySignalConfig");
             else
@@ -63,8 +63,15 @@ tradliteApp.component("browseTickers", {
         function getTickerLists() {
             httpService.get("/api/tickerList").then(function (response) {
                 $scope.tickerLists = response.data;
-                $scope.tickerList = $scope.tickerLists[0];
-                $scope.ticker_list_changed($scope.tickerLists[0]);
+                if (storageService.getSessionStorage("tickerListId")) {
+                    var tickerList = _.find($scope.tickerLists, function (tl) { return tl.id === storageService.getSessionStorage("tickerListId") });
+                    if (tickerList) {
+                        $scope.tickerList = tickerList;
+                    }
+                } else {
+                    $scope.tickerList = $scope.tickerLists[0];
+                };
+                $scope.ticker_list_changed($scope.tickerList);
             });
         }
 
@@ -75,7 +82,13 @@ tradliteApp.component("browseTickers", {
         function getTickers(tickerListId) {
             httpService.get("/api/ticker/" + tickerListId).then(function (response) {
                 $scope.tickers = response.data;
-                $scope.currentTickerIndex = 0;
+                if (storageService.getSessionStorage("currentTickerIndex") && storageService.getSessionStorage("currentTickerIndex") <= $scope.tickers.length - 1) {
+                    $scope.currentTickerIndex = storageService.getSessionStorage("currentTickerIndex");
+                } else {
+                    $scope.currentTickerIndex = 0;
+                }
+                var importer = _.find($scope.importers, function (imp) { return imp.name === $scope.tickers[0].importer });
+                $scope.importer_changed(importer);
                 $scope.load_chart();
             });
         }
@@ -117,7 +130,6 @@ tradliteApp.component("browseTickers", {
                     }
                     httpService.get($scope.buySignalConfig.endpoint, buySignalRequest).then(function (buyResponse) {
                         $scope.buyIndicies = buyResponse.data;
-                        console.log(buyResponse.data);
                     });
                 }
                 if ($scope.sellSignalConfig) {
@@ -127,7 +139,6 @@ tradliteApp.component("browseTickers", {
                     }
                     httpService.get($scope.sellSignalConfig.endpoint, sellSignalRequest).then(function (sellResponse) {
                         $scope.sellIndicies = sellResponse.data;
-                        console.log(sellResponse.data);
                     });
                 }
             });
@@ -699,6 +710,7 @@ tradliteApp.component("techanChart", {
         var self = this;
         this.$onChanges = function () {
             if (self.candles && self.candles.length > 0) {
+                console.log(self.candles);
                 candles = [];
                 buyRules = [];
                 sellRules = [];
@@ -738,11 +750,9 @@ tradliteApp.component("techanChart", {
         }
 
         function drawChart() {
-            console.log(candles);
-            console.log(buyRules);
-            console.log(sellRules);
             var accessor = candlestick.accessor(),
                 indicatorPreRoll = 33;  // Don't show where indicators don't have data
+            
             var data = candles.map(function (candle) {
                 return {
                     date: parseDate(candle.dateTime.substring(0, candle.dateTime.indexOf('+'))),
@@ -875,8 +885,8 @@ tradliteApp.component("techanChart", {
             timeAnnotation = techan.plot.axisannotation()
                 .axis(xAxis)
                 .orient('bottom')
-                .format(d3.timeFormat('%Y-%m-%d'))
-                .width(65)
+                .format(d3.timeFormat('%Y-%m-%d %H:%M'))
+                .width(85)
                 .translate([0, dim.plot.height]);
 
             yAxis = d3.axisRight(y);
@@ -884,7 +894,7 @@ tradliteApp.component("techanChart", {
             ohlcAnnotation = techan.plot.axisannotation()
                 .axis(yAxis)
                 .orient('right')
-                .format(d3.format(',.2f'))
+                .format(d3.format(',.6f'))
                 .translate([x(1), 0]);
 
             closeAnnotation = techan.plot.axisannotation()

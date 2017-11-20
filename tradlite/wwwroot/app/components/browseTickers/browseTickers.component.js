@@ -29,7 +29,7 @@
             storageService.setSessionStorage($scope.toDate, "toDate");
             storageService.setSessionStorage($scope.interval, "interval");
             storageService.setSessionStorage($scope.importer.name, "importer");
-
+            storageService.setSessionStorage($scope.tickerList.id, "tickerListId");
             if ($scope.buySignalConfig)
                 storageService.setSessionStorage($scope.buySignalConfig.id, "buySignalConfig");
             else
@@ -63,8 +63,15 @@
         function getTickerLists() {
             httpService.get("/api/tickerList").then(function (response) {
                 $scope.tickerLists = response.data;
-                $scope.tickerList = $scope.tickerLists[0];
-                $scope.ticker_list_changed($scope.tickerLists[0]);
+                if (storageService.getSessionStorage("tickerListId")) {
+                    var tickerList = _.find($scope.tickerLists, function (tl) { return tl.id === storageService.getSessionStorage("tickerListId") });
+                    if (tickerList) {
+                        $scope.tickerList = tickerList;
+                    }
+                } else {
+                    $scope.tickerList = $scope.tickerLists[0];
+                };
+                $scope.ticker_list_changed($scope.tickerList);
             });
         }
 
@@ -75,7 +82,13 @@
         function getTickers(tickerListId) {
             httpService.get("/api/ticker/" + tickerListId).then(function (response) {
                 $scope.tickers = response.data;
-                $scope.currentTickerIndex = 0;
+                if (storageService.getSessionStorage("currentTickerIndex") && storageService.getSessionStorage("currentTickerIndex") <= $scope.tickers.length - 1) {
+                    $scope.currentTickerIndex = storageService.getSessionStorage("currentTickerIndex");
+                } else {
+                    $scope.currentTickerIndex = 0;
+                }
+                var importer = _.find($scope.importers, function (imp) { return imp.name === $scope.tickers[0].importer });
+                $scope.importer_changed(importer);
                 $scope.load_chart();
             });
         }
@@ -117,7 +130,6 @@
                     }
                     httpService.get($scope.buySignalConfig.endpoint, buySignalRequest).then(function (buyResponse) {
                         $scope.buyIndicies = buyResponse.data;
-                        console.log(buyResponse.data);
                     });
                 }
                 if ($scope.sellSignalConfig) {
@@ -127,7 +139,6 @@
                     }
                     httpService.get($scope.sellSignalConfig.endpoint, sellSignalRequest).then(function (sellResponse) {
                         $scope.sellIndicies = sellResponse.data;
-                        console.log(sellResponse.data);
                     });
                 }
             });
