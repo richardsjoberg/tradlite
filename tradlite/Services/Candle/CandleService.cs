@@ -109,9 +109,11 @@ namespace Tradlite.Services.Candle.CandleService
 
                 cachedCandleKey.ToDate = request.ToDate.Value.Date;
                 await CacheCandles(candles, tickerId.Value, request.Interval, cachedCandleKey);
-                    
-                candles.AddRange(cachedCandles);
-                return candles.Where(cc => cc.DateTime.UtcDateTime >= request.FromDate && cc.DateTime.UtcDateTime <= request.ToDate).ToList();
+
+
+                var cachedCandlesOhlcv = cachedCandles.Cast<IOhlcv>().ToList();
+                cachedCandlesOhlcv.AddRange(candles);
+                return cachedCandlesOhlcv.Where(cc => cc.DateTime.UtcDateTime >= request.FromDate && cc.DateTime.UtcDateTime <= request.ToDate).ToList();
             }
             else //we wither have no cacheKeys or this is a p5, import all candles and delete old cacheKeys if any
             {

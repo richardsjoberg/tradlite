@@ -71,11 +71,12 @@
                 } else {
                     $scope.tickerList = $scope.tickerLists[0];
                 };
-                $scope.ticker_list_changed($scope.tickerList);
+                getTickers($scope.tickerList.id);
             });
         }
 
         $scope.ticker_list_changed = function (tickerList) {
+            storageService.setSessionStorage(0, "currentTickerIndex");
             getTickers(tickerList.id);
         }
 
