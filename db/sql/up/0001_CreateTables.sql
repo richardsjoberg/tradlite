@@ -41,6 +41,7 @@ CREATE TABLE [dbo].[CachedCandleKeys] (
     [FromDate] DATETIME2 (7) NOT NULL,
     [ToDate]   DATETIME2 (7) NOT NULL,
     [TickerId] INT           NOT NULL,
+    [Interval] NVARCHAR (50) NOT NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
