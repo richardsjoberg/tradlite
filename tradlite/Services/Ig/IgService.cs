@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Tradlite.Models.Ig;
 using Trady.Importer;
 
 namespace Tradlite.Services.Ig
@@ -11,6 +12,7 @@ namespace Tradlite.Services.Ig
     public interface IIgService
     {
         Task<IgRestApiClient> GetIgClient();
+        Task<SentimentResponse> GetSentiment(string igTicker);
     }
     public class IgService : IIgService
     {
@@ -34,6 +36,19 @@ namespace Tradlite.Services.Ig
         {
             await Authenticate();
             return _igRestApiClient;
+        }
+
+        public async Task<SentimentResponse> GetSentiment(string igTicker)
+        {
+            var client = await GetIgClient();
+            var marketDetails = await client.marketDetails(igTicker);
+            var sentiment = await client.getClientSentiment(marketDetails.Response.instrument.marketId);
+            var relatedSentiment = await client.getRelatedClientSentiment(marketDetails.Response.instrument.marketId);
+            return new SentimentResponse
+            {
+                Sentiment = sentiment,
+                RelatedSentiment = relatedSentiment
+            };
         }
 
         private async Task Authenticate()

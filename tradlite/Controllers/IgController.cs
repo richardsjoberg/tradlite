@@ -1,9 +1,8 @@
-﻿using dto.endpoint.browse;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Tradlite.Models.Ig;
 using Tradlite.Services.Ig;
 
 namespace Tradlite.Controllers
@@ -41,10 +40,12 @@ namespace Tradlite.Controllers
             }
         }
 
-        public class BrowseResponse
+        [Route("api/ig/sentiment/{igTicker}")]
+        public async Task<SentimentResponse> Sentiment(string igTicker)
         {
-            public List<HierarchyNode> Nodes { get; set; }
-            public List<HierarchyMarket> Markets { get; set; }
+            return await _igService.GetSentiment(igTicker);
         }
+
+        
     }
 }

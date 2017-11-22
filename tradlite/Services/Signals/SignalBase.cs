@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Trady.Analysis;
 using Trady.Core.Infrastructure;
 using Trady.Analysis.Extension;
+using System.ComponentModel;
+using Newtonsoft.Json.Linq;
 
 namespace Tradlite.Services.Signals
 {

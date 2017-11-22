@@ -37,7 +37,7 @@ namespace Tradlite.Controllers
         public async Task<int[]> BullishHarami([FromQuery]SignalRequest request)
         {
             var candles = await _candleService.GetCandles(request);
-            return _candlePatternService.BullishhHarami(candles, request.ExtraParams);
+            return _candlePatternService.BullishHarami(candles, request.ExtraParams);
         }
 
         [Route("api/signal/bearishharami")]
@@ -67,7 +67,86 @@ namespace Tradlite.Controllers
             var candles = await _candleService.GetCandles(request);
             return _candlePatternService.GravestoneDoji(candles, request.ExtraParams);
         }
-
+        
+        [Route("api/signal/eveningdojistar")]
+        public async Task<int[]> EveningDojiStar([FromQuery]SignalRequest request)
+        {
+            var candles = await _candleService.GetCandles(request);
+            return _candlePatternService.EveningDojiStar(candles, request.ExtraParams);
+        }
+        [Route("api/signal/morningdojistar")]
+        public async Task<int[]> MorningDojiStar([FromQuery]SignalRequest request)
+        {
+            var candles = await _candleService.GetCandles(request);
+            return _candlePatternService.MorningDojiStar(candles, request.ExtraParams);
+        }
+        [Route("api/signal/bearishabandonedbaby")]
+        public async Task<int[]> BearishAbandonedBaby([FromQuery]SignalRequest request)
+        {
+            var candles = await _candleService.GetCandles(request);
+            return _candlePatternService.BearishAbandonedBaby(candles, request.ExtraParams);
+        }
+        [Route("api/signal/bullishabandonedbaby")]
+        public async Task<int[]> BullishAbandonedBaby([FromQuery]SignalRequest request)
+        {
+            var candles = await _candleService.GetCandles(request);
+            return _candlePatternService.BullishAbandonedBaby(candles, request.ExtraParams);
+        }
+        [Route("api/signal/bearishengulfingpattern")]
+        public async Task<int[]> BearishEngulfingPattern([FromQuery]SignalRequest request)
+        {
+            var candles = await _candleService.GetCandles(request);
+            return _candlePatternService.BearishEngulfingPattern(candles, request.ExtraParams);
+        }
+        [Route("api/signal/bullishengulfingpattern")]
+        public async Task<int[]> BullishEngulfingPattern([FromQuery]SignalRequest request)
+        {
+            var candles = await _candleService.GetCandles(request);
+            return _candlePatternService.BullishEngulfingPattern(candles, request.ExtraParams);
+        }
+        [Route("api/signal/darkcloudcover")]
+        public async Task<int[]> DarkCloudCover([FromQuery]SignalRequest request)
+        {
+            var candles = await _candleService.GetCandles(request);
+            return _candlePatternService.DarkCloudCover(candles, request.ExtraParams);
+        }
+        [Route("api/signal/downsidetasukigap")]
+        public async Task<int[]> DownsideTasukiGap([FromQuery]SignalRequest request)
+        {
+            var candles = await _candleService.GetCandles(request);
+            return _candlePatternService.DownsideTasukiGap(candles, request.ExtraParams);
+        }
+        [Route("api/signal/upsidetasukigap")]
+        public async Task<int[]> UpsideTasukiGap([FromQuery]SignalRequest request)
+        {
+            var candles = await _candleService.GetCandles(request);
+            return _candlePatternService.UpsideTasukiGap(candles, request.ExtraParams);
+        }
+        [Route("api/signal/eveningstar")]
+        public async Task<int[]> EveningStar([FromQuery]SignalRequest request)
+        {
+            var candles = await _candleService.GetCandles(request);
+            return _candlePatternService.EveningStar(candles, request.ExtraParams);
+        }
+        [Route("api/signal/morningstar")]
+        public async Task<int[]> MorningStar([FromQuery]SignalRequest request)
+        {
+            var candles = await _candleService.GetCandles(request);
+            return _candlePatternService.MorningStar(candles, request.ExtraParams);
+        }
+        [Route("api/signal/fallingthree")]
+        public async Task<int[]> FallingThree([FromQuery]SignalRequest request)
+        {
+            var candles = await _candleService.GetCandles(request);
+            return _candlePatternService.FallingThree(candles, request.ExtraParams);
+        }
+        [Route("api/signal/risingthree")]
+        public async Task<int[]> RisingThree([FromQuery]SignalRequest request)
+        {
+            var candles = await _candleService.GetCandles(request);
+            return _candlePatternService.GravestoneDoji(candles, request.ExtraParams);
+        }
+        
         [Route("api/signal/rsioverbought")]
         public async Task<int[]> RsiOverbought([FromQuery]SignalRequest request)
         {

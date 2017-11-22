@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -32,6 +34,32 @@ namespace Tradlite
                 default:
                     return Trady.Core.Period.PeriodOption.Daily;
             }
+        }
+
+        public static T ParseJsonParam<T>(this string @params, string propertyName, T defaultValue) where T : struct
+        {
+            if (!string.IsNullOrEmpty(@params))
+            {
+                var paramObj = JObject.Parse(@params);
+                if (paramObj[propertyName] != null)
+                {
+                    try
+                    {
+                        var converter = TypeDescriptor.GetConverter(typeof(T));
+                        if (converter != null)
+                        {
+                            return (T)converter.ConvertFromString(paramObj[propertyName].ToString());
+                        }
+                        return defaultValue;
+                    }
+                    catch (NotSupportedException)
+                    {
+                        return defaultValue;
+                    }
+                }
+            }
+
+            return defaultValue;
         }
     }
 }
