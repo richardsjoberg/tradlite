@@ -13,33 +13,25 @@ namespace Tradlite.Services.Signals
 {
     public interface IRsiService
     {
-        int[] Overbought(IReadOnlyList<IOhlcv> candles, string extraParams);
-        int[] Oversold(IReadOnlyList<IOhlcv> candles, string extraParams);
+        int[] Overbought(IReadOnlyList<IOhlcv> candles, string parameters);
+        int[] Oversold(IReadOnlyList<IOhlcv> candles, string parameters);
     }
-    public class RsiService : IRsiService
+    public class RsiService : SignalBase, IRsiService
     {
-        public int[] Overbought(IReadOnlyList<IOhlcv> candles, string extraParams)
+        public int[] Overbought(IReadOnlyList<IOhlcv> candles, string parameters)
         {
-            var @params = ParseParams(extraParams);
+            var @params = ParseParams(parameters);
             var signal = Rule.Create(c => c.Get<RelativeStrengthIndex>(@params.rsiPeriod)[c.Index].Tick.IsTrue(t => t > @params.rsiTreshold));
-                
-            using (var ctx = new AnalyzeContext(candles))
-            {
-                var indexedCandles = new SimpleRuleExecutor(ctx, signal).Execute();
-                return indexedCandles.Select(ic => ic.Index).ToArray();
-            }
+
+            return ExecuteRule(candles, signal);
         }
 
-        public int[] Oversold(IReadOnlyList<IOhlcv> candles, string extraParams)
+        public int[] Oversold(IReadOnlyList<IOhlcv> candles, string parameters)
         {
-            var @params = ParseParams(extraParams);
+            var @params = ParseParams(parameters);
             var signal = Rule.Create(c => c.Get<RelativeStrengthIndex>(@params.rsiPeriod)[c.Index].Tick.IsTrue(t => t < @params.rsiTreshold));
 
-            using (var ctx = new AnalyzeContext(candles))
-            {
-                var indexedCandles = new SimpleRuleExecutor(ctx, signal).Execute();
-                return indexedCandles.Select(ic => ic.Index).ToArray();
-            }
+            return ExecuteRule(candles, signal);
         }
 
         private (int rsiPeriod, int rsiTreshold) ParseParams(string @params)

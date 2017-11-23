@@ -90,9 +90,9 @@
                 httpService.get("/api/candles", request).then(function (candleResponse) {
                     var candles = candleResponse.data;
                     if ($scope.buySignalConfig) {
-                        if ($scope.buySignalConfig.extraParams) {
+                        if ($scope.buySignalConfig.parameters) {
                             var buySignalRequest = angular.copy(request);
-                            buySignalRequest.extraParams = $scope.buySignalConfig.extraParams
+                            buySignalRequest.parameters = $scope.buySignalConfig.parameters
                         }
                         httpService.get($scope.buySignalConfig.endpoint, buySignalRequest).then(function (buyResponse) {
                             var buyIndicies = buyResponse.data;
@@ -109,9 +109,9 @@
                         });
                     }
                     if ($scope.sellSignalConfig) {
-                        if ($scope.sellSignalConfig.extraParams) {
+                        if ($scope.sellSignalConfig.parameters) {
                             var sellSignalRequest = angular.copy(request);
-                            sellSignalRequest.extraParams = $scope.sellSignalConfig.extraParams
+                            sellSignalRequest.parameters = $scope.sellSignalConfig.parameters
                         }
                         httpService.get($scope.sellSignalConfig.endpoint, sellSignalRequest).then(function (sellResponse) {
                             var sellIndicies = sellResponse.data;

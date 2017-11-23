@@ -109,6 +109,7 @@ namespace Tradlite
             services.AddTransient<IDirectionalMovementService, DirectionalMovementService>();
             services.AddTransient<IRsiService, RsiService>();
             services.AddTransient<ICandlePatternService, CandlePatternService>();
+            services.AddTransient<IMovingAverageService, MovingAverageService>();
             services.AddTransient<IDbConnection, SqlConnection>(factory=> 
             {
                 return new SqlConnection(Configuration.GetConnectionString("tradlite"));

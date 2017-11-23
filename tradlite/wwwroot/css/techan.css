@@ -7,7 +7,7 @@ text {
 }
 
     text.symbol {
-        fill: #BBBBBB;
+        font-size: 14px;
     }
 
 path {

@@ -22,7 +22,7 @@ CREATE TABLE [dbo].[TickerLists_Tickers] (
 CREATE TABLE [dbo].[SignalConfigs] (
     [Id]          INT            IDENTITY (1, 1) NOT NULL,
     [Endpoint]    NVARCHAR (50)  NOT NULL,
-    [ExtraParams] NVARCHAR (MAX) NULL,
+    [Parameters]  NVARCHAR (MAX) NULL,
     [Type]        NVARCHAR (50)  NOT NULL,
     [Name]        NVARCHAR (50)  NOT NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)

@@ -10,7 +10,7 @@ namespace Tradlite.Models
     {
         public int Id { get; set; }
         public string Endpoint { get; set; }
-        public string ExtraParams { get; set; }
+        public string Parameters { get; set; }
         public string Type { get; set; }
         public string Name { get; set; }
     }

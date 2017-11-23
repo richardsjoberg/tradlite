@@ -7,6 +7,6 @@ namespace Tradlite.Models.Requests
 {
     public class SignalRequest : CandleRequest
     {
-        public string ExtraParams { get; set; }
+        public string Parameters { get; set; }
     }
 }

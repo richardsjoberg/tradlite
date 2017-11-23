@@ -12,16 +12,16 @@ namespace Tradlite.Services.Signals
 {
     public interface IDirectionalMovementService
     {
-        int[] Trend(IReadOnlyList<IOhlcv> candles, string extraParams);
-        int[] MdiPdiCrossAndTrendingAdx(IReadOnlyList<IOhlcv> candles, string extraParams);
-        int[] NewTrend(IReadOnlyList<IOhlcv> candles, string extraParams);
+        int[] Trend(IReadOnlyList<IOhlcv> candles, string parameters);
+        int[] MdiPdiCrossAndTrendingAdx(IReadOnlyList<IOhlcv> candles, string parameters);
+        int[] NewTrend(IReadOnlyList<IOhlcv> candles, string parameters);
 
     }
-    public class DirectionalMovementService : IDirectionalMovementService
+    public class DirectionalMovementService : SignalBase, IDirectionalMovementService
     {
-        public int[] Trend(IReadOnlyList<IOhlcv> candles, string extraParams)
+        public int[] Trend(IReadOnlyList<IOhlcv> candles, string parameters)
         {
-            var @params = ParseParams(extraParams);
+            var @params = ParseParams(parameters);
             var signal = Rule.Create(c =>
             {
                 var adxTick = c.Get<AverageDirectionalIndex>(@params.AdxPeriod)[c.Index].Tick;
@@ -41,16 +41,12 @@ namespace Tradlite.Services.Signals
 
                 return false;
             });
-            using (var ctx = new AnalyzeContext(candles))
-            {
-                var indexedCandles = new SimpleRuleExecutor(ctx, signal).Execute();
-                return indexedCandles.Select(ic => ic.Index).ToArray();
-            }
+            return ExecuteRule(candles, signal);
         }
         
-        public int[] NewTrend(IReadOnlyList<IOhlcv> candles, string extraParams)
+        public int[] NewTrend(IReadOnlyList<IOhlcv> candles, string parameters)
         {
-            var @params = ParseParams(extraParams);
+            var @params = ParseParams(parameters);
             var signal = Rule.Create(c =>
             {
                 var adxTick = c.Get<AverageDirectionalIndex>(@params.AdxPeriod)[c.Index].Tick;
@@ -79,16 +75,13 @@ namespace Tradlite.Services.Signals
 
                 return false;
             });
-            using (var ctx = new AnalyzeContext(candles))
-            {
-                var indexedCandles = new SimpleRuleExecutor(ctx, signal).Execute();
-                return indexedCandles.Select(ic => ic.Index).ToArray();
-            }
+
+            return ExecuteRule(candles, signal);
         }
 
-        public int[] MdiPdiCrossAndTrendingAdx(IReadOnlyList<IOhlcv> candles, string extraParams)
+        public int[] MdiPdiCrossAndTrendingAdx(IReadOnlyList<IOhlcv> candles, string parameters)
         {
-            var @params = ParseParams(extraParams);
+            var @params = ParseParams(parameters);
             var signal = Rule.Create(c =>
             {
                 var adxTick = c.Get<AverageDirectionalIndex>(@params.AdxPeriod)[c.Index].Tick;
@@ -113,11 +106,8 @@ namespace Tradlite.Services.Signals
 
                 return false;
             });
-            using (var ctx = new AnalyzeContext(candles))
-            {
-                var indexedCandles = new SimpleRuleExecutor(ctx, signal).Execute();
-                return indexedCandles.Select(ic => ic.Index).ToArray();
-            }
+
+            return ExecuteRule(candles, signal);
         }
 
         

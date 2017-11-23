@@ -12,59 +12,43 @@ namespace Tradlite.Services.Signals
 {
     public interface IZigZagService
     {
-        int[] Maximas(IReadOnlyList<IOhlcv> candles, string extraParams);
-        int[] Minimas(IReadOnlyList<IOhlcv> candles, string extraParams);
-        int[] Support(IReadOnlyList<IOhlcv> candles, string extraParams);
-        int[] Resistance(IReadOnlyList<IOhlcv> candles, string extraParams);
+        int[] Maximas(IReadOnlyList<IOhlcv> candles, string parameters);
+        int[] Minimas(IReadOnlyList<IOhlcv> candles, string parameters);
+        int[] Support(IReadOnlyList<IOhlcv> candles, string parameters);
+        int[] Resistance(IReadOnlyList<IOhlcv> candles, string parameters);
     }
-    public class ZigZagService : IZigZagService
+    public class ZigZagService : SignalBase, IZigZagService
     {
-        public int[] Maximas(IReadOnlyList<IOhlcv> candles, string extraParams)
+        public int[] Maximas(IReadOnlyList<IOhlcv> candles, string parameters)
         {
-            var @params = ParseParams(extraParams);
+            var @params = ParseParams(parameters);
             var signal = Rule.Create(c => c.Get<ZigZagMaxima>(@params.zigZagTreshold)[c.Index].Tick != null);
 
-            using (var ctx = new AnalyzeContext(candles))
-            {
-                var indexedCandles = new SimpleRuleExecutor(ctx, signal).Execute();
-                return indexedCandles.Select(ic => ic.Index).ToArray();
-            }
+            return ExecuteRule(candles, signal);
         }
 
-        public int[] Minimas(IReadOnlyList<IOhlcv> candles, string extraParams)
+        public int[] Minimas(IReadOnlyList<IOhlcv> candles, string parameters)
         {
-            var @params = ParseParams(extraParams);
+            var @params = ParseParams(parameters);
             var signal = Rule.Create(c => c.Get<ZigZagMinima>(@params.zigZagTreshold)[c.Index].Tick != null);
 
-            using (var ctx = new AnalyzeContext(candles))
-            {
-                var indexedCandles = new SimpleRuleExecutor(ctx, signal).Execute();
-                return indexedCandles.Select(ic => ic.Index).ToArray();
-            }
+            return ExecuteRule(candles, signal);
         }
 
-        public int[] Resistance(IReadOnlyList<IOhlcv> candles, string extraParams)
+        public int[] Resistance(IReadOnlyList<IOhlcv> candles, string parameters)
         {
-            var @params = ParseParams(extraParams);
+            var @params = ParseParams(parameters);
             var signal = Rule.Create(c => c.Get<ZigZagResistance>(@params.zigZagTreshold, @params.turningPointMargin, @params.requiredNumberOfTurningPoints)[c.Index].Tick);
 
-            using (var ctx = new AnalyzeContext(candles))
-            {
-                var indexedCandles = new SimpleRuleExecutor(ctx, signal).Execute();
-                return indexedCandles.Select(ic => ic.Index).ToArray();
-            }
+            return ExecuteRule(candles, signal);
         }
 
-        public int[] Support(IReadOnlyList<IOhlcv> candles, string extraParams)
+        public int[] Support(IReadOnlyList<IOhlcv> candles, string parameters)
         {
-            var @params = ParseParams(extraParams);
+            var @params = ParseParams(parameters);
             var signal = Rule.Create(c => c.Get<ZigZagSupport>(@params.zigZagTreshold, @params.turningPointMargin, @params.requiredNumberOfTurningPoints)[c.Index].Tick);
 
-            using (var ctx = new AnalyzeContext(candles))
-            {
-                var indexedCandles = new SimpleRuleExecutor(ctx, signal).Execute();
-                return indexedCandles.Select(ic => ic.Index).ToArray();
-            }
+            return ExecuteRule(candles, signal);
         }
 
         private (decimal zigZagTreshold, decimal turningPointMargin, int requiredNumberOfTurningPoints) ParseParams(string @params)

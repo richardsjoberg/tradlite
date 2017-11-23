@@ -3,7 +3,7 @@
         <input type="text" ng-disabled="true" class="form-control" placeholder="id" ng-model="model.id" />
         <input type="text" class="form-control" placeholder="name" ng-model="model.name" />
         <input type="text" required class="form-control" placeholder="endpoint" ng-model="model.endpoint" />
-        <input type="text" class="form-control" placeholder="extra params" ng-model="model.extraParams" />
+        <input type="text" class="form-control" placeholder="parameters" ng-model="model.parameters" />
         <select class="form-control" ng-model="model.type" ng-init="model.type = types[0]">
             <option ng-repeat="type in types" value="{{type}}">{{type}}</option>
         </select>
@@ -23,7 +23,7 @@
                     Endpoint
                 </th>
                 <th>
-                    ExtraParams
+                    Parameters
                 </th>
                 <th>
                     Type
@@ -45,7 +45,7 @@
                     {{signalConfig.endpoint}}
                 </td>
                 <td>
-                    {{signalConfig.extraParams}}
+                    {{signalConfig.parameters}}
                 </td>
                 <td>
                     {{signalConfig.type}}
