@@ -44,16 +44,7 @@ namespace Tradlite.Services.Signals
 
         private (int rsiPeriod, int rsiTreshold) ParseParams(string @params)
         {
-            var parsedParams = (rsiPeriod: 14, rsiTreshold: 70);
-            if (!string.IsNullOrEmpty(@params))
-            {
-                var extraParam = JObject.Parse(@params);
-                if (extraParam["rsiPeriod"] != null)
-                    int.TryParse(extraParam["rsiPeriod"].ToString(), out parsedParams.rsiPeriod);
-                if(extraParam["rsiTreshold"] != null)
-                    int.TryParse(extraParam["rsiTreshold"].ToString(), out parsedParams.rsiTreshold);
-            }
-            return parsedParams;
+            return (@params.ParseJsonParam("rsiPeriod", 14), @params.ParseJsonParam("rsiTreshold", 70));
         }
     }
 }

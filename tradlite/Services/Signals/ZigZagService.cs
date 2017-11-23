@@ -69,18 +69,10 @@ namespace Tradlite.Services.Signals
 
         private (decimal zigZagTreshold, decimal turningPointMargin, int requiredNumberOfTurningPoints) ParseParams(string @params)
         {
-            var parsedParams = (zigZagTreshold: 0.03m, turningPointMargin: 0.007m, requiredNumberOfTurningPoints: 2);
-            if (!string.IsNullOrEmpty(@params))
-            {
-                var extraParam = JObject.Parse(@params);
-                if (extraParam["zigZagTreshold"] != null)
-                    decimal.TryParse(extraParam["zigZagTreshold"].ToString(), out parsedParams.zigZagTreshold);
-                if (extraParam["turningPointMargin"] != null)
-                    decimal.TryParse(extraParam["turningPointMargin"].ToString(), out parsedParams.turningPointMargin);
-                if (extraParam["requiredNumberOfTurningPoints"] != null)
-                    int.TryParse(extraParam["requiredNumberOfTurningPoints"].ToString(), out parsedParams.requiredNumberOfTurningPoints);
-            }
-            return parsedParams;
+            return (@params.ParseJsonParam("zigZagTreshold", 0.03m), 
+                @params.ParseJsonParam("turningPointMargin", 0.007m), 
+                @params.ParseJsonParam("requiredNumberOfTurningPoints", 2));
+            
         }
 
         

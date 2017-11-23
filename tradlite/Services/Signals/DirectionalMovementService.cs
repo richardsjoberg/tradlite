@@ -157,23 +157,11 @@ namespace Tradlite.Services.Signals
 
         private (int AdxPeriod, int MdiPeriod, int PdiPeriod, int AdxTreshold, bool Bullish) ParseParams(string @params)
         {
-            var parsedParams = (AdxPeriod: 8, MdiPeriod: 8, PdiPeriod: 8, AdxTreshold: 20, Bullish: true);
-
-            if (!string.IsNullOrEmpty(@params))
-            {
-                var extraParam = JObject.Parse(@params);
-                if (extraParam["adxPeriod"] != null)
-                    int.TryParse(extraParam["adxPeriod"].ToString(), out parsedParams.AdxPeriod);
-                if (extraParam["mdiPeriod"] != null)
-                    int.TryParse(extraParam["mdiPeriod"].ToString(), out parsedParams.MdiPeriod);
-                if (extraParam["pdiPeriod"] != null)
-                    int.TryParse(extraParam["pdiPeriod"].ToString(), out parsedParams.PdiPeriod);
-                if (extraParam["adxTreshold"] != null)
-                    int.TryParse(extraParam["adxTreshold"].ToString(), out parsedParams.AdxTreshold);
-                if (extraParam["bearish"] != null)
-                    parsedParams.Bullish = false;
-            }
-            return parsedParams;
+            return (@params.ParseJsonParam("adxPeriod", 8), 
+                @params.ParseJsonParam("mdiPeriod", 8), 
+                @params.ParseJsonParam("pdiPeriod", 8), 
+                @params.ParseJsonParam("adxTreshold", 20), 
+                @params.ParseJsonParam("bullish", true));
         }
 
     }
