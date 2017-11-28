@@ -87,14 +87,14 @@
             angular.forEach($scope.tickers, function (ticker) {
                 var request = { ticker: ticker.symbol, importer: ticker.importer, interval: $scope.interval, fromDate: $scope.fromDate, toDate: $scope.toDate }; 
                 setSessionStorage();
-                httpService.get("/api/candles", request).then(function (candleResponse) {
+                httpService.get("/api/candles", request, true).then(function (candleResponse) {
                     var candles = candleResponse.data;
                     if ($scope.buySignalConfig) {
                         if ($scope.buySignalConfig.parameters) {
                             var buySignalRequest = angular.copy(request);
                             buySignalRequest.parameters = $scope.buySignalConfig.parameters
                         }
-                        httpService.get($scope.buySignalConfig.endpoint, buySignalRequest).then(function (buyResponse) {
+                        httpService.get($scope.buySignalConfig.endpoint, buySignalRequest, true).then(function (buyResponse) {
                             var buyIndicies = buyResponse.data;
                             if (candles.length - 2 < buyIndicies[buyIndicies.length - 1]) {
                                 $scope.signals.push({
@@ -113,7 +113,7 @@
                             var sellSignalRequest = angular.copy(request);
                             sellSignalRequest.parameters = $scope.sellSignalConfig.parameters
                         }
-                        httpService.get($scope.sellSignalConfig.endpoint, sellSignalRequest).then(function (sellResponse) {
+                        httpService.get($scope.sellSignalConfig.endpoint, sellSignalRequest, true).then(function (sellResponse) {
                             var sellIndicies = sellResponse.data;
                             if (candles.length - 2 < sellIndicies[sellIndicies.length - 1]) {
                                 $scope.signals.push({

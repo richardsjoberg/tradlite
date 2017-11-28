@@ -20,6 +20,7 @@ using Trady.Importer.Csv;
 using Tradlite.Services.Signals;
 using Tradlite.Services.Ig;
 using Microsoft.Extensions.Logging;
+using Tradlite.Services.Management;
 
 namespace Tradlite
 {
@@ -45,12 +46,21 @@ namespace Tradlite
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-            services.AddTransient<YahooFinanceImporter>();
-            services.AddTransient<GoogleFinanceImporter>();
-            services.AddTransient<QuandlImporter>();
-            services.AddTransient<StooqImporter>();
-            services.AddTransient<CsvImporter>();
             services.AddLogging();
+            
+            services.AddTransient<ICandleService, CandleService>();
+            services.AddSingleton<IHttpService, HttpService>();
+            services.AddTransient<IDirectionalMovementService, DirectionalMovementService>();
+            services.AddTransient<IRsiService, RsiService>();
+            services.AddTransient<ICandlePatternService, CandlePatternService>();
+            services.AddTransient<IMovingAverageService, MovingAverageService>();
+            services.AddTransient<IZigZagService, ZigZagService>();
+            
+            services.AddTransient<IDbConnection, SqlConnection>(factory =>
+            {
+                return new SqlConnection(Configuration.GetConnectionString("tradlite"));
+            });
+            
             if (Configuration.GetValue<bool>("EnableIg"))
             {
                 var igConfig = Configuration.GetSection("Ig");
@@ -78,7 +88,12 @@ namespace Tradlite
                     return new IgService(igConfig["environment"], igConfig["username"], password, apiKey, (message) => logger.LogInformation(message));
                 });
             }
-            
+
+            services.AddTransient<YahooFinanceImporter>();
+            services.AddTransient<GoogleFinanceImporter>();
+            services.AddTransient<QuandlImporter>();
+            services.AddTransient<StooqImporter>();
+            services.AddTransient<CsvImporter>();
             services.AddTransient(factory =>
             {
                 Func<string, IImporter> accesor = key =>
@@ -103,18 +118,22 @@ namespace Tradlite
                 };
                 return accesor;
             });
-            var connectionString = 
-            services.AddTransient<ICandleService, CandleService>();
-            services.AddSingleton<IHttpService, HttpService>();
-            services.AddTransient<IDirectionalMovementService, DirectionalMovementService>();
-            services.AddTransient<IRsiService, RsiService>();
-            services.AddTransient<ICandlePatternService, CandlePatternService>();
-            services.AddTransient<IMovingAverageService, MovingAverageService>();
-            services.AddTransient<IDbConnection, SqlConnection>(factory=> 
+
+            services.AddTransient<AverageTrueRangeManagement>();
+            services.AddTransient(factory =>
             {
-                return new SqlConnection(Configuration.GetConnectionString("tradlite"));
+                Func<string, IManagement> accesor = key =>
+                {
+                    switch (key)
+                    {
+                        case "AverageTrueRange":
+                            return factory.GetService<AverageTrueRangeManagement>();
+                        default:
+                            throw new KeyNotFoundException();
+                    }
+                };
+                return accesor;
             });
-            services.AddTransient<IZigZagService, ZigZagService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

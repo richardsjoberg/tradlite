@@ -19,12 +19,12 @@ namespace Tradlite.Services.Candle.CandleService
     }
     public class CandleService : ICandleService
     {
-        private readonly Func<string, IImporter> _serviceAccessor;
+        private readonly Func<string, IImporter> _importerAccessor;
         private readonly IDbConnection _dbConnection;
 
-        public CandleService(Func<string, IImporter> serviceAccessor, IDbConnection dbConnection)
+        public CandleService(Func<string, IImporter> importerAccessor, IDbConnection dbConnection)
         {
-            _serviceAccessor = serviceAccessor;
+            _importerAccessor = importerAccessor;
             _dbConnection = dbConnection;
         }
         // cache                       |-----------|
@@ -57,7 +57,7 @@ namespace Tradlite.Services.Candle.CandleService
             
             if(!tickerId.HasValue)
             {
-                return await _serviceAccessor(request.Importer).ImportAsync(request.Ticker, request.FromDate.Value, request.ToDate.Value, request.Interval.ToTradyPeriod());
+                return await _importerAccessor(request.Importer).ImportAsync(request.Ticker, request.FromDate.Value, request.ToDate.Value, request.Interval.ToTradyPeriod());
             }
             
             var candleKeysSql = @"select * from cachedCandleKeys cck 
@@ -68,7 +68,7 @@ namespace Tradlite.Services.Candle.CandleService
 
             if(!cachedCandleKeys.Any())
             {
-                var candles = await _serviceAccessor(request.Importer).ImportAsync(request.Ticker, request.FromDate.Value, request.ToDate.Value, request.Interval.ToTradyPeriod());
+                var candles = await _importerAccessor(request.Importer).ImportAsync(request.Ticker, request.FromDate.Value, request.ToDate.Value, request.Interval.ToTradyPeriod());
                 await CacheCandles(candles.ToList(), tickerId.Value, request.Interval);
                 return candles;
             }
@@ -89,7 +89,7 @@ namespace Tradlite.Services.Candle.CandleService
                 var cachedCandleKeyId = cachedCandleKey.Id;
                 var cachedCandles = (await _dbConnection.QueryAsync<CachedCandle>(getCachedCandlesSql, new { cachedCandleKeyId })).ToList();
 
-                var candles = (await _serviceAccessor(request.Importer).ImportAsync(request.Ticker, request.FromDate.Value, cachedCandleKey.FromDate, request.Interval.ToTradyPeriod()))
+                var candles = (await _importerAccessor(request.Importer).ImportAsync(request.Ticker, request.FromDate.Value, cachedCandleKey.FromDate, request.Interval.ToTradyPeriod()))
                     .Where(nc => !cachedCandles.Select(cc => new { cc.DateTime, cc.Interval }).Contains(new { nc.DateTime, Interval = request.Interval })).ToList().ToList();
                 cachedCandleKey.FromDate = request.FromDate.Value.Date;
                 await CacheCandles(candles, tickerId.Value, request.Interval, cachedCandleKey);
@@ -104,7 +104,7 @@ namespace Tradlite.Services.Candle.CandleService
                 var cachedCandleKeyId = cachedCandleKey.Id;
                 var cachedCandles = (await _dbConnection.QueryAsync<CachedCandle>(getCachedCandlesSql, new { cachedCandleKeyId }));
 
-                var candles = (await _serviceAccessor(request.Importer).ImportAsync(request.Ticker, cachedCandleKey.ToDate, request.ToDate.Value, request.Interval.ToTradyPeriod()))
+                var candles = (await _importerAccessor(request.Importer).ImportAsync(request.Ticker, cachedCandleKey.ToDate, request.ToDate.Value, request.Interval.ToTradyPeriod()))
                     .Where(nc => !cachedCandles.Select(cc => new { cc.DateTime, cc.Interval }).Contains(new { DateTime = nc.DateTime, Interval = request.Interval })).ToList();
 
                 cachedCandleKey.ToDate = request.ToDate.Value.Date;
@@ -125,7 +125,7 @@ namespace Tradlite.Services.Candle.CandleService
                     }
                 }
 
-                var candles = await _serviceAccessor(request.Importer).ImportAsync(request.Ticker, request.FromDate.Value, request.ToDate.Value, request.Interval.ToTradyPeriod());
+                var candles = await _importerAccessor(request.Importer).ImportAsync(request.Ticker, request.FromDate.Value, request.ToDate.Value, request.Interval.ToTradyPeriod());
                 await CacheCandles(candles.ToList(), tickerId.Value, request.Interval);
                 return candles.Where(cc => cc.DateTime.UtcDateTime >= request.FromDate && cc.DateTime.UtcDateTime <= request.ToDate).ToList();
             }
@@ -157,7 +157,7 @@ namespace Tradlite.Services.Candle.CandleService
 
         public async Task CacheCandles(IReadOnlyList<IOhlcv> candles, int tickerId, string interval, CachedCandleKey cachedCandleKey = null)
         {
-            var _candles = candles.ToList(); //hack in order to be able to remove last candle
+            var _candles = candles.ToList(); //hack in order to be able to remove last candle (candles is a reference variable) 
             if (!_candles.Any())
             {
                 return;
