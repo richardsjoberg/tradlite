@@ -14,7 +14,6 @@ namespace Tradlite.Models.Backtesting
         public string LimitManagement { get; set; }
         public string EntryManagement { get; set; }
         public string Parameters { get; set; }
-        public int InitialCapital { get; set; }
         public int AllowedRisk { get; set; }
         public int? ExitSignalConfigId { get; set; }
         public string ExitSignalService { get; set; }

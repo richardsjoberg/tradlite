@@ -7,7 +7,7 @@ namespace Tradlite.Models.Backtesting
 {
     public class BacktestResult
     {
-        public BacktestResult(List<Transaction> transactions, decimal initialCapital, decimal exchangeRate)
+        public BacktestResult(List<Transaction> transactions, decimal initialCapital)
         {
             Transactions = transactions;
             decimal wins = 0;
@@ -15,8 +15,8 @@ namespace Tradlite.Models.Backtesting
             foreach(var transaction in transactions)
             {
                 var transactionGain = transaction.Direction == "Long" ?
-                    (transaction.ExitLevel - transaction.EntryLevel) * transaction.Size * exchangeRate :
-                    (transaction.EntryLevel - transaction.ExitLevel) * transaction.Size * exchangeRate;
+                    (transaction.ExitLevel - transaction.EntryLevel) * transaction.Size * transaction.ExchangeRate :
+                    (transaction.EntryLevel - transaction.ExitLevel) * transaction.Size * transaction.ExchangeRate;
                 
                 Gain += transactionGain;
 
@@ -24,9 +24,9 @@ namespace Tradlite.Models.Backtesting
                     wins++;
                 else
                     losses++;
-
-                transaction.Reward = transaction.Reward * exchangeRate;
-                transaction.Risk = transaction.Risk * exchangeRate;
+                transaction.Gain = transactionGain;
+                transaction.Reward = transaction.Reward * transaction.ExchangeRate;
+                transaction.Risk = transaction.Risk * transaction.ExchangeRate;
 
             }
 

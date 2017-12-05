@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Tradlite.Models.Requests
 {
-    public class BacktestRequest : CandleRequest
+    public class BacktestTickerRequest : CandleRequest
     {
         public int BacktestConfigId { get; set; }
     }

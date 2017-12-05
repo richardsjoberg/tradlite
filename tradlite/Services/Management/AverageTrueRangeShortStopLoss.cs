@@ -12,7 +12,7 @@ namespace Tradlite.Services.Management
         public decimal? StopLoss(IReadOnlyList<IOhlcv> candles, int signalIndex, string parameters)
         {
             var period = parameters.ParseJsonParam("period", 14);
-            var stopMultiplier = parameters.ParseJsonParam("stopMultiplier", 0.5m);
+            var stopMultiplier = parameters.ParseJsonParam("stopMultiplier", 2m);
             var atr = candles.Atr(period);
             if (!atr[signalIndex].Tick.HasValue)
                 return null;

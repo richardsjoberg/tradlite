@@ -7,6 +7,11 @@ using Tradlite.Services.Candle.CandleService;
 using Tradlite.Services.Ig;
 using Dapper.Contrib.Extensions;
 using Tradlite.Services.Backtest;
+using System;
+using Dapper;
+using Tradlite.Models;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace Tradlite.Controllers
 {
@@ -28,19 +33,74 @@ namespace Tradlite.Controllers
             _backtestService = backtestService;
         }
 
-        [Route("api/backtest/run")]
-        public async Task<BacktestResult> RunBacktest([FromQuery]BacktestRequest backtestRequest)
+        [Route("api/backtest/ticker")]
+        public async Task<BacktestResult> BacktestTicker([FromQuery]BacktestTickerRequest request)
         {
-            var candles = await _candleService.GetCandles(backtestRequest);
-            var backtestConfig = _dbConnection.Get<BacktestConfig>(backtestRequest.BacktestConfigId);
+            var candles = await _candleService.GetCandles(request);
+            var backtestConfig = _dbConnection.Get<BacktestConfig>(request.BacktestConfigId);
             
-            var marketDetails = await _igService.GetMarketDetails(backtestRequest.Ticker);
+            var marketDetails = await _igService.GetMarketDetails(request.Ticker);
             var size = marketDetails.snapshot.scalingFactor * marketDetails.instrument.lotSize.Value;
             var exchangeRate = 1.0m / marketDetails.instrument.currencies[0].baseExchangeRate.Value;
 
-            var transactions = await _backtestService.Run(candles, backtestConfig, size, backtestRequest.Ticker);
+            var transactions = await _backtestService.Run(candles, backtestConfig, size, request.Ticker, exchangeRate);
 
-            return new BacktestResult(transactions, backtestConfig.InitialCapital, exchangeRate);
+            return new BacktestResult(transactions, 100000);
+        }
+
+        [Route("api/backtest/tickerlist")]
+        public async Task<BacktestResult> BacktestTickerlist([FromQuery]BacktestTickerListRequest request)
+        {
+            if(!request.LongBacktestConfigId.HasValue && !request.ShortBacktestConfigId.HasValue)
+            {
+                throw new ArgumentException("at least one backtest config id is required");
+            }
+
+            var sql =
+                "select * from tickers t " +
+                "inner join tickerLists_Tickers tlt on tlt.tickerId = t.id " +
+                "where tlt.tickerListId = @tickerListId";
+            var tickers = (await _dbConnection.QueryAsync<Ticker>(sql, new { request.TickerListId })).ToList();
+            BacktestConfig longBacktestConfig = null;
+            if(request.LongBacktestConfigId.HasValue)
+            {
+                longBacktestConfig = _dbConnection.Get<BacktestConfig>(request.LongBacktestConfigId);
+            }
+
+            BacktestConfig shortBacktestConfig = null;
+            if(request.ShortBacktestConfigId.HasValue)
+            {
+                shortBacktestConfig = _dbConnection.Get<BacktestConfig>(request.ShortBacktestConfigId);
+            }
+
+            var transactions = new List<Transaction>();
+            foreach (var ticker in tickers)
+            {
+                var marketDetails = await _igService.GetMarketDetails(ticker.Symbol);
+                var size = marketDetails.snapshot.scalingFactor * marketDetails.instrument.lotSize.Value;
+                var exchangeRate = 1.0m / marketDetails.instrument.currencies[0].baseExchangeRate.Value;
+                var candles = await _candleService.GetCandles(new CandleRequest
+                {
+                    FromDate = request.FromDate,
+                    ToDate = request.ToDate,
+                    Importer = ticker.Importer,
+                    Interval = request.Interval,
+                    Ticker = ticker.Symbol
+                });
+                if(longBacktestConfig != null)
+                {
+                    var backtestTransactions = await _backtestService.Run(candles, longBacktestConfig, size, ticker.Symbol, exchangeRate);
+                    transactions.AddRange(backtestTransactions);
+                }
+
+                if(shortBacktestConfig != null)
+                {
+                    var backtestTransactions = await _backtestService.Run(candles, shortBacktestConfig, size, ticker.Symbol, exchangeRate);
+                    transactions.AddRange(backtestTransactions);
+                }
+                
+            }
+            return new BacktestResult(transactions, 100000);
         }
     }
 }

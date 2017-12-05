@@ -60,18 +60,18 @@ CREATE TABLE [dbo].[CachedCandles] (
 );
 
 CREATE TABLE [dbo].[BacktestConfigs] (
-    [Id]                 INT            IDENTITY (1, 1) NOT NULL,
-    [EntrySignalConfigId]     INT            NOT NULL,
-    [EntrySignalService] NVARCHAR (50)  NOT NULL,
-    [StopLossManagement] NVARCHAR (50)  NOT NULL,
-    [LimitManagement]    NVARCHAR (50)  NULL,
-    [EntryManagement]    NVARCHAR (50)  NOT NULL,
-    [Parameters]         NVARCHAR (MAX) NULL,
-    [InitialCapital]     INT            NOT NULL,
-    [AllowedRisk]        INT            NOT NULL,
-    [ExitSignalService]  NVARCHAR (50)  NULL,
-    [ExitSignalConfigId] INT            NULL,
-    [Direction]          NVARCHAR (50)  NOT NULL,
+    [Id]                  INT            IDENTITY (1, 1) NOT NULL,
+    [EntrySignalConfigId] INT            NOT NULL,
+    [EntrySignalService]  NVARCHAR (50)  NOT NULL,
+    [StopLossManagement]  NVARCHAR (50)  NOT NULL,
+    [LimitManagement]     NVARCHAR (50)  NULL,
+    [EntryManagement]     NVARCHAR (50)  NOT NULL,
+    [Parameters]          NVARCHAR (MAX) NULL,
+    [AllowedRisk]         INT            NOT NULL,
+    [ExitSignalService]   NVARCHAR (50)  NULL,
+    [ExitSignalConfigId]  INT            NULL,
+    [Direction]           NVARCHAR (50)  NOT NULL,
+    [OrderType]           NVARCHAR (50)  NOT NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 

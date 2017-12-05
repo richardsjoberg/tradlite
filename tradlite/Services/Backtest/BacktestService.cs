@@ -17,7 +17,7 @@ namespace Tradlite.Services.Backtest
 {
     public interface IBacktestService
     {
-        Task<List<Models.Backtesting.Transaction>> Run(IReadOnlyList<IOhlcv> candles, BacktestConfig backtestConfig, decimal size, string ticker);
+        Task<List<Models.Backtesting.Transaction>> Run(IReadOnlyList<IOhlcv> candles, BacktestConfig backtestConfig, decimal size, string ticker, decimal exchangeRate);
     }
     public class BacktestService : IBacktestService
     {
@@ -42,7 +42,7 @@ namespace Tradlite.Services.Backtest
             _dbConnection = dbConnection;
         }
 
-        public async Task<List<Transaction>> Run(IReadOnlyList<IOhlcv> candles, BacktestConfig backtestConfig, decimal size, string ticker)
+        public async Task<List<Transaction>> Run(IReadOnlyList<IOhlcv> candles, BacktestConfig backtestConfig, decimal size, string ticker, decimal exchangeRate)
         {
             var signalConfig = await _dbConnection.GetAsync<SignalConfig>(backtestConfig.EntrySignalConfigId);
             var signals = _signalServiceAccessor(backtestConfig.EntrySignalService).GetSignals(candles, signalConfig.Parameters);
@@ -105,21 +105,21 @@ namespace Tradlite.Services.Backtest
                     {
                         if (currentPosition.Limit.HasValue && candle.High >= currentPosition.Limit)
                         {
-                            transactions.Add(CreateLongTransaction(currentPosition, candle.DateTime.LocalDateTime, currentPosition.Limit.Value, ticker));
+                            transactions.Add(CreateLongTransaction(currentPosition, candle.DateTime.LocalDateTime, currentPosition.Limit.Value, ticker, exchangeRate));
                             currentPosition = null;
                             currentIndex++;
                             continue;
                         }
                         else if (exitSignals.Contains(currentIndex))
                         {
-                            transactions.Add(CreateLongTransaction(currentPosition, candle.DateTime.LocalDateTime, candle.Close, ticker));
+                            transactions.Add(CreateLongTransaction(currentPosition, candle.DateTime.LocalDateTime, candle.Close, ticker, exchangeRate));
                             currentPosition = null;
                             currentIndex++;
                             continue;
                         }
                         else if (candle.Low <= currentPosition.Stop)
                         {
-                            transactions.Add(CreateLongTransaction(currentPosition, candle.DateTime.LocalDateTime, currentPosition.Stop.Value, ticker));
+                            transactions.Add(CreateLongTransaction(currentPosition, candle.DateTime.LocalDateTime, currentPosition.Stop.Value, ticker, exchangeRate));
                             currentPosition = null;
                             currentIndex++;
                             continue;
@@ -129,21 +129,21 @@ namespace Tradlite.Services.Backtest
                     {
                         if (currentPosition.Limit.HasValue && candle.Low <= currentPosition.Limit)
                         {
-                            transactions.Add(CreateShortTransaction(currentPosition, candle.DateTime.LocalDateTime, currentPosition.Limit.Value, ticker));
+                            transactions.Add(CreateShortTransaction(currentPosition, candle.DateTime.LocalDateTime, currentPosition.Limit.Value, ticker, exchangeRate));
                             currentPosition = null;
                             currentIndex++;
                             continue;
                         }
                         else if (exitSignals.Contains(currentIndex))
                         {
-                            transactions.Add(CreateShortTransaction(currentPosition, candle.DateTime.LocalDateTime, candle.Close, ticker));
+                            transactions.Add(CreateShortTransaction(currentPosition, candle.DateTime.LocalDateTime, candle.Close, ticker, exchangeRate));
                             currentPosition = null;
                             currentIndex++;
                             continue;
                         }
                         else if (candle.High >= currentPosition.Stop)
                         {
-                            transactions.Add(CreateShortTransaction(currentPosition, candle.DateTime.LocalDateTime, currentPosition.Stop.Value, ticker));
+                            transactions.Add(CreateShortTransaction(currentPosition, candle.DateTime.LocalDateTime, currentPosition.Stop.Value, ticker, exchangeRate));
                             currentPosition = null;
                             currentIndex++;
                             continue;
@@ -203,7 +203,7 @@ namespace Tradlite.Services.Backtest
             return transactions;
         }
 
-        private Transaction CreateLongTransaction(Position currentPosition, DateTime exitDate, decimal exitLevel, string ticker)
+        private Transaction CreateLongTransaction(Position currentPosition, DateTime exitDate, decimal exitLevel, string ticker, decimal exchangeRate)
         {
             return new Transaction
             {
@@ -216,11 +216,12 @@ namespace Tradlite.Services.Backtest
                 Risk = currentPosition.Stop.HasValue ? (currentPosition.EntryLevel - currentPosition.Stop.Value) * currentPosition.Size : 0,
                 Reward = currentPosition.Limit.HasValue ? (currentPosition.Limit.Value - currentPosition.EntryLevel) * currentPosition.Size : 0,
                 Gain = (exitLevel - currentPosition.EntryLevel) * currentPosition.Size,
-                Ticker = ticker
+                Ticker = ticker,
+                ExchangeRate = exchangeRate
             };
         }
 
-        private Transaction CreateShortTransaction(Position currentPosition, DateTime exitDate, decimal exitLevel, string ticker)
+        private Transaction CreateShortTransaction(Position currentPosition, DateTime exitDate, decimal exitLevel, string ticker, decimal exchangeRate)
         {
             return new Transaction
             {
@@ -233,7 +234,8 @@ namespace Tradlite.Services.Backtest
                 Risk = currentPosition.Stop.HasValue ? (currentPosition.Stop.Value - currentPosition.EntryLevel) * currentPosition.Size : 0,
                 Reward = currentPosition.Limit.HasValue ? (currentPosition.EntryLevel - currentPosition.Limit.Value) * currentPosition.Size : 0,
                 Gain = (currentPosition.EntryLevel - exitLevel) * currentPosition.Size,
-                Ticker = ticker
+                Ticker = ticker,
+                ExchangeRate = exchangeRate
             };
         }
     }
