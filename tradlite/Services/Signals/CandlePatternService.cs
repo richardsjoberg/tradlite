@@ -79,7 +79,7 @@ namespace Tradlite.Services.Signals
         
         private (decimal dojiTreshold, decimal shadowTreshold) ParseDojiParams(string parameters)
         {
-            return (parameters.ParseJsonParam("dojiTreshold", 0.1m), parameters.ParseJsonParam("shadowThreshold", 0.1m));
+            return (parameters.ParseJsonParam("dojiTreshold", 0.1m), parameters.ParseJsonParam("shadowTreshold", 0.1m));
         }
 
         public int[] EveningDojiStar(IReadOnlyList<IOhlcv> candles, string parameters)

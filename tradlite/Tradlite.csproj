@@ -30,4 +30,12 @@
     <ProjectReference Include="..\..\Trady\Trady.Importer.Yahoo\Trady.Importer.Yahoo.csproj" />
     <ProjectReference Include="..\..\Trady\Trady.Importer\Trady.Importer.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\TradeSystemConfig\" />
+    <Folder Include="Services\Signals\CandlePattern\" />
+    <Folder Include="Services\Signals\MovingAverage\" />
+    <Folder Include="Services\Signals\ZigZag\" />
+    <Folder Include="Services\Signals\RelativeStrengthIndex\" />
+  </ItemGroup>
 </Project>

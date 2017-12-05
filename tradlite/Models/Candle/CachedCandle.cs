@@ -22,7 +22,7 @@ namespace Tradlite.Models.Candle
             Low = candle.Low;
             Close = candle.Close;
             Volume = candle.Volume;
-            DateTime = candle.DateTime.LocalDateTime;
+            DateTime = candle.DateTime;
             CachedCandleKeyId = cachedCandleKeyId;
         }
 

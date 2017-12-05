@@ -25,8 +25,9 @@ namespace Tradlite.Controllers
         private readonly IZigZagService _zigZagService;
         private readonly ICandlePatternService _candlePatternService;
         private readonly IMovingAverageService _movingAverageService;
+        private readonly Func<string, ISignalService> _signalServiceAccessor;
 
-        public SignalController(ICandleService candleService, IDirectionalMovementService mdiPdiService, IRsiService rsiService, IZigZagService zigZagService, ICandlePatternService candlePatternService, IMovingAverageService movingAverageService)
+        public SignalController(ICandleService candleService, IDirectionalMovementService mdiPdiService, IRsiService rsiService, IZigZagService zigZagService, ICandlePatternService candlePatternService, IMovingAverageService movingAverageService, Func<string, ISignalService> signalServiceAccessor)
         {
             _candleService = candleService;
             _mdiPdiService = mdiPdiService;
@@ -34,6 +35,7 @@ namespace Tradlite.Controllers
             _zigZagService = zigZagService;
             _candlePatternService = candlePatternService;
             _movingAverageService = movingAverageService;
+            _signalServiceAccessor = signalServiceAccessor;
         }
         [Route("api/signal/bullishharami")]
         public async Task<int[]> BullishHarami([FromQuery]SignalRequest request)
@@ -266,6 +268,14 @@ namespace Tradlite.Controllers
         {
             var candles = await _candleService.GetCandles(request);
             var indicies = _movingAverageService.EmaCross(candles, request.Parameters);
+            return indicies;
+        }
+
+        [Route("api/signal/{signalService}")]
+        public async Task<int[]> GetSignals([FromQuery]SignalRequest request, string signalService)
+        {
+            var candles = await _candleService.GetCandles(request);
+            var indicies = _signalServiceAccessor(signalService).GetSignals(candles, request.Parameters);
             return indicies;
         }
     }

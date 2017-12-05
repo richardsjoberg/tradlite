@@ -30,6 +30,11 @@
                 tasks.shift();
                 executing = false;
                 execute();
+            }).catch(function (err) {
+                task.q.reject(err);
+                tasks.shift();
+                executing = false;
+                execute();
             });
         }
     }

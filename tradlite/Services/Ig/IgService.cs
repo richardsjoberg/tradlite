@@ -1,4 +1,5 @@
-﻿using IGWebApiClient;
+﻿using dto.endpoint.marketdetails.v2;
+using IGWebApiClient;
 using IGWebApiClient.Common;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ namespace Tradlite.Services.Ig
     {
         Task<IgRestApiClient> GetIgClient();
         Task<SentimentResponse> GetSentiment(string igTicker);
+        Task<MarketDetailsResponse> GetMarketDetails(string igTicker);
     }
     public class IgService : IIgService
     {
@@ -41,14 +43,21 @@ namespace Tradlite.Services.Ig
         public async Task<SentimentResponse> GetSentiment(string igTicker)
         {
             var client = await GetIgClient();
-            var marketDetails = await client.marketDetails(igTicker);
-            var sentiment = await client.getClientSentiment(marketDetails.Response.instrument.marketId);
-            var relatedSentiment = await client.getRelatedClientSentiment(marketDetails.Response.instrument.marketId);
+            var marketDetails = await GetMarketDetails(igTicker);
+            var sentiment = await client.getClientSentiment(marketDetails.instrument.marketId);
+            var relatedSentiment = await client.getRelatedClientSentiment(marketDetails.instrument.marketId);
             return new SentimentResponse
             {
                 Sentiment = sentiment,
                 RelatedSentiment = relatedSentiment
             };
+        }
+
+        public async Task<MarketDetailsResponse> GetMarketDetails(string igTicker)
+        {
+            var client = await GetIgClient();
+            var marketDetails = await client.marketDetailsV2(igTicker);
+            return marketDetails.Response;
         }
 
         private async Task Authenticate()

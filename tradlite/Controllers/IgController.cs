@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using dto.endpoint.marketdetails.v2;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -46,6 +47,11 @@ namespace Tradlite.Controllers
             return await _igService.GetSentiment(igTicker);
         }
 
+        [Route("api/ig/marketDetails/{igTicker}")]
+        public async Task<MarketDetailsResponse> MarketDetails(string igTicker)
+        {
+            return await _igService.GetMarketDetails(igTicker);
+        }
         
     }
 }

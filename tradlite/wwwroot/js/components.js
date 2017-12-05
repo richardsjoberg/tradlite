@@ -328,6 +328,7 @@ tradliteApp.component("scan", {
             storageService.setSessionStorage($scope.toDate, "toDate");
             storageService.setSessionStorage($scope.interval, "interval");
             storageService.setSessionStorage($scope.importer.name, "importer");
+            storageService.setSessionStorage($scope.tickerList.id, "tickerListId");
 
             if ($scope.buySignalConfig)
                 storageService.setSessionStorage($scope.buySignalConfig.id, "buySignalConfig");
@@ -362,8 +363,15 @@ tradliteApp.component("scan", {
         function getTickerLists() {
             httpService.get("/api/tickerList").then(function (response) {
                 $scope.tickerLists = response.data;
-                $scope.tickerList = $scope.tickerLists[0];
-                $scope.ticker_list_changed($scope.tickerLists[0]);
+                if (storageService.getSessionStorage("tickerListId")) {
+                    var tickerList = _.find($scope.tickerLists, function (tl) { return tl.id === storageService.getSessionStorage("tickerListId") });
+                    if (tickerList) {
+                        $scope.tickerList = tickerList;
+                    }
+                } else {
+                    $scope.tickerList = $scope.tickerLists[0];
+                };
+                getTickers($scope.tickerList.id);
             });
         }
 
@@ -426,7 +434,7 @@ tradliteApp.component("scan", {
                             console.log(sellResponse.data);
                         });
                     }
-                });
+                }).catch(console.log);
             });
         }
 

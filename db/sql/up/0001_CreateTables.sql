@@ -59,8 +59,25 @@ CREATE TABLE [dbo].[CachedCandles] (
     CONSTRAINT [FK_CachedCandles_CachedCandleKeys] FOREIGN KEY ([CachedCandleKeyId]) REFERENCES [dbo].[CachedCandleKeys] ([Id]) ON DELETE CASCADE
 );
 
+CREATE TABLE [dbo].[BacktestConfigs] (
+    [Id]                 INT            IDENTITY (1, 1) NOT NULL,
+    [EntrySignalConfigId]     INT            NOT NULL,
+    [EntrySignalService] NVARCHAR (50)  NOT NULL,
+    [StopLossManagement] NVARCHAR (50)  NOT NULL,
+    [LimitManagement]    NVARCHAR (50)  NULL,
+    [EntryManagement]    NVARCHAR (50)  NOT NULL,
+    [Parameters]         NVARCHAR (MAX) NULL,
+    [InitialCapital]     INT            NOT NULL,
+    [AllowedRisk]        INT            NOT NULL,
+    [ExitSignalService]  NVARCHAR (50)  NULL,
+    [ExitSignalConfigId] INT            NULL,
+    [Direction]          NVARCHAR (50)  NOT NULL,
+    PRIMARY KEY CLUSTERED ([Id] ASC)
+);
 
 GO
 CREATE NONCLUSTERED INDEX [IX_CachedCandles_CachedCandleKeyId]
     ON [dbo].[CachedCandles]([CachedCandleKeyId] ASC);
+	
+	
 

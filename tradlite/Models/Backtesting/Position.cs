@@ -10,8 +10,8 @@ namespace Tradlite.Models.Backtesting
         public decimal EntryLevel { get; set; }
         public OrderDirection Direction { get; set; }
         public decimal Size { get; set; }
-        public decimal Stop { get; set; }
-        public decimal Limit { get; set; }
+        public decimal? Stop { get; set; }
+        public decimal? Limit { get; set; }
         public DateTime Created { get; set; }
     }
 }

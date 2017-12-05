@@ -30,6 +30,11 @@ tradliteApp.service("httpService", function ($http, $q) {
                 tasks.shift();
                 executing = false;
                 execute();
+            }).catch(function (err) {
+                task.q.reject(err);
+                tasks.shift();
+                executing = false;
+                execute();
             });
         }
     }
@@ -121,22 +126,12 @@ tradliteApp.service("storageService", function () {
             return item;
         }
     }
-
-    function getKey(prefix, object) {
-        var key = prefix;
-        for (var property in object) {
-            if (object.hasOwnProperty(property)) {
-                key += "_" + object[property];
-            }
-        }
-        return key;
-    }
+    
 
     return {
         setSessionStorage: setSessionStorage,
         getSessionStorage: getSessionStorage,
         setLocalStorage: setLocalStorage,
-        getLocalStorage: getLocalStorage,
-        getKey: getKey
+        getLocalStorage: getLocalStorage
     }
 });

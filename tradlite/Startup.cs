@@ -21,6 +21,8 @@ using Tradlite.Services.Signals;
 using Tradlite.Services.Ig;
 using Microsoft.Extensions.Logging;
 using Tradlite.Services.Management;
+using Tradlite.Services.Signals.DirectionalMovement;
+using Tradlite.Services.Backtest;
 
 namespace Tradlite
 {
@@ -55,6 +57,7 @@ namespace Tradlite
             services.AddTransient<ICandlePatternService, CandlePatternService>();
             services.AddTransient<IMovingAverageService, MovingAverageService>();
             services.AddTransient<IZigZagService, ZigZagService>();
+            services.AddTransient<IBacktestService, BacktestService>();
             
             services.AddTransient<IDbConnection, SqlConnection>(factory =>
             {
@@ -119,20 +122,80 @@ namespace Tradlite
                 return accesor;
             });
 
-            services.AddTransient<AverageTrueRangeManagement>();
+            services.AddTransient<AverageTrueRangeLongStopLoss>();
+            services.AddTransient<AverageTrueRangeShortStopLoss>();
+            services.AddTransient<CurrentLowStopLoss>();
             services.AddTransient(factory =>
             {
-                Func<string, IManagement> accesor = key =>
+                Func<string, IStopLossManagement> accesor = key =>
                 {
                     switch (key)
                     {
-                        case "AverageTrueRange":
-                            return factory.GetService<AverageTrueRangeManagement>();
+                        case "AverageTrueRangeLongStopLoss":
+                            return factory.GetService<AverageTrueRangeLongStopLoss>();
+                        case "AverageTrueRangeShortStopLoss":
+                            return factory.GetService<AverageTrueRangeShortStopLoss>();
+                        case "CurrentLowStopLoss":
+                            return factory.GetService<CurrentLowStopLoss>();
                         default:
                             throw new KeyNotFoundException();
                     }
                 };
                 return accesor;
+            });
+
+            services.AddTransient<AverageTrueRangeLongLimit>();
+            services.AddTransient<AverageTrueRangeShortLimit>();
+            services.AddTransient(factory =>
+            {
+                Func<string, ILimitManagement> accesor = key =>
+                {
+                    switch (key)
+                    {
+                        case "AverageTrueRangeLongLimit":
+                            return factory.GetService<AverageTrueRangeLongLimit>();
+                        case "AverageTrueRangeShortLimit":
+                            return factory.GetService<AverageTrueRangeShortLimit>();
+                        default:
+                            throw new KeyNotFoundException();
+                    }
+                };
+                return accesor;
+            });
+
+            services.AddTransient<CurrentCloseEntry>();
+            services.AddTransient(factory =>
+            {
+                Func<string, IEntryManagement> accessor = key =>
+                {
+                    switch (key)
+                    {
+                        case "CurrentCloseEntry":
+                            return factory.GetService<CurrentCloseEntry>();
+                        default:
+                            throw new KeyNotFoundException();
+                    }
+                };
+                return accessor;
+            });
+
+            services.AddTransient<TrendService>();
+            services.AddTransient<NoTrendService>();
+            services.AddTransient(factory =>
+            {
+                Func<string, ISignalService> accessor = key =>
+                {
+                    switch (key)
+                    {
+                        case "directionalmovementtrend":
+                            return factory.GetService<TrendService>();
+                        case "directionalmovementnotrend":
+                            return factory.GetService<NoTrendService>();
+                        default:
+                            throw new KeyNotFoundException();
+                    }
+                };
+                return accessor;
             });
         }
 

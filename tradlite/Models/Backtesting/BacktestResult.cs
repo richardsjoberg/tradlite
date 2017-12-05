@@ -7,18 +7,56 @@ namespace Tradlite.Models.Backtesting
 {
     public class BacktestResult
     {
-        public BacktestResult(List<Transaction> transactions)
+        public BacktestResult(List<Transaction> transactions, decimal initialCapital, decimal exchangeRate)
         {
             Transactions = transactions;
+            decimal wins = 0;
+            decimal losses = 0;
             foreach(var transaction in transactions)
             {
-                Gain += transaction.Direction == "Buy" ?
-                    transaction.ExitLevel - transaction.EntryLevel :
-                    transaction.EntryLevel - transaction.ExitLevel;
+                var transactionGain = transaction.Direction == "Long" ?
+                    (transaction.ExitLevel - transaction.EntryLevel) * transaction.Size * exchangeRate :
+                    (transaction.EntryLevel - transaction.ExitLevel) * transaction.Size * exchangeRate;
+                
+                Gain += transactionGain;
+
+                if (transactionGain > 0)
+                    wins++;
+                else
+                    losses++;
+
+                transaction.Reward = transaction.Reward * exchangeRate;
+                transaction.Risk = transaction.Risk * exchangeRate;
+
             }
+
+            if(transactions.Any())
+            {
+                WinPercentage = wins / (wins + losses);
+            }
+
+            NumberOfTransactions = transactions.Count;
+            InitialCapital = initialCapital;
+            ReturnRate = Gain / initialCapital;
+            Capital = initialCapital + Gain;
+            MaxRisk = transactions.Max(t => t.Risk);
+            AverageRisk = transactions.Select(t => t.Risk).Average();
+            MaxReward = transactions.Max(t => t.Reward);
+            AverageReward = transactions.Select(t => t.Reward).Average();
+            AverageRiskReward = AverageReward / AverageRisk;
         }
 
-        public List<Transaction> Transactions { get; set; }
         public decimal Gain { get; set; }
+        public decimal WinPercentage { get; set; }
+        public int NumberOfTransactions { get; set; }
+        public decimal ReturnRate { get; set; }
+        public decimal InitialCapital { get; set; }
+        public decimal Capital { get; set; }
+        public decimal MaxRisk { get; set; }
+        public decimal AverageRisk { get; set; }
+        public decimal MaxReward { get; set; }
+        public decimal AverageReward { get; set; }
+        public decimal AverageRiskReward { get; set; }
+        public List<Transaction> Transactions { get; set; }
     }
 }

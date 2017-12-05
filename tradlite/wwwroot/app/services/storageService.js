@@ -41,22 +41,12 @@
             return item;
         }
     }
-
-    function getKey(prefix, object) {
-        var key = prefix;
-        for (var property in object) {
-            if (object.hasOwnProperty(property)) {
-                key += "_" + object[property];
-            }
-        }
-        return key;
-    }
+    
 
     return {
         setSessionStorage: setSessionStorage,
         getSessionStorage: getSessionStorage,
         setLocalStorage: setLocalStorage,
-        getLocalStorage: getLocalStorage,
-        getKey: getKey
+        getLocalStorage: getLocalStorage
     }
 });
