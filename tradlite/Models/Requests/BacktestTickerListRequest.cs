@@ -13,5 +13,7 @@ namespace Tradlite.Models.Requests
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
         public string Interval { get; set; }
+        public decimal Risk { get; set; }
+        public decimal? CurrentCapital { get; set; }
     }
 }

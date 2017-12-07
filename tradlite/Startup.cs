@@ -52,18 +52,29 @@ namespace Tradlite
             
             services.AddTransient<ICandleService, CandleService>();
             services.AddSingleton<IHttpService, HttpService>();
-            services.AddTransient<IDirectionalMovementService, DirectionalMovementService>();
-            services.AddTransient<IRsiService, RsiService>();
-            services.AddTransient<ICandlePatternService, CandlePatternService>();
-            services.AddTransient<IMovingAverageService, MovingAverageService>();
-            services.AddTransient<IZigZagService, ZigZagService>();
-            services.AddTransient<IBacktestService, BacktestService>();
-            
+            services.AddSingleton<IDirectionalMovementService, DirectionalMovementService>();
+            services.AddSingleton<IRsiService, RsiService>();
+            services.AddSingleton<ICandlePatternService, CandlePatternService>();
+            services.AddSingleton<IMovingAverageService, MovingAverageService>();
+            services.AddSingleton<IZigZagService, ZigZagService>();
+            services.AddSingleton<IBacktestService, BacktestService>();
+
+            //ToDo: remove this and use connectionFactory instead
             services.AddTransient<IDbConnection, SqlConnection>(factory =>
             {
                 return new SqlConnection(Configuration.GetConnectionString("tradlite"));
             });
             
+            services.AddTransient(factory =>
+            {
+                Func<IDbConnection> connectionFactory = () =>
+                {
+                    return new SqlConnection(Configuration.GetConnectionString("tradlite"));
+                };
+
+                return connectionFactory;
+            });
+
             if (Configuration.GetValue<bool>("EnableIg"))
             {
                 var igConfig = Configuration.GetSection("Ig");
@@ -164,6 +175,8 @@ namespace Tradlite
             });
 
             services.AddTransient<CurrentCloseEntry>();
+            services.AddTransient<CurrentCloseVwapLongEntry>();
+            services.AddTransient<CurrentCloseVwapShortEntry>();
             services.AddTransient(factory =>
             {
                 Func<string, IEntryManagement> accessor = key =>
@@ -172,6 +185,10 @@ namespace Tradlite
                     {
                         case "CurrentCloseEntry":
                             return factory.GetService<CurrentCloseEntry>();
+                        case "CurrentCloseVwapLongEntry":
+                            return factory.GetService<CurrentCloseVwapLongEntry>();
+                        case "CurrentCloseVwapShortEntry":
+                            return factory.GetService<CurrentCloseVwapShortEntry>();
                         default:
                             throw new KeyNotFoundException();
                     }

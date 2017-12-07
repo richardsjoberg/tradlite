@@ -8,5 +8,7 @@ namespace Tradlite.Models.Requests
     public class BacktestTickerRequest : CandleRequest
     {
         public int BacktestConfigId { get; set; }
+        public decimal Risk { get; set; }
+        public decimal? CurrentCapital { get; set; }
     }
 }

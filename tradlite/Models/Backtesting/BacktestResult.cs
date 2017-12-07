@@ -44,6 +44,7 @@ namespace Tradlite.Models.Backtesting
             MaxReward = transactions.Max(t => t.Reward);
             AverageReward = transactions.Select(t => t.Reward).Average();
             AverageRiskReward = AverageReward / AverageRisk;
+            AverageReturnRate = ReturnRate / transactions.Count;
         }
 
         public decimal Gain { get; set; }
@@ -57,6 +58,7 @@ namespace Tradlite.Models.Backtesting
         public decimal MaxReward { get; set; }
         public decimal AverageReward { get; set; }
         public decimal AverageRiskReward { get; set; }
+        public decimal AverageReturnRate { get; set; }
         public List<Transaction> Transactions { get; set; }
     }
 }

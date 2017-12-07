@@ -40,12 +40,12 @@ namespace Tradlite.Controllers
             var backtestConfig = _dbConnection.Get<BacktestConfig>(request.BacktestConfigId);
             
             var marketDetails = await _igService.GetMarketDetails(request.Ticker);
-            var size = marketDetails.snapshot.scalingFactor * marketDetails.instrument.lotSize.Value;
+            var minSize = marketDetails.snapshot.scalingFactor * marketDetails.instrument.lotSize.Value * marketDetails.dealingRules.minDealSize.value.Value;
             var exchangeRate = 1.0m / marketDetails.instrument.currencies[0].baseExchangeRate.Value;
 
-            var transactions = await _backtestService.Run(candles, backtestConfig, size, request.Ticker, exchangeRate);
+            var transactions = await _backtestService.Run(candles, backtestConfig, minSize, request.Ticker, exchangeRate, request.Risk);
 
-            return new BacktestResult(transactions, 100000);
+            return new BacktestResult(transactions, request.CurrentCapital.HasValue ? request.CurrentCapital.Value : 100000);
         }
 
         [Route("api/backtest/tickerlist")]
@@ -89,13 +89,14 @@ namespace Tradlite.Controllers
                 });
                 if(longBacktestConfig != null)
                 {
-                    var backtestTransactions = await _backtestService.Run(candles, longBacktestConfig, size, ticker.Symbol, exchangeRate);
+                    
+                    var backtestTransactions = await _backtestService.Run(candles, longBacktestConfig, size, ticker.Symbol, exchangeRate, request.Risk);
                     transactions.AddRange(backtestTransactions);
                 }
 
                 if(shortBacktestConfig != null)
                 {
-                    var backtestTransactions = await _backtestService.Run(candles, shortBacktestConfig, size, ticker.Symbol, exchangeRate);
+                    var backtestTransactions = await _backtestService.Run(candles, shortBacktestConfig, size, ticker.Symbol, exchangeRate, request.Risk);
                     transactions.AddRange(backtestTransactions);
                 }
                 

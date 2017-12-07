@@ -18,5 +18,6 @@ namespace Tradlite.Models.Backtesting
         public decimal Gain { get; set; }
         public string Ticker { get; set; }
         public decimal ExchangeRate { get; set; }
+        public Position Position { get; set; }
     }
 }

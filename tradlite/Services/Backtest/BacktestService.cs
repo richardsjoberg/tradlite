@@ -17,7 +17,7 @@ namespace Tradlite.Services.Backtest
 {
     public interface IBacktestService
     {
-        Task<List<Models.Backtesting.Transaction>> Run(IReadOnlyList<IOhlcv> candles, BacktestConfig backtestConfig, decimal size, string ticker, decimal exchangeRate);
+        Task<List<Models.Backtesting.Transaction>> Run(IReadOnlyList<IOhlcv> candles, BacktestConfig backtestConfig, decimal minSize, string ticker, decimal exchangeRate, decimal risk);
     }
     public class BacktestService : IBacktestService
     {
@@ -25,7 +25,7 @@ namespace Tradlite.Services.Backtest
         private readonly Func<string, IEntryManagement> _entrytManagementAccessor;
         private readonly Func<string, ILimitManagement> _limitManagementAccessor;
         private readonly Func<string, ISignalService> _signalServiceAccessor;
-        private readonly IDbConnection _dbConnection;
+        private readonly Func<IDbConnection> _dbConnectionFactory;
 
         public BacktestService(ICandleService candleService,
             Func<string, IStopLossManagement> stopLossManagementAccessor,
@@ -33,174 +33,186 @@ namespace Tradlite.Services.Backtest
             Func<string, ILimitManagement> limitManagementAccessor,
             IIgService igService,
             Func<string, ISignalService> signalServiceAccessor,
-            IDbConnection dbConnection)
+            Func<IDbConnection> dbConnectionFactory)
         {
             _stopLossManagementAccessor = stopLossManagementAccessor;
             _entrytManagementAccessor = entrytManagementAccessor;
             _limitManagementAccessor = limitManagementAccessor;
             _signalServiceAccessor = signalServiceAccessor;
-            _dbConnection = dbConnection;
+            _dbConnectionFactory = dbConnectionFactory;
         }
 
-        public async Task<List<Transaction>> Run(IReadOnlyList<IOhlcv> candles, BacktestConfig backtestConfig, decimal size, string ticker, decimal exchangeRate)
+        public async Task<List<Transaction>> Run(IReadOnlyList<IOhlcv> candles, BacktestConfig backtestConfig, decimal minSize, string ticker, decimal exchangeRate, decimal risk)
         {
-            var signalConfig = await _dbConnection.GetAsync<SignalConfig>(backtestConfig.EntrySignalConfigId);
-            var signals = _signalServiceAccessor(backtestConfig.EntrySignalService).GetSignals(candles, signalConfig.Parameters);
-
-            int[] exitSignals = new int[0];
-            if (!string.IsNullOrEmpty(backtestConfig.ExitSignalService))
+            using (var _dbConnection = _dbConnectionFactory())
             {
-                var exitSignalConfig = await _dbConnection.GetAsync<SignalConfig>(backtestConfig.ExitSignalConfigId);
-                exitSignals = _signalServiceAccessor(backtestConfig.ExitSignalService).GetSignals(candles, exitSignalConfig.Parameters);
-            }
+                var signalConfig = await _dbConnection.GetAsync<SignalConfig>(backtestConfig.EntrySignalConfigId);
+                var signals = _signalServiceAccessor(backtestConfig.EntrySignalService).GetSignals(candles, signalConfig.Parameters);
 
-            var positions = new List<Position>();
-            var transactions = new List<Transaction>();
-            Position currentPosition = null;
-            Order currentOrder = null;
-            var currentIndex = 0;
-            
-            while (currentIndex <= candles.Count - 1)
-            {
-                var candle = candles[currentIndex];
-                if (currentOrder != null)
+                int[] exitSignals = new int[0];
+                if (!string.IsNullOrEmpty(backtestConfig.ExitSignalService))
                 {
-                    if (currentOrder.Direction == OrderDirection.Long &&
-                        currentOrder.Type == OrderType.Limit &&
-                        currentOrder.EntryLevel > candle.Low)
-                    {
-                        currentPosition = new Position
-                        {
-                            Created = candle.DateTime.LocalDateTime,
-                            Direction = OrderDirection.Long,
-                            EntryLevel = currentOrder.EntryLevel,
-                            Size = currentOrder.Size,
-                            Stop = currentOrder.Stop
-                        };
-                        currentOrder = null;
-                        currentIndex++;
-                        continue;
-                    }
-
-                    if (currentOrder.Direction == OrderDirection.Short &&
-                        currentOrder.Type == OrderType.Limit &&
-                        currentOrder.EntryLevel < candle.High)
-                    {
-                        currentPosition = new Position
-                        {
-                            Created = candle.DateTime.LocalDateTime,
-                            Direction = OrderDirection.Short,
-                            EntryLevel = currentOrder.EntryLevel,
-                            Size = currentOrder.Size,
-                            Stop = currentOrder.Stop
-                        };
-                        currentOrder = null;
-                        currentIndex++;
-                        continue;
-                    }
+                    var exitSignalConfig = await _dbConnection.GetAsync<SignalConfig>(backtestConfig.ExitSignalConfigId);
+                    exitSignals = _signalServiceAccessor(backtestConfig.ExitSignalService).GetSignals(candles, exitSignalConfig.Parameters);
                 }
-                if (currentPosition != null)
+
+                var positions = new List<Position>();
+                var transactions = new List<Transaction>();
+                Position currentPosition = null;
+                Order currentOrder = null;
+                var currentIndex = 0;
+
+                while (currentIndex <= candles.Count - 1)
                 {
-                    if (currentPosition.Direction == OrderDirection.Long)
+                    var candle = candles[currentIndex];
+                    if (currentOrder != null)
                     {
-                        if (currentPosition.Limit.HasValue && candle.High >= currentPosition.Limit)
+                        if (currentOrder.Direction == OrderDirection.Long &&
+                            currentOrder.Type == OrderType.Limit &&
+                            currentOrder.EntryLevel > candle.Low)
                         {
-                            transactions.Add(CreateLongTransaction(currentPosition, candle.DateTime.LocalDateTime, currentPosition.Limit.Value, ticker, exchangeRate));
-                            currentPosition = null;
+                            currentPosition = new Position
+                            {
+                                Created = candle.DateTime.LocalDateTime,
+                                Direction = OrderDirection.Long,
+                                EntryLevel = currentOrder.EntryLevel,
+                                Size = currentOrder.Size,
+                                Stop = currentOrder.Stop
+                            };
+                            currentOrder = null;
                             currentIndex++;
                             continue;
                         }
-                        else if (exitSignals.Contains(currentIndex))
+
+                        if (currentOrder.Direction == OrderDirection.Short &&
+                            currentOrder.Type == OrderType.Limit &&
+                            currentOrder.EntryLevel < candle.High)
                         {
-                            transactions.Add(CreateLongTransaction(currentPosition, candle.DateTime.LocalDateTime, candle.Close, ticker, exchangeRate));
-                            currentPosition = null;
-                            currentIndex++;
-                            continue;
-                        }
-                        else if (candle.Low <= currentPosition.Stop)
-                        {
-                            transactions.Add(CreateLongTransaction(currentPosition, candle.DateTime.LocalDateTime, currentPosition.Stop.Value, ticker, exchangeRate));
-                            currentPosition = null;
+                            currentPosition = new Position
+                            {
+                                Created = candle.DateTime.LocalDateTime,
+                                Direction = OrderDirection.Short,
+                                EntryLevel = currentOrder.EntryLevel,
+                                Size = currentOrder.Size,
+                                Stop = currentOrder.Stop
+                            };
+                            currentOrder = null;
                             currentIndex++;
                             continue;
                         }
                     }
-                    if (currentPosition.Direction == OrderDirection.Short)
+                    if (currentPosition != null)
                     {
-                        if (currentPosition.Limit.HasValue && candle.Low <= currentPosition.Limit)
+                        if (currentPosition.Direction == OrderDirection.Long)
                         {
-                            transactions.Add(CreateShortTransaction(currentPosition, candle.DateTime.LocalDateTime, currentPosition.Limit.Value, ticker, exchangeRate));
-                            currentPosition = null;
+                            if (currentPosition.Limit.HasValue && candle.High >= currentPosition.Limit)
+                            {
+                                transactions.Add(CreateLongTransaction(currentPosition, candle.DateTime.LocalDateTime, currentPosition.Limit.Value, ticker, exchangeRate));
+                                currentPosition = null;
+                                currentIndex++;
+                                continue;
+                            }
+                            else if (exitSignals.Contains(currentIndex))
+                            {
+                                transactions.Add(CreateLongTransaction(currentPosition, candle.DateTime.LocalDateTime, candle.Close, ticker, exchangeRate));
+                                currentPosition = null;
+                                currentIndex++;
+                                continue;
+                            }
+                            else if (candle.Low <= currentPosition.Stop)
+                            {
+                                transactions.Add(CreateLongTransaction(currentPosition, candle.DateTime.LocalDateTime, currentPosition.Stop.Value, ticker, exchangeRate));
+                                currentPosition = null;
+                                currentIndex++;
+                                continue;
+                            }
+                        }
+                        if (currentPosition.Direction == OrderDirection.Short)
+                        {
+                            if (currentPosition.Limit.HasValue && candle.Low <= currentPosition.Limit)
+                            {
+                                transactions.Add(CreateShortTransaction(currentPosition, candle.DateTime.LocalDateTime, currentPosition.Limit.Value, ticker, exchangeRate));
+                                currentPosition = null;
+                                currentIndex++;
+                                continue;
+                            }
+                            else if (exitSignals.Contains(currentIndex))
+                            {
+                                transactions.Add(CreateShortTransaction(currentPosition, candle.DateTime.LocalDateTime, candle.Close, ticker, exchangeRate));
+                                currentPosition = null;
+                                currentIndex++;
+                                continue;
+                            }
+                            else if (candle.High >= currentPosition.Stop)
+                            {
+                                transactions.Add(CreateShortTransaction(currentPosition, candle.DateTime.LocalDateTime, currentPosition.Stop.Value, ticker, exchangeRate));
+                                currentPosition = null;
+                                currentIndex++;
+                                continue;
+                            }
+                        }
+                        currentIndex++;
+                        continue;
+                    }
+
+                    if (signals.Any(s => s == currentIndex))
+                    {
+                        var stop = _stopLossManagementAccessor(backtestConfig.StopLossManagement).StopLoss(candles, currentIndex, backtestConfig.Parameters);
+                        var entry = _entrytManagementAccessor(backtestConfig.EntryManagement).Entry(candles, currentIndex, backtestConfig.Parameters);
+                        decimal? limit = null;
+                        if (!string.IsNullOrEmpty(backtestConfig.LimitManagement))
+                        {
+                            limit = _limitManagementAccessor(backtestConfig.LimitManagement).Limit(candles, currentIndex, backtestConfig.Parameters);
+                        }
+
+                        if (currentIndex + 1 > candles.Count - 1 || !stop.HasValue || !entry.HasValue)
+                        {
                             currentIndex++;
                             continue;
                         }
-                        else if (exitSignals.Contains(currentIndex))
+
+                        Enum.TryParse(backtestConfig.Direction, out OrderDirection direction);
+                        Enum.TryParse(backtestConfig.OrderType, out OrderType orderType);
+                        var stopSize = Math.Abs(entry.Value - stop.Value) * exchangeRate * minSize;
+                        int size = (int)(risk / stopSize);
+
+                        if (size == 0)
                         {
-                            transactions.Add(CreateShortTransaction(currentPosition, candle.DateTime.LocalDateTime, candle.Close, ticker, exchangeRate));
-                            currentPosition = null;
                             currentIndex++;
                             continue;
                         }
-                        else if (candle.High >= currentPosition.Stop)
+
+                        if (orderType == OrderType.Market)
                         {
-                            transactions.Add(CreateShortTransaction(currentPosition, candle.DateTime.LocalDateTime, currentPosition.Stop.Value, ticker, exchangeRate));
-                            currentPosition = null;
-                            currentIndex++;
-                            continue;
+                            currentPosition = new Position
+                            {
+                                Created = candle.DateTime.LocalDateTime,
+                                Direction = direction,
+                                EntryLevel = entry.Value,
+                                Limit = limit,
+                                Size = size * minSize,
+                                Stop = stop
+                            };
+                        }
+                        else
+                        {
+                            currentOrder = new Order
+                            {
+                                Direction = direction,
+                                EntryLevel = entry.Value,
+                                Created = candle.DateTime.LocalDateTime,
+                                Size = minSize,
+                                Stop = stop.Value,
+                                Type = orderType,
+                                Limit = limit
+                            };
                         }
                     }
+
                     currentIndex++;
-                    continue;
                 }
-
-                if (signals.Any(s => s == currentIndex))
-                {
-                    var stop = _stopLossManagementAccessor(backtestConfig.StopLossManagement).StopLoss(candles, currentIndex, backtestConfig.Parameters);
-                    var entry = _entrytManagementAccessor(backtestConfig.EntryManagement).Entry(candles, currentIndex, backtestConfig.Parameters);
-                    decimal? limit = null; 
-                    if(!string.IsNullOrEmpty(backtestConfig.LimitManagement))
-                    {
-                        limit = _limitManagementAccessor(backtestConfig.LimitManagement).Limit(candles, currentIndex, backtestConfig.Parameters);
-                    }
-
-                    if (currentIndex + 1 > candles.Count - 1 || !stop.HasValue || !entry.HasValue)
-                    {
-                        currentIndex++;
-                        continue;
-                    }
-
-                    Enum.TryParse(backtestConfig.Direction, out OrderDirection direction);
-                    Enum.TryParse(backtestConfig.OrderType, out OrderType orderType);
-                    if(orderType == OrderType.Market)
-                    {
-                        currentPosition = new Position
-                        {
-                            Created = candle.DateTime.LocalDateTime,
-                            Direction = direction,
-                            EntryLevel = entry.Value,
-                            Limit = limit,
-                            Size = size,
-                            Stop = stop
-                        };
-                    }
-                    else
-                    {
-                        currentOrder = new Order
-                        {
-                            Direction = direction,
-                            EntryLevel = entry.Value,
-                            Created = candle.DateTime.LocalDateTime,
-                            Size = size,
-                            Stop = stop.Value,
-                            Type = orderType,
-                            Limit = limit
-                        };
-                    }
-                }
-
-                currentIndex++;
+                return transactions;
             }
-            return transactions;
         }
 
         private Transaction CreateLongTransaction(Position currentPosition, DateTime exitDate, decimal exitLevel, string ticker, decimal exchangeRate)
@@ -217,7 +229,8 @@ namespace Tradlite.Services.Backtest
                 Reward = currentPosition.Limit.HasValue ? (currentPosition.Limit.Value - currentPosition.EntryLevel) * currentPosition.Size : 0,
                 Gain = (exitLevel - currentPosition.EntryLevel) * currentPosition.Size,
                 Ticker = ticker,
-                ExchangeRate = exchangeRate
+                ExchangeRate = exchangeRate,
+                Position = currentPosition
             };
         }
 
@@ -235,7 +248,8 @@ namespace Tradlite.Services.Backtest
                 Reward = currentPosition.Limit.HasValue ? (currentPosition.EntryLevel - currentPosition.Limit.Value) * currentPosition.Size : 0,
                 Gain = (currentPosition.EntryLevel - exitLevel) * currentPosition.Size,
                 Ticker = ticker,
-                ExchangeRate = exchangeRate
+                ExchangeRate = exchangeRate,
+                Position = currentPosition
             };
         }
     }
