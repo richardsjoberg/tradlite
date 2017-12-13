@@ -19,5 +19,6 @@ namespace Tradlite.Models.Backtesting
         public string ExitSignalService { get; set; }
         public string Direction { get; set; }
         public string OrderType { get; set; }
+        public string EntryFilterManagement { get; set; }
     }
 }

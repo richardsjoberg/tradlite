@@ -12,7 +12,7 @@ namespace Tradlite.Services.Management
         public decimal? Limit(IReadOnlyList<IOhlcv> candles, int signalIndex, string parameters)
         {
             var period = parameters.ParseJsonParam("period", 14);
-            var limitMultiplier = parameters.ParseJsonParam("limitMultiplier", 5m);
+            var limitMultiplier = parameters.ParseJsonParam("limitMultiplier", 4m);
             var atr = candles.Atr(period);
             if (!atr[signalIndex].Tick.HasValue)
                 return null;

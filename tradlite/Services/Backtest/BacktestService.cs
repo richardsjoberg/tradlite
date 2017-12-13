@@ -26,6 +26,7 @@ namespace Tradlite.Services.Backtest
         private readonly Func<string, ILimitManagement> _limitManagementAccessor;
         private readonly Func<string, ISignalService> _signalServiceAccessor;
         private readonly Func<IDbConnection> _dbConnectionFactory;
+        private readonly Func<string, IEntryFilterManagement> _entryFilterManagementAccessor;
 
         public BacktestService(ICandleService candleService,
             Func<string, IStopLossManagement> stopLossManagementAccessor,
@@ -33,13 +34,15 @@ namespace Tradlite.Services.Backtest
             Func<string, ILimitManagement> limitManagementAccessor,
             IIgService igService,
             Func<string, ISignalService> signalServiceAccessor,
-            Func<IDbConnection> dbConnectionFactory)
+            Func<IDbConnection> dbConnectionFactory,
+            Func<string, IEntryFilterManagement> entryFilterManagementAccessor)
         {
             _stopLossManagementAccessor = stopLossManagementAccessor;
             _entrytManagementAccessor = entrytManagementAccessor;
             _limitManagementAccessor = limitManagementAccessor;
             _signalServiceAccessor = signalServiceAccessor;
             _dbConnectionFactory = dbConnectionFactory;
+            _entryFilterManagementAccessor = entryFilterManagementAccessor;
         }
 
         public async Task<List<Transaction>> Run(IReadOnlyList<IOhlcv> candles, BacktestConfig backtestConfig, decimal minSize, string ticker, decimal exchangeRate, decimal risk)
@@ -157,6 +160,14 @@ namespace Tradlite.Services.Backtest
 
                     if (signals.Any(s => s == currentIndex))
                     {
+                        if(!string.IsNullOrEmpty(backtestConfig.EntryFilterManagement))
+                        {
+                            if (!_entryFilterManagementAccessor(backtestConfig.EntryFilterManagement).Entry(candles, currentIndex, backtestConfig.Parameters))
+                            {
+                                currentIndex++;
+                                continue;
+                            }
+                        }
                         var stop = _stopLossManagementAccessor(backtestConfig.StopLossManagement).StopLoss(candles, currentIndex, backtestConfig.Parameters);
                         var entry = _entrytManagementAccessor(backtestConfig.EntryManagement).Entry(candles, currentIndex, backtestConfig.Parameters);
                         decimal? limit = null;

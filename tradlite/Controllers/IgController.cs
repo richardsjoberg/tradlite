@@ -52,6 +52,12 @@ namespace Tradlite.Controllers
         {
             return await _igService.GetMarketDetails(igTicker);
         }
-        
+
+        [Route("api/ig/unlongable/{igTicker}")]
+        public async Task<bool> Unlongable(string igTicker)
+        {
+            var marketDetails = await _igService.GetMarketDetails(igTicker);
+            return marketDetails.instrument.specialInfo.Contains("unlongable");
+        }
     }
 }

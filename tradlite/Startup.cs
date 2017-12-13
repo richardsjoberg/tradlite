@@ -195,6 +195,28 @@ namespace Tradlite
                 };
                 return accessor;
             });
+            
+            services.AddTransient<StandardDeviationRatioEntryFilter>();
+            services.AddTransient<RsiOverboughtEntryFilter>();
+            services.AddTransient<RsiOversoldEntryFilter>();
+            services.AddTransient(factory =>
+            {
+                Func<string, IEntryFilterManagement> accessor = key =>
+                {
+                    switch (key)
+                    {
+                        case "StandardDeviationRatioEntryFilter":
+                            return factory.GetService<StandardDeviationRatioEntryFilter>();
+                        case "RsiOverboughtEntryFilter":
+                            return factory.GetService<RsiOverboughtEntryFilter>();
+                        case "RsiOversoldEntryFilter":
+                            return factory.GetService<RsiOversoldEntryFilter>();
+                        default:
+                            throw new KeyNotFoundException();
+                    }
+                };
+                return accessor;
+            });
 
             services.AddTransient<TrendService>();
             services.AddTransient<NoTrendService>();
@@ -214,6 +236,8 @@ namespace Tradlite
                 };
                 return accessor;
             });
+
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
