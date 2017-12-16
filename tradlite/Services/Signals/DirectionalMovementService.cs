@@ -35,8 +35,8 @@ namespace Tradlite.Services.Signals
                 if (pdiTick.HasValue && mdiTick.HasValue && adxTick.HasValue && previousAdxTick.HasValue)
                 {
                     return @params.Bullish ?
-                        UpTrend((pdiTick, mdiTick, adxTick, @params.AdxTreshold, previousAdxTick)) :
-                        DownTrend((pdiTick, mdiTick, adxTick, @params.AdxTreshold, previousAdxTick));
+                        UpTrend((pdiTick, mdiTick, adxTick, @params.AdxThreshold, previousAdxTick)) :
+                        DownTrend((pdiTick, mdiTick, adxTick, @params.AdxThreshold, previousAdxTick));
                 }
 
                 return false;
@@ -67,10 +67,10 @@ namespace Tradlite.Services.Signals
                 if (pdiTick.HasValue && mdiTick.HasValue && adxTick.HasValue && previousAdxTick.HasValue && previousPreviousAdxTick.HasValue)
                 {
                     return @params.Bullish ?
-                        UpTrend((pdiTick, mdiTick, adxTick, @params.AdxTreshold, previousAdxTick)) &&
-                        !UpTrend((previousPdiTick, previousMdiTick, previousAdxTick, @params.AdxTreshold, previousPreviousAdxTick)) :
-                        DownTrend((pdiTick, mdiTick, adxTick, @params.AdxTreshold, previousAdxTick)) &&
-                        !DownTrend((previousPdiTick, previousMdiTick, previousAdxTick, @params.AdxTreshold, previousPreviousAdxTick));
+                        UpTrend((pdiTick, mdiTick, adxTick, @params.AdxThreshold, previousAdxTick)) &&
+                        !UpTrend((previousPdiTick, previousMdiTick, previousAdxTick, @params.AdxThreshold, previousPreviousAdxTick)) :
+                        DownTrend((pdiTick, mdiTick, adxTick, @params.AdxThreshold, previousAdxTick)) &&
+                        !DownTrend((previousPdiTick, previousMdiTick, previousAdxTick, @params.AdxThreshold, previousPreviousAdxTick));
                 }
 
                 return false;
@@ -100,8 +100,8 @@ namespace Tradlite.Services.Signals
                 if (pdiTick.HasValue && mdiTick.HasValue && adxTick.HasValue && previousAdxTick.HasValue)
                 {
                     return @params.Bullish ?
-                        MdiPdiBullishCross((pdiTick, mdiTick, adxTick, previousPdiTick, previousMdiTick, previousAdxTick, @params.AdxTreshold)) :
-                        MdiPdiBearishCross((pdiTick, mdiTick, adxTick, previousPdiTick, previousMdiTick, previousAdxTick, @params.AdxTreshold));
+                        MdiPdiBullishCross((pdiTick, mdiTick, adxTick, previousPdiTick, previousMdiTick, previousAdxTick, @params.AdxThreshold)) :
+                        MdiPdiBearishCross((pdiTick, mdiTick, adxTick, previousPdiTick, previousMdiTick, previousAdxTick, @params.AdxThreshold));
                 }
 
                 return false;
@@ -112,45 +112,45 @@ namespace Tradlite.Services.Signals
 
         
         
-        private Func<(decimal? pdiTick, decimal? mdiTick, decimal? adxTick, decimal? previousPdiTick, decimal? previousMdiTick, decimal? previousAdxTick, int adxTreshold), bool>
+        private Func<(decimal? pdiTick, decimal? mdiTick, decimal? adxTick, decimal? previousPdiTick, decimal? previousMdiTick, decimal? previousAdxTick, int adxThreshold), bool>
             MdiPdiBullishCross = (@params) =>
             {
                 return @params.pdiTick.Value > @params.mdiTick.Value &&
                             @params.previousPdiTick.Value <= @params.previousMdiTick.Value &&
-                            @params.adxTick.Value > @params.adxTreshold &&
+                            @params.adxTick.Value > @params.adxThreshold &&
                             @params.adxTick.Value > @params.previousAdxTick.Value;
             };
-        private Func<(decimal? pdiTick, decimal? mdiTick, decimal? adxTick, decimal? previousPdiTick, decimal? previousMdiTick, decimal? previousAdxTick, int adxTreshold), bool>
+        private Func<(decimal? pdiTick, decimal? mdiTick, decimal? adxTick, decimal? previousPdiTick, decimal? previousMdiTick, decimal? previousAdxTick, int adxThreshold), bool>
             MdiPdiBearishCross = (@params) =>
             {
                 return @params.pdiTick.Value < @params.mdiTick.Value &&
                             @params.previousPdiTick.Value >= @params.previousMdiTick.Value &&
-                            @params.adxTick.Value > @params.adxTreshold &&
+                            @params.adxTick.Value > @params.adxThreshold &&
                             @params.adxTick.Value > @params.previousAdxTick.Value;
             };
 
-        private Func<(decimal? pdiTick, decimal? mdiTick, decimal? adxTick, int adxTreshold, decimal? previousAdxTick), bool>
+        private Func<(decimal? pdiTick, decimal? mdiTick, decimal? adxTick, int adxThreshold, decimal? previousAdxTick), bool>
             UpTrend = (@params) =>
             {
                 return @params.pdiTick.Value > @params.mdiTick.Value &&
-                            @params.adxTick.Value > @params.adxTreshold &&
+                            @params.adxTick.Value > @params.adxThreshold &&
                             @params.adxTick.Value > @params.previousAdxTick.Value;
             };
-        private Func<(decimal? pdiTick, decimal? mdiTick, decimal? adxTick, int adxTreshold, decimal? previousAdxTick), bool>
+        private Func<(decimal? pdiTick, decimal? mdiTick, decimal? adxTick, int adxThreshold, decimal? previousAdxTick), bool>
             DownTrend = (@params) =>
             {
                 return @params.pdiTick.Value < @params.mdiTick.Value &&
-                            @params.adxTick.Value > @params.adxTreshold &&
+                            @params.adxTick.Value > @params.adxThreshold &&
                             @params.adxTick.Value > @params.previousAdxTick.Value;
             };
 
 
-        private (int AdxPeriod, int MdiPeriod, int PdiPeriod, int AdxTreshold, bool Bullish) ParseParams(string @params)
+        private (int AdxPeriod, int MdiPeriod, int PdiPeriod, int AdxThreshold, bool Bullish) ParseParams(string @params)
         {
             return (@params.ParseJsonParam("adxPeriod", 8), 
                 @params.ParseJsonParam("mdiPeriod", 8), 
                 @params.ParseJsonParam("pdiPeriod", 8), 
-                @params.ParseJsonParam("adxTreshold", 20), 
+                @params.ParseJsonParam("adxThreshold", 20), 
                 @params.ParseJsonParam("bullish", true));
         }
 

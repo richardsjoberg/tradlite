@@ -21,7 +21,7 @@ namespace Tradlite.Services.Signals
         public int[] Overbought(IReadOnlyList<IOhlcv> candles, string parameters)
         {
             var @params = ParseParams(parameters);
-            var signal = Rule.Create(c => c.Get<RelativeStrengthIndex>(@params.rsiPeriod)[c.Index].Tick.IsTrue(t => t > @params.rsiTreshold));
+            var signal = Rule.Create(c => c.Get<RelativeStrengthIndex>(@params.rsiPeriod)[c.Index].Tick.IsTrue(t => t > @params.rsiThreshold));
 
             return ExecuteRule(candles, signal);
         }
@@ -29,14 +29,14 @@ namespace Tradlite.Services.Signals
         public int[] Oversold(IReadOnlyList<IOhlcv> candles, string parameters)
         {
             var @params = ParseParams(parameters);
-            var signal = Rule.Create(c => c.Get<RelativeStrengthIndex>(@params.rsiPeriod)[c.Index].Tick.IsTrue(t => t < @params.rsiTreshold));
+            var signal = Rule.Create(c => c.Get<RelativeStrengthIndex>(@params.rsiPeriod)[c.Index].Tick.IsTrue(t => t < @params.rsiThreshold));
 
             return ExecuteRule(candles, signal);
         }
 
-        private (int rsiPeriod, int rsiTreshold) ParseParams(string @params)
+        private (int rsiPeriod, int rsiThreshold) ParseParams(string @params)
         {
-            return (@params.ParseJsonParam("rsiPeriod", 14), @params.ParseJsonParam("rsiTreshold", 70));
+            return (@params.ParseJsonParam("rsiPeriod", 14), @params.ParseJsonParam("rsiThreshold", 70));
         }
     }
 }

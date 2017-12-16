@@ -26,8 +26,8 @@ namespace Tradlite.Services.Signals.DirectionalMovement
                 if (pdiTick.HasValue && mdiTick.HasValue && adxTick.HasValue && previousAdxTick.HasValue)
                 {
                     return @params.Bullish ?
-                        UpTrend((pdiTick, mdiTick, adxTick, @params.AdxTreshold, previousAdxTick)) :
-                        DownTrend((pdiTick, mdiTick, adxTick, @params.AdxTreshold, previousAdxTick));
+                        UpTrend((pdiTick, mdiTick, adxTick, @params.AdxThreshold, previousAdxTick)) :
+                        DownTrend((pdiTick, mdiTick, adxTick, @params.AdxThreshold, previousAdxTick));
                 }
 
                 return false;

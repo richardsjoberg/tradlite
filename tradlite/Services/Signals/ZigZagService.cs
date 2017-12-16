@@ -22,7 +22,7 @@ namespace Tradlite.Services.Signals
         public int[] Maximas(IReadOnlyList<IOhlcv> candles, string parameters)
         {
             var @params = ParseParams(parameters);
-            var signal = Rule.Create(c => c.Get<ZigZagMaxima>(@params.zigZagTreshold)[c.Index].Tick != null);
+            var signal = Rule.Create(c => c.Get<ZigZagMaxima>(@params.zigZagThreshold)[c.Index].Tick != null);
 
             return ExecuteRule(candles, signal);
         }
@@ -30,7 +30,7 @@ namespace Tradlite.Services.Signals
         public int[] Minimas(IReadOnlyList<IOhlcv> candles, string parameters)
         {
             var @params = ParseParams(parameters);
-            var signal = Rule.Create(c => c.Get<ZigZagMinima>(@params.zigZagTreshold)[c.Index].Tick != null);
+            var signal = Rule.Create(c => c.Get<ZigZagMinima>(@params.zigZagThreshold)[c.Index].Tick != null);
 
             return ExecuteRule(candles, signal);
         }
@@ -38,7 +38,7 @@ namespace Tradlite.Services.Signals
         public int[] Resistance(IReadOnlyList<IOhlcv> candles, string parameters)
         {
             var @params = ParseParams(parameters);
-            var signal = Rule.Create(c => c.Get<ZigZagResistance>(@params.zigZagTreshold, @params.turningPointMargin, @params.requiredNumberOfTurningPoints)[c.Index].Tick);
+            var signal = Rule.Create(c => c.Get<ZigZagResistance>(@params.zigZagThreshold, @params.turningPointMargin, @params.requiredNumberOfTurningPoints)[c.Index].Tick);
 
             return ExecuteRule(candles, signal);
         }
@@ -46,14 +46,14 @@ namespace Tradlite.Services.Signals
         public int[] Support(IReadOnlyList<IOhlcv> candles, string parameters)
         {
             var @params = ParseParams(parameters);
-            var signal = Rule.Create(c => c.Get<ZigZagSupport>(@params.zigZagTreshold, @params.turningPointMargin, @params.requiredNumberOfTurningPoints)[c.Index].Tick);
+            var signal = Rule.Create(c => c.Get<ZigZagSupport>(@params.zigZagThreshold, @params.turningPointMargin, @params.requiredNumberOfTurningPoints)[c.Index].Tick);
 
             return ExecuteRule(candles, signal);
         }
 
-        private (decimal zigZagTreshold, decimal turningPointMargin, int requiredNumberOfTurningPoints) ParseParams(string @params)
+        private (decimal zigZagThreshold, decimal turningPointMargin, int requiredNumberOfTurningPoints) ParseParams(string @params)
         {
-            return (@params.ParseJsonParam("zigZagTreshold", 0.03m), 
+            return (@params.ParseJsonParam("zigZagThreshold", 0.03m), 
                 @params.ParseJsonParam("turningPointMargin", 0.007m), 
                 @params.ParseJsonParam("requiredNumberOfTurningPoints", 2));
             

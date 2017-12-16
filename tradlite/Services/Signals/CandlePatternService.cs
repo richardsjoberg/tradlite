@@ -61,45 +61,45 @@ namespace Tradlite.Services.Signals
 
         public int[] Doji(IReadOnlyList<IOhlcv> candles, string parameters)
         {
-            var dojiTreshold = parameters.ParseJsonParam("dojiTreshold", 0.1m);
-            return ExecuteRuleBool<Doji>(candles, dojiTreshold);
+            var dojiThreshold = parameters.ParseJsonParam("dojiThreshold", 0.1m);
+            return ExecuteRuleBool<Doji>(candles, dojiThreshold);
         }
 
         public int[] DragonflyDoji(IReadOnlyList<IOhlcv> candles, string parameters)
         {
             var @params = ParseDojiParams(parameters);
-            return ExecuteRuleBool<DragonifyDoji>(candles, @params.dojiTreshold, @params.shadowTreshold);
+            return ExecuteRuleBool<DragonifyDoji>(candles, @params.dojiThreshold, @params.shadowThreshold);
         }
 
         public int[] GravestoneDoji(IReadOnlyList<IOhlcv> candles, string parameters)
         {
             var @params = ParseDojiParams(parameters);
-            return ExecuteRuleBool<GravestoneDoji>(candles, @params.dojiTreshold, @params.shadowTreshold);
+            return ExecuteRuleBool<GravestoneDoji>(candles, @params.dojiThreshold, @params.shadowThreshold);
         }
         
-        private (decimal dojiTreshold, decimal shadowTreshold) ParseDojiParams(string parameters)
+        private (decimal dojiThreshold, decimal shadowThreshold) ParseDojiParams(string parameters)
         {
-            return (parameters.ParseJsonParam("dojiTreshold", 0.1m), parameters.ParseJsonParam("shadowTreshold", 0.1m));
+            return (parameters.ParseJsonParam("dojiThreshold", 0.1m), parameters.ParseJsonParam("shadowThreshold", 0.1m));
         }
 
         public int[] EveningDojiStar(IReadOnlyList<IOhlcv> candles, string parameters)
         {
             var @params = ParseDojiStarParams(parameters);
-            return ExecuteRuleNullableBool<EveningDojiStar>(candles, @params.trendPeriodCount, @params.periodCount, @params.longTreshold, @params.dojiTreshold, @params.threshold);
+            return ExecuteRuleNullableBool<EveningDojiStar>(candles, @params.trendPeriodCount, @params.periodCount, @params.longThreshold, @params.dojiThreshold, @params.threshold);
         }
 
         public int[] MorningDojiStar(IReadOnlyList<IOhlcv> candles, string parameters)
         {
             var @params = ParseDojiStarParams(parameters);
-            return ExecuteRuleNullableBool<MorningDojiStar>(candles, @params.trendPeriodCount, @params.periodCount, @params.longTreshold, @params.dojiTreshold, @params.threshold);
+            return ExecuteRuleNullableBool<MorningDojiStar>(candles, @params.trendPeriodCount, @params.periodCount, @params.longThreshold, @params.dojiThreshold, @params.threshold);
         }
 
-        private (int trendPeriodCount, int periodCount, decimal longTreshold, decimal dojiTreshold, decimal threshold) ParseDojiStarParams(string parameters)
+        private (int trendPeriodCount, int periodCount, decimal longThreshold, decimal dojiThreshold, decimal threshold) ParseDojiStarParams(string parameters)
         {
             return (parameters.ParseJsonParam("trendPeriodCount", 3),
                 parameters.ParseJsonParam("periodCount", 20),
-                parameters.ParseJsonParam("longTreshold", 0.75m),
-                parameters.ParseJsonParam("dojiTreshold", 0.25m),
+                parameters.ParseJsonParam("longThreshold", 0.75m),
+                parameters.ParseJsonParam("dojiThreshold", 0.25m),
                 parameters.ParseJsonParam("threshold", 0.1m));
         }
 
@@ -165,37 +165,37 @@ namespace Tradlite.Services.Signals
         public int[] EveningStar(IReadOnlyList<IOhlcv> candles, string parameters)
         {
             var @params = ParseStarParams(parameters);
-            return ExecuteRuleNullableBool<EveningStar>(candles, @params.trendPeriodCount, @params.periodCount, @params.shortThreshold, @params.longTreshold, @params.threshold);
+            return ExecuteRuleNullableBool<EveningStar>(candles, @params.trendPeriodCount, @params.periodCount, @params.shortThreshold, @params.longThreshold, @params.threshold);
         }
 
         public int[] MorningStar(IReadOnlyList<IOhlcv> candles, string parameters)
         {
             var @params = ParseStarParams(parameters);
-            return ExecuteRuleNullableBool<MorningStar>(candles, @params.trendPeriodCount, @params.periodCount, @params.shortThreshold, @params.longTreshold, @params.threshold);
+            return ExecuteRuleNullableBool<MorningStar>(candles, @params.trendPeriodCount, @params.periodCount, @params.shortThreshold, @params.longThreshold, @params.threshold);
         }
 
-        private (int trendPeriodCount, int periodCount, decimal shortThreshold, decimal longTreshold, decimal threshold) ParseStarParams(string parameters)
+        private (int trendPeriodCount, int periodCount, decimal shortThreshold, decimal longThreshold, decimal threshold) ParseStarParams(string parameters)
         {
             return (parameters.ParseJsonParam("trendPeriodCount", 3),
                 parameters.ParseJsonParam("periodCount", 20),
                 parameters.ParseJsonParam("shortThreshold", 0.75m),
-                parameters.ParseJsonParam("longTreshold", 0.25m),
+                parameters.ParseJsonParam("longThreshold", 0.25m),
                 parameters.ParseJsonParam("threshold", 0.1m));
         }
 
         public int[] FallingThree(IReadOnlyList<IOhlcv> candles, string parameters)
         {
             var @params = ParseThreeParams(parameters);
-            return ExecuteRuleNullableBool<FallingThreeMethods>(candles, @params.trendPeriodCount, @params.periodCount, @params.shortThreshold, @params.longTreshold);
+            return ExecuteRuleNullableBool<FallingThreeMethods>(candles, @params.trendPeriodCount, @params.periodCount, @params.shortThreshold, @params.longThreshold);
         }
         
         public int[] RisingThree(IReadOnlyList<IOhlcv> candles, string parameters)
         {
             var @params = ParseThreeParams(parameters);
-            return ExecuteRuleNullableBool<RisingThreeMethods>(candles, @params.trendPeriodCount, @params.periodCount, @params.shortThreshold, @params.longTreshold);
+            return ExecuteRuleNullableBool<RisingThreeMethods>(candles, @params.trendPeriodCount, @params.periodCount, @params.shortThreshold, @params.longThreshold);
         }
 
-        private (int trendPeriodCount, int periodCount, decimal shortThreshold, decimal longTreshold) ParseThreeParams(string parameters)
+        private (int trendPeriodCount, int periodCount, decimal shortThreshold, decimal longThreshold) ParseThreeParams(string parameters)
         {
             return (parameters.ParseJsonParam("trendPeriodCount", 20),
                 parameters.ParseJsonParam("periodCount", 20), 
