@@ -21,7 +21,6 @@ using Tradlite.Services.Signals;
 using Tradlite.Services.Ig;
 using Microsoft.Extensions.Logging;
 using Tradlite.Services.Management;
-using Tradlite.Services.Signals.DirectionalMovement;
 using Tradlite.Services.Backtest;
 
 namespace Tradlite
@@ -49,14 +48,9 @@ namespace Tradlite
         {
             services.AddMvc();
             services.AddLogging();
-            
+
             services.AddTransient<ICandleService, CandleService>();
             services.AddSingleton<IHttpService, HttpService>();
-            services.AddSingleton<IDirectionalMovementService, DirectionalMovementService>();
-            services.AddSingleton<IRsiService, RsiService>();
-            services.AddSingleton<ICandlePatternService, CandlePatternService>();
-            services.AddSingleton<IMovingAverageService, MovingAverageService>();
-            services.AddSingleton<IZigZagService, ZigZagService>();
             services.AddSingleton<IBacktestService, BacktestService>();
 
             //ToDo: remove this and use connectionFactory instead
@@ -64,7 +58,7 @@ namespace Tradlite
             {
                 return new SqlConnection(Configuration.GetConnectionString("tradlite"));
             });
-            
+
             services.AddTransient(factory =>
             {
                 Func<IDbConnection> connectionFactory = () =>
@@ -74,34 +68,6 @@ namespace Tradlite
 
                 return connectionFactory;
             });
-
-            if (Configuration.GetValue<bool>("EnableIg"))
-            {
-                var igConfig = Configuration.GetSection("Ig");
-                string password;
-                string apiKey;
-                if(!string.IsNullOrEmpty(Configuration["TRADLITE_IG_ENCRYPTION_KEY"]))
-                {
-                    password = Cryptography.DecryptString(igConfig["password"], Configuration["TRADLITE_IG_ENCRYPTION_KEY"]);
-                    apiKey = Cryptography.DecryptString(igConfig["apikey"], Configuration["TRADLITE_IG_ENCRYPTION_KEY"]);
-                }
-                else
-                {
-                    password = igConfig["password"];
-                    apiKey = igConfig["apikey"];
-                }
-                
-                services.AddSingleton(factory => 
-                {
-                    var logger = factory.GetService<ILogger<IgImporter>>();
-                    return new IgImporter(igConfig["environment"], igConfig["username"], password, apiKey, (message) => logger.LogInformation(message));
-                });
-                services.AddSingleton<IIgService, IgService>(factory => 
-                {
-                    var logger = factory.GetService<ILogger<IgService>>();
-                    return new IgService(igConfig["environment"], igConfig["username"], password, apiKey, (message) => logger.LogInformation(message));
-                });
-            }
 
             services.AddTransient<YahooFinanceImporter>();
             services.AddTransient<GoogleFinanceImporter>();
@@ -127,119 +93,78 @@ namespace Tradlite
                         case "Ig":
                             return factory.GetService<IgImporter>();
                         default:
-                            throw new KeyNotFoundException(); 
-                    }
-                };
-                return accesor;
-            });
-
-            services.AddTransient<AverageTrueRangeLongStopLoss>();
-            services.AddTransient<AverageTrueRangeShortStopLoss>();
-            services.AddTransient<CurrentLowStopLoss>();
-            services.AddTransient(factory =>
-            {
-                Func<string, IStopLossManagement> accesor = key =>
-                {
-                    switch (key)
-                    {
-                        case "AverageTrueRangeLongStopLoss":
-                            return factory.GetService<AverageTrueRangeLongStopLoss>();
-                        case "AverageTrueRangeShortStopLoss":
-                            return factory.GetService<AverageTrueRangeShortStopLoss>();
-                        case "CurrentLowStopLoss":
-                            return factory.GetService<CurrentLowStopLoss>();
-                        default:
                             throw new KeyNotFoundException();
                     }
                 };
                 return accesor;
             });
 
-            services.AddTransient<AverageTrueRangeLongLimit>();
-            services.AddTransient<AverageTrueRangeShortLimit>();
-            services.AddTransient(factory =>
-            {
-                Func<string, ILimitManagement> accesor = key =>
-                {
-                    switch (key)
-                    {
-                        case "AverageTrueRangeLongLimit":
-                            return factory.GetService<AverageTrueRangeLongLimit>();
-                        case "AverageTrueRangeShortLimit":
-                            return factory.GetService<AverageTrueRangeShortLimit>();
-                        default:
-                            throw new KeyNotFoundException();
-                    }
-                };
-                return accesor;
-            });
+            if (Configuration.GetValue<bool>("EnableIg"))
+                RegisterIgServices(services);
 
-            services.AddTransient<CurrentCloseEntry>();
-            services.AddTransient<CurrentCloseVwapLongEntry>();
-            services.AddTransient<CurrentCloseVwapShortEntry>();
-            services.AddTransient(factory =>
-            {
-                Func<string, IEntryManagement> accessor = key =>
-                {
-                    switch (key)
-                    {
-                        case "CurrentCloseEntry":
-                            return factory.GetService<CurrentCloseEntry>();
-                        case "CurrentCloseVwapLongEntry":
-                            return factory.GetService<CurrentCloseVwapLongEntry>();
-                        case "CurrentCloseVwapShortEntry":
-                            return factory.GetService<CurrentCloseVwapShortEntry>();
-                        default:
-                            throw new KeyNotFoundException();
-                    }
-                };
-                return accessor;
-            });
-            
-            services.AddTransient<StandardDeviationRatioEntryFilter>();
-            services.AddTransient<RsiOverboughtEntryFilter>();
-            services.AddTransient<RsiOversoldEntryFilter>();
-            services.AddTransient(factory =>
-            {
-                Func<string, IEntryFilterManagement> accessor = key =>
-                {
-                    switch (key)
-                    {
-                        case "StandardDeviationRatioEntryFilter":
-                            return factory.GetService<StandardDeviationRatioEntryFilter>();
-                        case "RsiOverboughtEntryFilter":
-                            return factory.GetService<RsiOverboughtEntryFilter>();
-                        case "RsiOversoldEntryFilter":
-                            return factory.GetService<RsiOversoldEntryFilter>();
-                        default:
-                            throw new KeyNotFoundException();
-                    }
-                };
-                return accessor;
-            });
-
-            services.AddTransient<TrendService>();
-            services.AddTransient<NoTrendService>();
-            services.AddTransient(factory =>
-            {
-                Func<string, ISignalService> accessor = key =>
-                {
-                    switch (key)
-                    {
-                        case "directionalmovementtrend":
-                            return factory.GetService<TrendService>();
-                        case "directionalmovementnotrend":
-                            return factory.GetService<NoTrendService>();
-                        default:
-                            throw new KeyNotFoundException();
-                    }
-                };
-                return accessor;
-            });
-
-            
+            var allTypes = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(s => s.GetTypes());
+            RegisterServices<IStopLossManagement>(services, allTypes);
+            RegisterServices<ILimitManagement>(services, allTypes);
+            RegisterServices<IEntryManagement>(services, allTypes);
+            RegisterServices<ISignalService>(services, allTypes);
+            RegisterServices<IEntryFilterManagement>(services, allTypes);
         }
 
+        private void RegisterServices<T>(IServiceCollection serviceCollection, IEnumerable<Type> allTypes)
+        {
+            var @interface = typeof(T);
+            var services = allTypes.Where(p => @interface.IsAssignableFrom(p))
+                .Except(new[] { @interface })
+                .ToList();
+
+            foreach (var service in services)
+            {
+                serviceCollection.Add(new ServiceDescriptor(service, service, ServiceLifetime.Transient));
+            }
+
+            serviceCollection.AddTransient(factory =>
+            {
+                Func<string, T> accessor = key =>
+                {
+                    var signalType = services.FirstOrDefault(s => s.Name.ToLower() == key.ToLower());
+                    if (signalType == null)
+                        throw new KeyNotFoundException();
+
+                    return (T)factory.GetService(signalType);
+                };
+                return accessor;
+            });
+        }
+
+        private void RegisterIgServices(IServiceCollection services)
+        {
+            var igConfig = Configuration.GetSection("Ig");
+            string password;
+            string apiKey;
+            if (!string.IsNullOrEmpty(Configuration["TRADLITE_IG_ENCRYPTION_KEY"]))
+            {
+                password = Cryptography.DecryptString(igConfig["password"], Configuration["TRADLITE_IG_ENCRYPTION_KEY"]);
+                apiKey = Cryptography.DecryptString(igConfig["apikey"], Configuration["TRADLITE_IG_ENCRYPTION_KEY"]);
+            }
+            else
+            {
+                password = igConfig["password"];
+                apiKey = igConfig["apikey"];
+            }
+
+            services.AddSingleton(factory =>
+            {
+                var logger = factory.GetService<ILogger<IgImporter>>();
+                return new IgImporter(igConfig["environment"], igConfig["username"], password, apiKey, (message) => logger.LogInformation(message));
+            });
+            services.AddSingleton<IIgService, IgService>(factory =>
+            {
+                var logger = factory.GetService<ILogger<IgService>>();
+                return new IgService(igConfig["environment"], igConfig["username"], password, apiKey, (message) => logger.LogInformation(message));
+            });
+        }
+        
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {

@@ -33,9 +33,9 @@
 
   <ItemGroup>
     <Folder Include="Models\TradeSystemConfig\" />
-    <Folder Include="Services\Signals\CandlePattern\" />
-    <Folder Include="Services\Signals\MovingAverage\" />
-    <Folder Include="Services\Signals\ZigZag\" />
-    <Folder Include="Services\Signals\RelativeStrengthIndex\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Services\Signals\CandlePattern\EveningStarSignal.cs" />
   </ItemGroup>
 </Project>

@@ -8,7 +8,7 @@ using Trady.Core.Infrastructure;
 
 namespace Tradlite.Services.Signals.DirectionalMovement
 {
-    public class NoTrendService : DirectionalMovementBase, ISignalService
+    public class NoTrendSignal : DirectionalMovementBase, ISignalService
     {
         public int[] GetSignals(IReadOnlyList<IOhlcv> candles, string parameters)
         {
