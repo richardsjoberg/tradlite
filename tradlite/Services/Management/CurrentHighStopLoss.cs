@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Trady.Core.Infrastructure;
 
 namespace Tradlite.Services.Management
 {
-    public class CurrentLowStopLoss : IStopLossManagement
+    public class CurrentHighStopLoss : IStopLossManagement
     {
         public decimal? StopLoss(IReadOnlyList<IOhlcv> candles, int signalIndex, string ticker, string parameters = null)
         {
-            return candles[signalIndex].Low;
+            return candles[signalIndex].High;
         }
     }
 }

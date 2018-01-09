@@ -64,6 +64,7 @@ namespace Tradlite.Services.Backtest
                 Position currentPosition = null;
                 Order currentOrder = null;
                 var currentIndex = 0;
+                int? lastExitIndex = null;
 
                 while (currentIndex <= candles.Count - 1)
                 {
@@ -112,46 +113,56 @@ namespace Tradlite.Services.Backtest
                             {
                                 transactions.Add(CreateLongTransaction(currentPosition, candle.DateTime.LocalDateTime, currentPosition.Limit.Value, ticker, exchangeRate));
                                 currentPosition = null;
-                                currentIndex++;
-                                continue;
+                                lastExitIndex = currentIndex;
                             }
                             else if (exitSignals.Contains(currentIndex))
                             {
                                 transactions.Add(CreateLongTransaction(currentPosition, candle.DateTime.LocalDateTime, candle.Close, ticker, exchangeRate));
                                 currentPosition = null;
-                                currentIndex++;
-                                continue;
+                                lastExitIndex = currentIndex;
                             }
                             else if (candle.Low <= currentPosition.Stop)
                             {
                                 transactions.Add(CreateLongTransaction(currentPosition, candle.DateTime.LocalDateTime, currentPosition.Stop.Value, ticker, exchangeRate));
                                 currentPosition = null;
-                                currentIndex++;
-                                continue;
+                                lastExitIndex = currentIndex;
+                            } 
+                            else if (!string.IsNullOrEmpty(backtestConfig.TrailingStopLossManagement))
+                            {
+                                var stopLoss = _stopLossManagementAccessor(backtestConfig.TrailingStopLossManagement).StopLoss(candles, currentIndex, ticker, backtestConfig.Parameters);
+                                if(stopLoss.HasValue && stopLoss > currentPosition.Stop)
+                                {
+                                    currentPosition.Stop = stopLoss;
+                                }
                             }
                         }
-                        if (currentPosition.Direction == OrderDirection.Short)
+                        else if (currentPosition.Direction == OrderDirection.Short)
                         {
                             if (currentPosition.Limit.HasValue && candle.Low <= currentPosition.Limit)
                             {
                                 transactions.Add(CreateShortTransaction(currentPosition, candle.DateTime.LocalDateTime, currentPosition.Limit.Value, ticker, exchangeRate));
                                 currentPosition = null;
-                                currentIndex++;
-                                continue;
+                                lastExitIndex = currentIndex;
                             }
                             else if (exitSignals.Contains(currentIndex))
                             {
                                 transactions.Add(CreateShortTransaction(currentPosition, candle.DateTime.LocalDateTime, candle.Close, ticker, exchangeRate));
                                 currentPosition = null;
-                                currentIndex++;
-                                continue;
+                                lastExitIndex = currentIndex;
                             }
                             else if (candle.High >= currentPosition.Stop)
                             {
                                 transactions.Add(CreateShortTransaction(currentPosition, candle.DateTime.LocalDateTime, currentPosition.Stop.Value, ticker, exchangeRate));
                                 currentPosition = null;
-                                currentIndex++;
-                                continue;
+                                lastExitIndex = currentIndex;
+                            }
+                            else if(!string.IsNullOrEmpty(backtestConfig.TrailingStopLossManagement))
+                            {
+                                var stopLoss = _stopLossManagementAccessor(backtestConfig.TrailingStopLossManagement).StopLoss(candles, currentIndex, ticker, backtestConfig.Parameters);
+                                if (stopLoss.HasValue && stopLoss < currentPosition.Stop)
+                                {
+                                    currentPosition.Stop = stopLoss;
+                                }
                             }
                         }
                         currentIndex++;
@@ -160,20 +171,26 @@ namespace Tradlite.Services.Backtest
 
                     if (signals.Any(s => s == currentIndex))
                     {
+                        if (lastExitIndex.HasValue && signals.Count(s => s > lastExitIndex.Value && s <= currentIndex) == currentIndex - lastExitIndex.Value)
+                        {
+                            currentIndex++;
+                            continue;
+                        }
+                            
                         if(!string.IsNullOrEmpty(backtestConfig.EntryFilterManagement))
                         {
-                            if (!_entryFilterManagementAccessor(backtestConfig.EntryFilterManagement).Entry(candles, currentIndex, backtestConfig.Parameters))
+                            if (!_entryFilterManagementAccessor(backtestConfig.EntryFilterManagement).Entry(candles, currentIndex, ticker, backtestConfig.Parameters))
                             {
                                 currentIndex++;
                                 continue;
                             }
                         }
-                        var stop = _stopLossManagementAccessor(backtestConfig.StopLossManagement).StopLoss(candles, currentIndex, backtestConfig.Parameters);
-                        var entry = _entrytManagementAccessor(backtestConfig.EntryManagement).Entry(candles, currentIndex, backtestConfig.Parameters);
+                        var stop = _stopLossManagementAccessor(backtestConfig.StopLossManagement).StopLoss(candles, currentIndex, ticker, backtestConfig.Parameters);
+                        var entry = _entrytManagementAccessor(backtestConfig.EntryManagement).Entry(candles, currentIndex, ticker, backtestConfig.Parameters);
                         decimal? limit = null;
                         if (!string.IsNullOrEmpty(backtestConfig.LimitManagement))
                         {
-                            limit = _limitManagementAccessor(backtestConfig.LimitManagement).Limit(candles, currentIndex, backtestConfig.Parameters);
+                            limit = _limitManagementAccessor(backtestConfig.LimitManagement).Limit(candles, currentIndex, ticker, backtestConfig.Parameters);
                         }
 
                         if (currentIndex + 1 > candles.Count - 1 || !stop.HasValue || !entry.HasValue)

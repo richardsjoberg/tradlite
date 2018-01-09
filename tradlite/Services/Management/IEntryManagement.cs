@@ -8,6 +8,6 @@ namespace Tradlite.Services.Management
 {
     public interface IEntryManagement
     {
-        decimal? Entry(IReadOnlyList<IOhlcv> candles, int signalIndex, string parameters = null);
+        decimal? Entry(IReadOnlyList<IOhlcv> candles, int signalIndex, string ticker, string parameters);
     }
 }

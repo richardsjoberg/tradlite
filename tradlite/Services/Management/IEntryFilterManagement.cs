@@ -8,6 +8,6 @@ namespace Tradlite.Services.Management
 {
     public interface IEntryFilterManagement
     {
-        bool Entry(IReadOnlyList<IOhlcv> candles, int signalIndex, string parameters = null);
+        bool Entry(IReadOnlyList<IOhlcv> candles, int signalIndex, string ticker, string parameters);
     }
 }

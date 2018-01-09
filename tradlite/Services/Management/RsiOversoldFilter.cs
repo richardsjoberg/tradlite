@@ -6,7 +6,7 @@ namespace Tradlite.Services.Management
 {
     public class RsiOversoldEntryFilter : IEntryFilterManagement
     {
-        public bool Entry(IReadOnlyList<IOhlcv> candles, int signalIndex, string parameters = null)
+        public bool Entry(IReadOnlyList<IOhlcv> candles, int signalIndex, string ticker, string parameters = null)
         {
             var rsi = candles.Rsi(5)[signalIndex].Tick;
             if (rsi.HasValue)

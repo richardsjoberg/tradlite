@@ -20,5 +20,6 @@ namespace Tradlite.Models.Backtesting
         public string Direction { get; set; }
         public string OrderType { get; set; }
         public string EntryFilterManagement { get; set; }
+        public string TrailingStopLossManagement { get; set; }
     }
 }

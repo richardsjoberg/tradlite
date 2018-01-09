@@ -42,7 +42,8 @@ CREATE TABLE [dbo].[CachedCandleKeys] (
     [ToDate]   DATETIME2 (7) NOT NULL,
     [TickerId] INT           NOT NULL,
     [Interval] NVARCHAR (50) NOT NULL,
-    PRIMARY KEY CLUSTERED ([Id] ASC)
+    PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [UC_Ticker_Interval] UNIQUE NONCLUSTERED ([TickerId] ASC, [Interval] ASC)
 );
 
 CREATE TABLE [dbo].[CachedCandles] (
@@ -72,6 +73,8 @@ CREATE TABLE [dbo].[BacktestConfigs] (
     [ExitSignalConfigId]  INT            NULL,
     [Direction]           NVARCHAR (50)  NOT NULL,
     [OrderType]           NVARCHAR (50)  NOT NULL,
+	[EntryFilterManagement]      NVARCHAR (50)  NULL,
+    [TrailingStopLossManagement] NVARCHAR (50)  NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 

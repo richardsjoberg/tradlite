@@ -9,11 +9,18 @@ namespace Tradlite.Services.Management
 {
     public class AverageTrueRangeLongLimit : ILimitManagement
     {
-        public decimal? Limit(IReadOnlyList<IOhlcv> candles, int signalIndex, string parameters)
+        private Dictionary<string, IReadOnlyList<IAnalyzableTick<decimal?>>> _atr = new Dictionary<string, IReadOnlyList<IAnalyzableTick<decimal?>>>();
+
+        public decimal? Limit(IReadOnlyList<IOhlcv> candles, int signalIndex, string ticker, string parameters)
         {
             var period = parameters.ParseJsonParam("period", 14);
-            var limitMultiplier = parameters.ParseJsonParam("limitMultiplier", 4m);
-            var atr = candles.Atr(period);
+            var limitMultiplier = parameters.ParseJsonParam("limitMultiplier", 3m);
+            if(!_atr.ContainsKey(ticker))
+            {
+                _atr.Add(ticker, candles.Atr(period));
+            }
+
+            var atr = _atr[ticker];
             if (!atr[signalIndex].Tick.HasValue)
                 return null;
 

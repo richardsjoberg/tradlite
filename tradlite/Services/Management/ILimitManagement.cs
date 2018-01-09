@@ -8,6 +8,6 @@ namespace Tradlite.Services.Management
 {
     public interface ILimitManagement
     {
-        decimal? Limit(IReadOnlyList<IOhlcv> candles, int signalIndex, string parameters = null);
+        decimal? Limit(IReadOnlyList<IOhlcv> candles, int signalIndex, string ticker, string parameters);
     }
 }

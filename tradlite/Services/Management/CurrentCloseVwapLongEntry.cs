@@ -10,12 +10,18 @@ namespace Tradlite.Services.Management
 {
     public class CurrentCloseVwapLongEntry : IEntryManagement
     {
-
-        public decimal? Entry(IReadOnlyList<IOhlcv> candles, int signalIndex, string parameters)
+        private Dictionary<string, IReadOnlyList<IAnalyzableTick<decimal?>>> _vwap = new Dictionary<string, IReadOnlyList<IAnalyzableTick<decimal?>>>();
+        public decimal? Entry(IReadOnlyList<IOhlcv> candles, int signalIndex, string ticker, string parameters)
         {
             var candle = candles[signalIndex];
-            var vwap = candles.Vwap();
-            if(!vwap[signalIndex].Tick.HasValue || candle.Close > vwap[signalIndex].Tick.Value)
+            var cacheKey = ticker + candles.Min(c => c.DateTime).DateTime + candles.Max(c => c.DateTime).DateTime;
+            if (!_vwap.ContainsKey(cacheKey))
+            {
+                _vwap.Add(cacheKey, candles.Vwap());
+            }
+            var vwap = _vwap[cacheKey];
+
+            if (!vwap[signalIndex].Tick.HasValue || candle.Close > vwap[signalIndex].Tick.Value)
             {
                 return null;
             }

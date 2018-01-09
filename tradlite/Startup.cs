@@ -120,7 +120,7 @@ namespace Tradlite
 
             foreach (var service in services)
             {
-                serviceCollection.Add(new ServiceDescriptor(service, service, ServiceLifetime.Transient));
+                serviceCollection.Add(new ServiceDescriptor(service, service, ServiceLifetime.Singleton));
             }
 
             serviceCollection.AddTransient(factory =>

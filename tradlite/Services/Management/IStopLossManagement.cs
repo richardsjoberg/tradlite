@@ -8,6 +8,6 @@ namespace Tradlite.Services.Management
 {
     public interface IStopLossManagement
     {
-        decimal? StopLoss(IReadOnlyList<IOhlcv> candles, int signalIndex, string parameters = null);
+        decimal? StopLoss(IReadOnlyList<IOhlcv> candles, int signalIndex, string ticker, string parameters);
     }
 }

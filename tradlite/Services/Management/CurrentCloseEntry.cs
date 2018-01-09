@@ -8,7 +8,7 @@ namespace Tradlite.Services.Management
 {
     public class CurrentCloseEntry : IEntryManagement
     {
-        public decimal? Entry(IReadOnlyList<IOhlcv> candles, int signalIndex, string parameters)
+        public decimal? Entry(IReadOnlyList<IOhlcv> candles, int signalIndex, string ticker, string parameters)
         {
             return candles[signalIndex].Close;
         }
