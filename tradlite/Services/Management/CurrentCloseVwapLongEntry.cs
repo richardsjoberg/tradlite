@@ -14,7 +14,7 @@ namespace Tradlite.Services.Management
         public decimal? Entry(IReadOnlyList<IOhlcv> candles, int signalIndex, string ticker, string parameters)
         {
             var candle = candles[signalIndex];
-            var cacheKey = ticker + candles.Min(c => c.DateTime).DateTime + candles.Max(c => c.DateTime).DateTime;
+            var cacheKey = ticker + candles.First().DateTime.ToString() + candles.Last().DateTime.ToString();
             if (!_vwap.ContainsKey(cacheKey))
             {
                 _vwap.Add(cacheKey, candles.Vwap());

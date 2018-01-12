@@ -15,7 +15,7 @@ namespace Tradlite.Services.Management
         {
             var period = parameters.ParseJsonParam("period", 14);
             var stopMultiplier = parameters.ParseJsonParam("stopMultiplier", 5m);
-            var cacheKey = ticker + candles.Min(c => c.DateTime).DateTime + candles.Max(c => c.DateTime).DateTime;
+            var cacheKey = ticker + candles.First().DateTime.ToString() + candles.Last().DateTime.ToString();
             if (!_atr.ContainsKey(cacheKey))
             {
                 _atr.Add(cacheKey, candles.Atr(period));

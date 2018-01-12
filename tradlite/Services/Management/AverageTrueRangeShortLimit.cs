@@ -15,12 +15,13 @@ namespace Tradlite.Services.Management
         {
             var period = parameters.ParseJsonParam("period", 14);
             var limitMultiplier = parameters.ParseJsonParam("limitMultiplier", 3m);
-            if (!_atr.ContainsKey(ticker))
+            var cacheKey = ticker + candles.First().DateTime.ToString() + candles.Last().DateTime.ToString();
+            if (!_atr.ContainsKey(cacheKey))
             {
                 _atr.Add(ticker, candles.Atr(period));
             }
 
-            var atr = _atr[ticker];
+            var atr = _atr[cacheKey];
             if (!atr[signalIndex].Tick.HasValue)
                 return null;
 
