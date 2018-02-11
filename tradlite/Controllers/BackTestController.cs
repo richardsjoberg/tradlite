@@ -73,7 +73,7 @@ namespace Tradlite.Controllers
                 shortBacktestConfig = _dbConnection.Get<BacktestConfig>(request.ShortBacktestConfigId);
             }
 
-            var transactions = new List<Transaction>();
+            var tasks = new List<Task<List<Transaction>>>();
             foreach (var ticker in tickers)
             {
                 var marketDetails = await _igService.GetMarketDetails(ticker.Symbol);
@@ -89,17 +89,23 @@ namespace Tradlite.Controllers
                 });
                 if(longBacktestConfig != null)
                 {
-                    
-                    var backtestTransactions = await _backtestService.Run(candles, longBacktestConfig, size, ticker.Symbol, exchangeRate, request.Risk);
-                    transactions.AddRange(backtestTransactions);
+                    tasks.Add(_backtestService.Run(candles, longBacktestConfig, size, ticker.Symbol, exchangeRate, request.Risk));
+                    //var backtestTransactions = await _backtestService.Run(candles, longBacktestConfig, size, ticker.Symbol, exchangeRate, request.Risk);
+                    //transactions.AddRange(backtestTransactions);
                 }
 
                 if(shortBacktestConfig != null)
                 {
-                    var backtestTransactions = await _backtestService.Run(candles, shortBacktestConfig, size, ticker.Symbol, exchangeRate, request.Risk);
-                    transactions.AddRange(backtestTransactions);
+                    tasks.Add(_backtestService.Run(candles, shortBacktestConfig, size, ticker.Symbol, exchangeRate, request.Risk));
+                    //var backtestTransactions = await _backtestService.Run(candles, shortBacktestConfig, size, ticker.Symbol, exchangeRate, request.Risk);
+                    //transactions.AddRange(backtestTransactions);
                 }
-                
+            }
+            var transactions = new List<Transaction>();
+            var results = await Task.WhenAll(tasks);
+            foreach(var result in results)
+            {
+                transactions.AddRange(result);
             }
             return new BacktestResult(transactions, 100000);
         }

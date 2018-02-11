@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <AssemblyName>Tradlite.IgPocBot</AssemblyName>
+    <RootNamespace>Tradlite.IgPocBot</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="1.50.4" />
+    <PackageReference Include="Dapper.Contrib" Version="1.50.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.0.0" />
+    <PackageReference Include="Topshelf" Version="4.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\TradyImporterIg\IGWebApiClient\IGWebApiClient.csproj" />
+    <ProjectReference Include="..\..\TradyImporterIg\Trady.Importer.Ig\Trady.Importer.Ig.csproj" />
+    <ProjectReference Include="..\..\Trady\Trady.Analysis\Trady.Analysis.csproj" />
+    <ProjectReference Include="..\..\Trady\Trady.Core\Trady.Core.csproj" />
+    <ProjectReference Include="..\..\Trady\Trady.Importer.Csv\Trady.Importer.Csv.csproj" />
+    <ProjectReference Include="..\..\Trady\Trady.Importer.Google\Trady.Importer.Google.csproj" />
+    <ProjectReference Include="..\..\Trady\Trady.Importer.Quandl\Trady.Importer.Quandl.csproj" />
+    <ProjectReference Include="..\..\Trady\Trady.Importer.Stooq\Trady.Importer.Stooq.csproj" />
+    <ProjectReference Include="..\..\Trady\Trady.Importer.Yahoo\Trady.Importer.Yahoo.csproj" />
+    <ProjectReference Include="..\..\Trady\Trady.Importer\Trady.Importer.csproj" />
+    <ProjectReference Include="..\tradlite\Tradlite.csproj" />
+  </ItemGroup>
+
+</Project>

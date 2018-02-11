@@ -38,5 +38,9 @@ tradliteApp.config(function ($stateProvider, $urlRouterProvider) {
             //params: {
             //    nodeId: null
             //},
+        })
+        .state("backtest", {
+            url: "/backtest",
+            component: "backtest"
         });
 });

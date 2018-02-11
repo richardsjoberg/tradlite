@@ -9,6 +9,7 @@ namespace Tradlite.Models.Backtesting
     {
         public BacktestResult(List<Transaction> transactions, decimal initialCapital)
         {
+            transactions = transactions.OrderBy(d => d.EntryDate).ToList();
             Transactions = transactions;
             decimal wins = 0;
             decimal losses = 0;

@@ -18,7 +18,7 @@ namespace Tradlite.Services.Management
             var cacheKey = ticker + candles.First().DateTime.ToString() + candles.Last().DateTime.ToString();
             if (!_atr.ContainsKey(cacheKey))
             {
-                _atr.Add(ticker, candles.Atr(period));
+                _atr.Add(cacheKey, candles.Atr(period));
             }
 
             var atr = _atr[cacheKey];

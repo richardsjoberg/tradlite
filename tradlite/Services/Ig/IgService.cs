@@ -1,4 +1,5 @@
-﻿using dto.endpoint.marketdetails.v2;
+﻿using dto.endpoint.auth.session.v2;
+using dto.endpoint.marketdetails.v2;
 using IGWebApiClient;
 using IGWebApiClient.Common;
 using System;
@@ -15,6 +16,7 @@ namespace Tradlite.Services.Ig
         Task<IgRestApiClient> GetIgClient();
         Task<SentimentResponse> GetSentiment(string igTicker);
         Task<MarketDetailsResponse> GetMarketDetails(string igTicker);
+        Task<AuthenticationResponse> GetAuthenticationDetails();
     }
     public class IgService : IIgService
     {
@@ -24,7 +26,9 @@ namespace Tradlite.Services.Ig
         private readonly string _password;
         private readonly string _apiKey;
         private readonly PropertyEventDispatcher _eventDispatcher;
-        private bool isAuthenticated;
+        private bool _isAuthenticated;
+        private AuthenticationResponse _authenticationResponse;
+
         public IgService(string igEnv, string userName, string password, string apiKey, Action<string> onMessage = null)
         {
             _igEnv = igEnv;
@@ -62,11 +66,17 @@ namespace Tradlite.Services.Ig
 
         private async Task Authenticate()
         {
-            if (!isAuthenticated)
+            if (!_isAuthenticated)
             {
-                await _igRestApiClient.SecureAuthenticate(new dto.endpoint.auth.session.v2.AuthenticationRequest { identifier = _userName, password = _password }, _apiKey);
-                isAuthenticated = true;
+                _authenticationResponse = await _igRestApiClient.SecureAuthenticate(new dto.endpoint.auth.session.v2.AuthenticationRequest { identifier = _userName, password = _password }, _apiKey);
+                _isAuthenticated = true;
             }
+        }
+
+        public async Task<AuthenticationResponse> GetAuthenticationDetails()
+        {
+            await Authenticate();
+            return _authenticationResponse;
         }
     }
 }

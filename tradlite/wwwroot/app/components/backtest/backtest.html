@@ -1,0 +1,32 @@
+﻿<form class="form-inline">
+    <div class="form-group ">
+        <input type="text" placeholder="Ticker list id" required class="form-control" ng-model="tickerListId" />
+        <input type="text" placeholder="Long backtest config id" required class="form-control" ng-model="longBacktestConfigId" />
+        <input type="text" placeholder="Short backtest config id" required class="form-control" ng-model="shortBacktestConfigId" />
+        <input type="text" placeholder="Interval" required class="form-control" ng-model="interval" />
+        <input type="text" placeholder="MaxRisk" required class="form-control" ng-model="risk" />
+        <input type="text" placeholder="From date" class="form-control" ng-model="fromDate" />
+        <input type="text" placeholder="To date" class="form-control" ng-model="toDate" />
+        <input value="Execute" type="button" class="btn btn-primary " ng-click="execute_test()" />
+    </div>
+</form>
+<line-chart line-chart-data="lineChartData"></line-chart>
+<div ng-repeat="(key, value) in backtestResult">
+    {{key}}: {{value}}
+</div>
+<table class="table table-striped" ng-if="transactions">
+    <thead>
+        <tr>
+            <th ng-repeat="(key, value) in transactions[0]">
+                {{key}}
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="transaction in transactions">
+            <td ng-repeat="(key, value) in transaction">
+                {{value}}
+            </td>
+        </tr>
+    </tbody>
+</table>
