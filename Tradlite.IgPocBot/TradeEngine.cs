@@ -12,16 +12,16 @@ namespace Tradlite.IgPocBot
     {
         private readonly Timer _timer;
         private bool _executing;
-        public event EventHandler<CandleUpdatedEventArgs> _candlesUpdated;
+        public EventHandler<CandleUpdatedEventArgs> _candlesUpdated;
         private readonly string _ticker;
         private IList<IOhlcv> _candles;
         private CandleUpdatedEventArgs _candleEventArgs;
         private bool _updateCandles; 
 
-        public TradeEngine(EventHandler<CandleUpdatedEventArgs> candlesUpdated, IList<IOhlcv> candles, string ticker)
+        public TradeEngine(CandleUpdater candleUpdater, IList<IOhlcv> candles, string ticker)
         {
-            _candlesUpdated = candlesUpdated;
-            _candlesUpdated += (sender, eventArgs) => UpdateCandles(eventArgs);
+            //candleUpdater._candlesUpdated += (sender, eventArgs) => UpdateCandles(eventArgs);
+            candleUpdater._candlesUpdated += (sender, eventArgs) => UpdateCandles2(eventArgs);
             _timer = new Timer(1000) { AutoReset = true };
             _timer.Elapsed += (sender, eventArgs) => 
             {
@@ -56,8 +56,23 @@ namespace Tradlite.IgPocBot
             _executing = false;
         }
 
-        public void UpdateCandles(CandleUpdatedEventArgs candleEventArgs)
+        //public void UpdateCandles(CandleUpdatedEventArgs candleEventArgs)
+        //{
+        //    Console.WriteLine("Ho ho ho");
+        //    _candleEventArgs = candleEventArgs;
+        //    if (_executing)
+        //    {
+        //        _updateCandles = true;
+        //    }
+        //    else
+        //    {
+        //        //UpdateCandles();
+        //        Execute();
+        //    }
+        //}
+        public void UpdateCandles2(CandleUpdatedEventArgs candleEventArgs)
         {
+            Console.WriteLine("2222");
             _candleEventArgs = candleEventArgs;
             if (_executing)
             {
@@ -65,7 +80,7 @@ namespace Tradlite.IgPocBot
             }
             else
             {
-                UpdateCandles();
+                //UpdateCandles();
                 Execute();
             }
         }
