@@ -80,10 +80,10 @@ namespace Tradlite.Services.Candle.CandleService
             {
                 var cachedCandleKeyId = cachedCandleKeys.First(cck => cck.FromDate <= request.FromDate && cck.ToDate >= request.ToDate).Id;
                 var cachedCandles = (await _dbConnection.QueryAsync<CachedCandle>(getCachedCandlesSql, new { cachedCandleKeyId })).ToList()
-                    .Where(cc => cc.DateTime.UtcDateTime >= request.FromDate && cc.DateTime.UtcDateTime <= request.ToDate).ToList();
+                    .Where(cc => cc.DateTime.DateTime >= request.FromDate && cc.DateTime.DateTime <= request.ToDate).ToList();
                 return cachedCandles.ToList();
             }
-            else if(cachedCandleKeys.Any(cck => cck.FromDate > request.FromDate && cck.ToDate >= request.ToDate)) // we miss some candles in the beginnig of a cached period (p2, p7)
+            else if(cachedCandleKeys.Any(cck => cck.FromDate > request.FromDate && cck.ToDate >= request.ToDate && cck.FromDate > request.ToDate)) // we miss some candles in the beginnig of a cached period (p2)
             {
                 var cachedCandleKey = cachedCandleKeys.Single(cck => cck.FromDate > request.FromDate && cck.ToDate >= request.ToDate);
 
@@ -96,9 +96,9 @@ namespace Tradlite.Services.Candle.CandleService
                 await CacheCandles(candles, tickerId.Value, request.Interval, cachedCandleKey);
                     
                 candles.AddRange(cachedCandles);
-                return candles.Where(cc => cc.DateTime.UtcDateTime >= request.FromDate && cc.DateTime.UtcDateTime <= request.ToDate).ToList();
+                return candles.Where(cc => cc.DateTime.DateTime >= request.FromDate && cc.DateTime.DateTime <= request.ToDate).ToList();
             }
-            else if (cachedCandleKeys.Any(cck => cck.FromDate <= request.FromDate && cck.ToDate < request.ToDate)) // we miss some candles at the end of a cached period (p3, p8)
+            else if (cachedCandleKeys.Any(cck => cck.FromDate <= request.FromDate && cck.ToDate < request.ToDate && cck.ToDate >= request.FromDate)) // we miss some candles at the end of a cached period (p3)
             {
                 var cachedCandleKey = cachedCandleKeys.Single(cck => cck.FromDate <= request.FromDate && cck.ToDate < request.ToDate);
 
@@ -113,8 +113,14 @@ namespace Tradlite.Services.Candle.CandleService
                 
                 var cachedCandlesOhlcv = cachedCandles.Cast<IOhlcv>().ToList();
                 cachedCandlesOhlcv.AddRange(candles);
-                cachedCandlesOhlcv = cachedCandlesOhlcv.Where(cc => cc.DateTime.UtcDateTime >= request.FromDate && cc.DateTime.UtcDateTime <= request.ToDate).ToList();
+                cachedCandlesOhlcv = cachedCandlesOhlcv.Where(cc => cc.DateTime.DateTime >= request.FromDate && cc.DateTime.DateTime <= request.ToDate).ToList();
                 return cachedCandlesOhlcv;
+            }
+            else if(cachedCandleKeys.Any(cck => cck.FromDate <= request.FromDate && cck.ToDate < request.ToDate && cck.ToDate < request.FromDate) || 
+                cachedCandleKeys.Any(cck => cck.FromDate > request.FromDate && cck.ToDate >= request.ToDate && cck.FromDate > request.ToDate)) //request is outside of cache, don't cache because of complexity (p7,p8)
+            {
+                var candles = await _importerAccessor(request.Importer).ImportAsync(request.Ticker, request.FromDate.Value, request.ToDate.Value, request.Interval.ToTradyPeriod());
+                return candles;
             }
             else //we wither have no cacheKeys or this is a p5, import all candles and delete old cacheKeys if any
             {
@@ -128,7 +134,7 @@ namespace Tradlite.Services.Candle.CandleService
 
                 var candles = await _importerAccessor(request.Importer).ImportAsync(request.Ticker, request.FromDate.Value, request.ToDate.Value, request.Interval.ToTradyPeriod());
                 await CacheCandles(candles.ToList(), tickerId.Value, request.Interval);
-                return candles.Where(cc => cc.DateTime.UtcDateTime >= request.FromDate && cc.DateTime.UtcDateTime <= request.ToDate).ToList();
+                return candles.Where(cc => cc.DateTime.DateTime >= request.FromDate && cc.DateTime.DateTime <= request.ToDate).ToList();
             }
         }
 

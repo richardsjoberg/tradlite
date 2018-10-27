@@ -1,0 +1,60 @@
+﻿<form class="form-inline">
+    <div class="form-group ">
+        <select class="form-control" ng-model="tickerList" ng-change="ticker_list_changed(tickerList)">
+            <option ng-repeat="tickerList in tickerLists" ng-value="tickerList">{{tickerList.name}}</option>
+        </select>
+        <input type="text" placeholder="From date" class="form-control" ng-model="fromDate" />
+        <input type="text" placeholder="To date" class="form-control" ng-model="toDate" />
+        <select class="form-control" ng-model="interval">
+            <option ng-repeat="interv in intervals" ng-value="interv">{{interv}}</option>
+        </select>
+        <input value="Run" type="button" class="btn btn-primary " ng-click="run()" />
+    </div>
+    
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>
+                    Name
+                </th>
+                <th>
+                    Symbol
+                </th>
+                <th>
+                    Ratio
+                </th>
+                <th>
+                    Spread
+                </th>
+                <th>
+                    Atr
+                </th>
+                <th>
+                    Market status
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="volatilitySpreadRatio in volatilitySpreadRatios">
+                <td>
+                    {{volatilitySpreadRatio.ticker.name}}
+                </td>
+                <td>
+                    {{volatilitySpreadRatio.ticker.symbol}}
+                </td>
+                <td>
+                    {{volatilitySpreadRatio.ratio}}
+                </td>
+                <td>
+                    {{volatilitySpreadRatio.spread}}
+                </td>
+                <td>
+                    {{volatilitySpreadRatio.atr}}
+                </td>
+                <td>
+                    {{volatilitySpreadRatio.marketStatus}}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>

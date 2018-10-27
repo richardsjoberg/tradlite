@@ -42,5 +42,9 @@ tradliteApp.config(function ($stateProvider, $urlRouterProvider) {
         .state("backtest", {
             url: "/backtest",
             component: "backtest"
+        })
+        .state("volatilitySpreadRatio", {
+            url: "/volatilitySpreadRatio",
+            component: "volatilitySpreadRatio"
         });
 });

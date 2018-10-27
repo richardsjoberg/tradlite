@@ -185,8 +185,30 @@ namespace Tradlite.Controllers
         public async Task<string> ImportIgTickersFromNodeId(string nodeId, string tickerListName)
         {
             var client = await _igService.GetIgClient();
+            var importedTickerCount = ImportIgTickers(client, nodeId, tickerListName);
+
+            return $"{importedTickerCount} tickers imported";
+        }
+
+        [Route("api/ticker/import/ig/nodes/{nodeIds}/{tickerListName}")]
+        public async Task<string> ImportIgTickersFromNodeIds(string nodeIds, string tickerListName)
+        {
+            var addedTickerCount = 0;
+            var nodeIdsArray = nodeIds.Split('_');
+            var client = await _igService.GetIgClient();
+            foreach (var nodeId in nodeIdsArray)
+            {
+                var importedTickerCount = await ImportIgTickers(client, nodeId, tickerListName);
+                addedTickerCount += importedTickerCount;
+            }
+            
+            return $"{addedTickerCount} tickers imported";
+        }
+
+        private async Task<int> ImportIgTickers(IGWebApiClient.IgRestApiClient client, string nodeId, string tickerListName)
+        {
             var response = await client.browse(nodeId);
-            foreach(var market in response.Response.markets)
+            foreach (var market in response.Response.markets)
             {
                 var ticker = new Ticker
                 {
@@ -198,8 +220,7 @@ namespace Tradlite.Controllers
 
                 _dbConnection.Insert(ticker);
             }
-
-            return $"{response.Response.markets.Count} tickers imported";
+            return response.Response.markets.Count;
         }
     }
 }

@@ -1,8 +1,8 @@
 tradliteApp.service("httpService", function ($http, $q) {
 
-    function get(url, params, inSequence) {
+    function get(url, params, inSequence, delay) {
         if (inSequence) {
-            return getInSequence(url, params);
+            return getInSequence(url, params, delay);
         } else {
             return $http({
                 url: url, method: "GET", params: params
@@ -12,30 +12,36 @@ tradliteApp.service("httpService", function ($http, $q) {
 
     var tasks = [];
     var executing = false;
-    function getInSequence(url, params) {
+    function getInSequence(url, params, delay) {
         var q = $q.defer();
         tasks.push({ q: q, url: url, params: params });
-        execute();
+        execute(delay);
         return q.promise;
     }
 
-    function execute() {
+    function execute(delay) {
         if (!executing && tasks.length > 0) {
             executing = true;
             var task = tasks[0];
-            $http({
-                url: task.url, method: "GET", params: task.params
-            }).then(function (response) {
-                task.q.resolve(response);
-                tasks.shift();
-                executing = false;
-                execute();
-            }).catch(function (err) {
-                task.q.reject(err);
-                tasks.shift();
-                executing = false;
-                execute();
-            });
+            if (!delay)
+                delay = 0;
+
+            $http({ url: task.url, method: "GET", params: task.params })
+                .then(function (response) {
+                    setTimeout(function () {
+                        task.q.resolve(response);
+                        tasks.shift();
+                        executing = false;
+                        execute(delay);
+                    }, delay);
+                }).catch(function (err) {
+                    setTimeout(function () {
+                        task.q.reject(err);
+                        tasks.shift();
+                        executing = false;
+                        execute(delay);
+                    }, delay);
+                });
         }
     }
     
@@ -78,7 +84,7 @@ tradliteApp.service("importerService", function () {
             }
         ];
     }
-
+    
     return {
         get: get
     }

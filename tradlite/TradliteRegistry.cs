@@ -16,7 +16,6 @@ using Trady.Core.Infrastructure;
 using Trady.Importer;
 using Trady.Importer.Csv;
 using Trady.Importer.Google;
-using Trady.Importer.Quandl;
 using Trady.Importer.Stooq;
 using Trady.Importer.Yahoo;
 
@@ -48,7 +47,6 @@ namespace Tradlite
 
             services.AddTransient<YahooFinanceImporter>();
             services.AddTransient<GoogleFinanceImporter>();
-            services.AddTransient<QuandlImporter>();
             services.AddTransient<StooqImporter>();
             services.AddTransient<CsvImporter>();
             services.AddTransient(factory =>
@@ -61,8 +59,6 @@ namespace Tradlite
                             return factory.GetService<YahooFinanceImporter>();
                         case "Google":
                             return factory.GetService<GoogleFinanceImporter>();
-                        case "Quandl":
-                            return factory.GetService<QuandlImporter>();
                         case "Stooq":
                             return factory.GetService<StooqImporter>();
                         case "Csv":
