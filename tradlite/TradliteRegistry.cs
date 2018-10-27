@@ -14,6 +14,7 @@ using Tradlite.Services.Management;
 using Tradlite.Services.Signals;
 using Trady.Core.Infrastructure;
 using Trady.Importer;
+using Trady.Importer.AlphaVantage;
 using Trady.Importer.Csv;
 using Trady.Importer.Google;
 using Trady.Importer.Stooq;
@@ -65,6 +66,8 @@ namespace Tradlite
                             return factory.GetService<CsvImporter>();
                         case "Ig":
                             return factory.GetService<IgImporter>();
+                        case "AlphaVantage":
+                            return factory.GetService<AlphaVantageImporter>();
                         default:
                             throw new KeyNotFoundException();
                     }
@@ -74,6 +77,12 @@ namespace Tradlite
 
             if (configuration.GetValue<bool>("EnableIg"))
                 RegisterIgServices(services, configuration);
+
+            if (configuration.GetValue<bool>("EnableAlphaVantage"))
+            {
+                var alphaVantageConfig = configuration.GetSection("Ig");
+                services.AddTransient(factory => new AlphaVantageImporter(alphaVantageConfig["apiKey"], OutputSize.full));
+            }
 
             var allTypes = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(s => s.GetTypes());

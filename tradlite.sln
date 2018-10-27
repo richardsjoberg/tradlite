@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IGWebApiClient", "..\TradyI
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tradlite.IgPocBot", "Tradlite.IgPocBot\Tradlite.IgPocBot.csproj", "{BD167DEE-3F9E-40F5-B824-95E6DF90A5BD}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Trady.Importer.AlphaVantage", "..\Trady\Trady.Importer.AlphaVantage\Trady.Importer.AlphaVantage.csproj", "{06461D2E-22D3-407B-945F-F467B45CC8C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +83,10 @@ Global
 		{BD167DEE-3F9E-40F5-B824-95E6DF90A5BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD167DEE-3F9E-40F5-B824-95E6DF90A5BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD167DEE-3F9E-40F5-B824-95E6DF90A5BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06461D2E-22D3-407B-945F-F467B45CC8C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06461D2E-22D3-407B-945F-F467B45CC8C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06461D2E-22D3-407B-945F-F467B45CC8C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06461D2E-22D3-407B-945F-F467B45CC8C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

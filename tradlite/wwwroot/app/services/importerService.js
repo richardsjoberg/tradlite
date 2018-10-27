@@ -15,6 +15,11 @@
                 name: "Ig",
                 intervals: ["MINUTE", "MINUTE_15", "MINUTE_30", "HOUR", "HOUR_4", "DAY", "WEEK", "MONTH"],
                 tickerPlaceholder: "Epic"
+            },
+            {
+                name: "AlphaVantage",
+                intervals: ["DAY", "WEEK", "MONTH"],
+                tickerPlaceholder: "Symbol"
             }
         ];
     }
