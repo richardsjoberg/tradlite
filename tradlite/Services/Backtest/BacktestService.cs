@@ -12,6 +12,7 @@ using Tradlite.Services.Signals;
 using Dapper.Contrib.Extensions;
 using Tradlite.Models;
 using Trady.Core.Infrastructure;
+using Tradlite.Services.SqlConnectionFactory;
 
 namespace Tradlite.Services.Backtest
 {
@@ -25,7 +26,7 @@ namespace Tradlite.Services.Backtest
         private readonly Func<string, IEntryManagement> _entrytManagementAccessor;
         private readonly Func<string, ILimitManagement> _limitManagementAccessor;
         private readonly Func<string, ISignalService> _signalServiceAccessor;
-        private readonly Func<IDbConnection> _dbConnectionFactory;
+        private readonly ISqlConnectionFactory _sqlConnectionFactory;
         private readonly Func<string, IEntryFilterManagement> _entryFilterManagementAccessor;
 
         public BacktestService(ICandleService candleService,
@@ -34,20 +35,20 @@ namespace Tradlite.Services.Backtest
             Func<string, ILimitManagement> limitManagementAccessor,
             IIgService igService,
             Func<string, ISignalService> signalServiceAccessor,
-            Func<IDbConnection> dbConnectionFactory,
+            ISqlConnectionFactory sqlConnectionFactory,
             Func<string, IEntryFilterManagement> entryFilterManagementAccessor)
         {
             _stopLossManagementAccessor = stopLossManagementAccessor;
             _entrytManagementAccessor = entrytManagementAccessor;
             _limitManagementAccessor = limitManagementAccessor;
             _signalServiceAccessor = signalServiceAccessor;
-            _dbConnectionFactory = dbConnectionFactory;
+            _sqlConnectionFactory = sqlConnectionFactory;
             _entryFilterManagementAccessor = entryFilterManagementAccessor;
         }
 
         public async Task<List<Transaction>> Run(IReadOnlyList<IOhlcv> candles, BacktestConfig backtestConfig, decimal minSize, string ticker, decimal exchangeRate, decimal risk)
         {
-            using (var _dbConnection = _dbConnectionFactory())
+            using (var _dbConnection = _sqlConnectionFactory.CreateConnection())
             {
                 var signalConfig = await _dbConnection.GetAsync<SignalConfig>(backtestConfig.EntrySignalConfigId);
                 var signals = _signalServiceAccessor(backtestConfig.EntrySignalService).GetSignals(candles, signalConfig.Parameters);

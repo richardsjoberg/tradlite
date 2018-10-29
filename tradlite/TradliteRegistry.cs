@@ -12,6 +12,7 @@ using Tradlite.Services.Candle.CandleService;
 using Tradlite.Services.Ig;
 using Tradlite.Services.Management;
 using Tradlite.Services.Signals;
+using Tradlite.Services.SqlConnectionFactory;
 using Trady.Core.Infrastructure;
 using Trady.Importer;
 using Trady.Importer.AlphaVantage;
@@ -29,23 +30,8 @@ namespace Tradlite
             services.AddTransient<ICandleService, CandleService>();
             services.AddSingleton<IHttpService, HttpService>();
             services.AddSingleton<IBacktestService, BacktestService>();
-
-            //ToDo: remove this and use connectionFactory instead
-            services.AddTransient<IDbConnection, SqlConnection>(factory =>
-            {
-                return new SqlConnection(configuration.GetConnectionString("tradlite"));
-            });
-
-            services.AddTransient(factory =>
-            {
-                Func<IDbConnection> connectionFactory = () =>
-                {
-                    return new SqlConnection(configuration.GetConnectionString("tradlite"));
-                };
-
-                return connectionFactory;
-            });
-
+            services.AddSingleton<ISqlConnectionFactory>(factory => new SqlConnectionFactory(configuration.GetConnectionString("tradlite")));
+            
             services.AddTransient<YahooFinanceImporter>();
             services.AddTransient<GoogleFinanceImporter>();
             services.AddTransient<StooqImporter>();
