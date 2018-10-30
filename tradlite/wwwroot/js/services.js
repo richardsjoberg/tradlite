@@ -84,14 +84,19 @@ tradliteApp.service("importerService", function () {
             },
             {
                 name: "AlphaVantage",
-                intervals: ["DAY", "WEEK", "MONTH"],
+                intervals: ["MINUTE", "MINUTE_15", "MINUTE_30", "HOUR", "DAY", "WEEK", "MONTH"],
+                tickerPlaceholder: "Symbol"
+            },
+            {
+                name: "AlphaVantageFx",
+                intervals: ["MINUTE", "MINUTE_15", "MINUTE_30", "HOUR", "DAY", "WEEK", "MONTH"],
                 tickerPlaceholder: "Symbol"
             }
         ];
     }
     
     return {
-        get: get
+        get: get 
     }
 });
 tradliteApp.service("storageService", function () {

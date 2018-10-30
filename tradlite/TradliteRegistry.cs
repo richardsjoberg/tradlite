@@ -16,8 +16,8 @@ using Tradlite.Services.SqlConnectionFactory;
 using Trady.Core.Infrastructure;
 using Trady.Importer;
 using Trady.Importer.AlphaVantage;
+using Trady.Importer.AlphaVantageFx;
 using Trady.Importer.Csv;
-using Trady.Importer.Google;
 using Trady.Importer.Stooq;
 using Trady.Importer.Yahoo;
 
@@ -33,7 +33,6 @@ namespace Tradlite
             services.AddSingleton<ISqlConnectionFactory>(factory => new SqlConnectionFactory(configuration.GetConnectionString("tradlite")));
             
             services.AddTransient<YahooFinanceImporter>();
-            services.AddTransient<GoogleFinanceImporter>();
             services.AddTransient<StooqImporter>();
             services.AddTransient<CsvImporter>();
             services.AddTransient(factory =>
@@ -44,8 +43,6 @@ namespace Tradlite
                     {
                         case "Yahoo":
                             return factory.GetService<YahooFinanceImporter>();
-                        case "Google":
-                            return factory.GetService<GoogleFinanceImporter>();
                         case "Stooq":
                             return factory.GetService<StooqImporter>();
                         case "Csv":
@@ -54,6 +51,8 @@ namespace Tradlite
                             return factory.GetService<IgImporter>();
                         case "AlphaVantage":
                             return factory.GetService<AlphaVantageImporter>();
+                        case "AlphaVantageFx":
+                            return factory.GetService<AlphaVantageFxImporter>();
                         default:
                             throw new KeyNotFoundException();
                     }
@@ -67,7 +66,8 @@ namespace Tradlite
             if (configuration.GetValue<bool>("EnableAlphaVantage"))
             {
                 var alphaVantageConfig = configuration.GetSection("Ig");
-                services.AddTransient(factory => new AlphaVantageImporter(alphaVantageConfig["apiKey"], OutputSize.full));
+                services.AddTransient(factory => new AlphaVantageImporter(alphaVantageConfig["apiKey"], Trady.Importer.AlphaVantage.OutputSize.full));
+                services.AddTransient(factory => new AlphaVantageFxImporter(alphaVantageConfig["apiKey"], Trady.Importer.AlphaVantageFx.OutputSize.full));
             }
 
             var allTypes = AppDomain.CurrentDomain.GetAssemblies()

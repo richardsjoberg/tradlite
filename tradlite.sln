@@ -11,8 +11,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Trady.Core", "..\Trady\Trad
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Trady.Importer", "..\Trady\Trady.Importer\Trady.Importer.csproj", "{39F3DEC5-ABB9-4820-829C-2010B4361E6C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Trady.Importer.Google", "..\Trady\Trady.Importer.Google\Trady.Importer.Google.csproj", "{D44B53D2-1326-45A0-8FD8-505270365820}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Trady.Importer.Yahoo", "..\Trady\Trady.Importer.Yahoo\Trady.Importer.Yahoo.csproj", "{90527B06-9DDD-41B9-9A62-E6652E550E8A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Trady.Importer.Csv", "..\Trady\Trady.Importer.Csv\Trady.Importer.Csv.csproj", "{A0D94325-AF90-48FB-B163-A8720F94B5CC}"
@@ -28,6 +26,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tradlite.IgPocBot", "Tradlite.IgPocBot\Tradlite.IgPocBot.csproj", "{BD167DEE-3F9E-40F5-B824-95E6DF90A5BD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Trady.Importer.AlphaVantage", "..\Trady\Trady.Importer.AlphaVantage\Trady.Importer.AlphaVantage.csproj", "{06461D2E-22D3-407B-945F-F467B45CC8C0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Trady.Importer.AlphaVantageFx", "..\Trady\Trady.Importer.AlphaVantageFx\Trady.Importer.AlphaVantageFx.csproj", "{A279BBD0-0E76-4DA5-903C-34AC5B85BFA7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,10 +51,6 @@ Global
 		{39F3DEC5-ABB9-4820-829C-2010B4361E6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{39F3DEC5-ABB9-4820-829C-2010B4361E6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39F3DEC5-ABB9-4820-829C-2010B4361E6C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D44B53D2-1326-45A0-8FD8-505270365820}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D44B53D2-1326-45A0-8FD8-505270365820}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D44B53D2-1326-45A0-8FD8-505270365820}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D44B53D2-1326-45A0-8FD8-505270365820}.Release|Any CPU.Build.0 = Release|Any CPU
 		{90527B06-9DDD-41B9-9A62-E6652E550E8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{90527B06-9DDD-41B9-9A62-E6652E550E8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90527B06-9DDD-41B9-9A62-E6652E550E8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -87,6 +83,10 @@ Global
 		{06461D2E-22D3-407B-945F-F467B45CC8C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{06461D2E-22D3-407B-945F-F467B45CC8C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06461D2E-22D3-407B-945F-F467B45CC8C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A279BBD0-0E76-4DA5-903C-34AC5B85BFA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A279BBD0-0E76-4DA5-903C-34AC5B85BFA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A279BBD0-0E76-4DA5-903C-34AC5B85BFA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A279BBD0-0E76-4DA5-903C-34AC5B85BFA7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

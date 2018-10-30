@@ -26,8 +26,8 @@
     <ProjectReference Include="..\..\TradyImporterIg\Trady.Importer.Ig\Trady.Importer.Ig.csproj" />
     <ProjectReference Include="..\..\Trady\Trady.Analysis\Trady.Analysis.csproj" />
     <ProjectReference Include="..\..\Trady\Trady.Core\Trady.Core.csproj" />
+    <ProjectReference Include="..\..\Trady\Trady.Importer.AlphaVantageFx\Trady.Importer.AlphaVantageFx.csproj" />
     <ProjectReference Include="..\..\Trady\Trady.Importer.AlphaVantage\Trady.Importer.AlphaVantage.csproj" />
-    <ProjectReference Include="..\..\Trady\Trady.Importer.Google\Trady.Importer.Google.csproj" />
     <ProjectReference Include="..\..\Trady\Trady.Importer.Yahoo\Trady.Importer.Yahoo.csproj" />
     <ProjectReference Include="..\..\Trady\Trady.Importer\Trady.Importer.csproj" />
   </ItemGroup>
